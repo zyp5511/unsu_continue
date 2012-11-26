@@ -1,0 +1,217 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9DFE6F64166380E2003AFA44 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DFE6F63166380E2003AFA44 /* main.cpp */; };
+		9DFE6F66166380E2003AFA44 /* HumanPoseDetector.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9DFE6F65166380E2003AFA44 /* HumanPoseDetector.1 */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9DFE6F5D166380E2003AFA44 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				9DFE6F66166380E2003AFA44 /* HumanPoseDetector.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		9DFE6F5F166380E2003AFA44 /* HumanPoseDetector */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HumanPoseDetector; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DFE6F63166380E2003AFA44 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		9DFE6F65166380E2003AFA44 /* HumanPoseDetector.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = HumanPoseDetector.1; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9DFE6F5C166380E2003AFA44 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9DFE6F54166380E2003AFA44 = {
+			isa = PBXGroup;
+			children = (
+				9DFE6F62166380E2003AFA44 /* HumanPoseDetector */,
+				9DFE6F60166380E2003AFA44 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9DFE6F60166380E2003AFA44 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9DFE6F5F166380E2003AFA44 /* HumanPoseDetector */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9DFE6F62166380E2003AFA44 /* HumanPoseDetector */ = {
+			isa = PBXGroup;
+			children = (
+				9DFE6F63166380E2003AFA44 /* main.cpp */,
+				9DFE6F65166380E2003AFA44 /* HumanPoseDetector.1 */,
+			);
+			path = HumanPoseDetector;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9DFE6F5E166380E2003AFA44 /* HumanPoseDetector */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9DFE6F69166380E2003AFA44 /* Build configuration list for PBXNativeTarget "HumanPoseDetector" */;
+			buildPhases = (
+				9DFE6F5B166380E2003AFA44 /* Sources */,
+				9DFE6F5C166380E2003AFA44 /* Frameworks */,
+				9DFE6F5D166380E2003AFA44 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HumanPoseDetector;
+			productName = HumanPoseDetector;
+			productReference = 9DFE6F5F166380E2003AFA44 /* HumanPoseDetector */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9DFE6F56166380E2003AFA44 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = "Lichao Chen";
+			};
+			buildConfigurationList = 9DFE6F59166380E2003AFA44 /* Build configuration list for PBXProject "HumanPoseDetector" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9DFE6F54166380E2003AFA44;
+			productRefGroup = 9DFE6F60166380E2003AFA44 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9DFE6F5E166380E2003AFA44 /* HumanPoseDetector */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9DFE6F5B166380E2003AFA44 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9DFE6F64166380E2003AFA44 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9DFE6F67166380E2003AFA44 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9DFE6F68166380E2003AFA44 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9DFE6F6A166380E2003AFA44 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9DFE6F6B166380E2003AFA44 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9DFE6F59166380E2003AFA44 /* Build configuration list for PBXProject "HumanPoseDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DFE6F67166380E2003AFA44 /* Debug */,
+				9DFE6F68166380E2003AFA44 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9DFE6F69166380E2003AFA44 /* Build configuration list for PBXNativeTarget "HumanPoseDetector" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9DFE6F6A166380E2003AFA44 /* Debug */,
+				9DFE6F6B166380E2003AFA44 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9DFE6F56166380E2003AFA44 /* Project object */;
+}
