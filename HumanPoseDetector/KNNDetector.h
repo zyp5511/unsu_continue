@@ -6,20 +6,23 @@ using namespace cv;
 using namespace flann;
 
 class KNNDetector :
-	public HumanDetector
+public HumanDetector
 {
 public:
 	KNNDetector(void);
 	KNNDetector(string vecfname,string indfname, bool isIndexed = false);
-    KNNDetector(Mat& feavec,vector<int> indvec, bool isIndexed = false);
+    KNNDetector(const Mat& featureVec,vector<int>& indvec, bool isIndexed = false);
+    
 	~KNNDetector(void);
-	virtual void detect(vector<float>& vec, int&c, float&score);
-    shared_ptr<Index> feaind;
+	virtual void detect(const vector<float>& vec, int&c, float&score);
+    
 private:
-	vector<int> clus;
-	Mat feavec;
+    void init(const Mat& featureVec,const vector<int>& indvec, bool isIndexed = false);
+	vector<int> clus;//cluster tag
+    shared_ptr<Index> feaind;//index for knn search
+	Mat feavec;//feature index, hold memory
 	int vlen;
 	
-
+    
 };
 
