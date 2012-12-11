@@ -19,9 +19,10 @@ using namespace cv;
 class NegativeCollector:public ImageCropper {
 protected:
     int patchesPerImage=10;
+    
+public:
     Mat feas;
     vector<int> category;
-public:
     NegativeCollector(){};
     ~NegativeCollector(){};
     void collectSrcDir(string fname);

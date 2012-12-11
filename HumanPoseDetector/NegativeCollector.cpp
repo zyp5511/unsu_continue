@@ -90,7 +90,7 @@ void NegativeCollector::setUp(Mat img){
 	size_t i;
 	for (i = 0; i < level_scale.size(); i++)
 	{
-        int imgs = patchesPerImage/scale;
+        int imgs = patchesPerImage/scale/scale;
         
 		scale = level_scale[i];
 		Size sz(cvRound(img.cols / scale), cvRound(img.rows / scale));
@@ -103,7 +103,7 @@ void NegativeCollector::setUp(Mat img){
 			resize(img,smaller_img, sz);
 		}
         cout<<"windows scale:"<<smaller_img.rows<<"\t"<<smaller_img.cols<<endl;
-        if(smaller_img.rows-patch_r>-1&&smaller_img.cols-patch_c> -1){
+        if(smaller_img.rows-patch_r>-1&&smaller_img.cols-patch_c> -1&&imgs>1){
             vector<int> rowvs(imgs),colvs(imgs);
             cout<<imgs<<endl;
             cv::randu(rowvs, 0, smaller_img.rows-patch_r+1);

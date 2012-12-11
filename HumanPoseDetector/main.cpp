@@ -39,6 +39,7 @@ int main(int argc, const char * argv[])
     nc.collectSrcDir(srcfolder);
     
     nc.kmean(k);
+    KNNDetector kd(nc.feas,nc.category);
     cout<<"patch created"<<endl;
     cin>>i;
     nc.exportPatches(desfolder);
