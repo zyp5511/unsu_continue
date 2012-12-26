@@ -43,13 +43,13 @@ void NegativeCollector::kmean(int k){
     Feature f(*it);
     int numFea = static_cast<int>(f.vec.size());
     
-    Mat dat(static_cast<int>(all_candidate_mats.size()), numFea,CV_32F);
+    feas = Mat(static_cast<int>(all_candidate_mats.size()), numFea,CV_32F);
     category = vector<int>(all_candidate_mats.size());
     
-    for(int i = 0;i<dat.rows;i++){
-        dat.row(i)=Mat(Feature(*it++).vec).t();
+    for(int i = 0;i<feas.rows;i++){
+        feas.row(i)=Mat(Feature(*it++).vec).t();
     }
-    kmeans(dat, k, category, TermCriteria(CV_TERMCRIT_ITER, 30, 0), 5, KMEANS_PP_CENTERS);
+    kmeans(feas, k, category, TermCriteria(CV_TERMCRIT_ITER, 30, 0), 5, KMEANS_PP_CENTERS);
     for_each(category.begin(),category.end() , [](int i) {cout<<i<<endl;});
     
 }
@@ -110,8 +110,10 @@ void NegativeCollector::setUp(Mat img){
             cv::randu(colvs, 0, smaller_img.cols-patch_c+1);
             Size scaled_win_size(cvRound(patch_c * scale), cvRound(patch_r * scale));
             for (auto rs = rowvs.begin(), cs = colvs.begin(); rs!=rowvs.end(); rs++,cs++) {
+                //rect list
                 all_candidates.push_back(Rect(Point2d(*cs,*rs) * scale, scaled_win_size));
                 cout<<*cs<<"\t"<<*rs<<endl;
+                //sub mat list
                 Mat temp = smaller_img(Range(*rs,*rs+patch_r),Range(*cs,*cs+patch_c));
                 all_candidate_mats.push_back(temp);
             }

@@ -25,11 +25,15 @@ void celebrityDetection(void);
 #pragma mark main
 int main(int argc, const char * argv[])
 {
+    //set up patch cropper
     auto nc = NegativeCollector();
     nc.setSize(128, 96);
-    string srcfolder = "/Users/lichao/data/data_archive/goodimages/";
+    
+    //default value
+    string srcfolder = "/Users/lichao/data/122012/goodimages/training/";
     string desfolder = "/Users/lichao/data/122012/clneg/";
-    int i;
+    string fsfn = "/Users/lichao/data/122012/kNNfea.yml";
+    string indfn = "/Users/lichao/data/122012/kNNind.txt";
     int k =100;
     if (argc>3) {
         k = stoi(argv[1]);
@@ -37,21 +41,29 @@ int main(int argc, const char * argv[])
         desfolder = argv[3];
     }
     nc.collectSrcDir(srcfolder);
+    cout<<"Patches created!"<<endl;
     
     nc.kmean(k);
+    cout<<"K Mean Finished!"<<endl;
     KNNDetector kd(nc.feas,nc.category);
-    cout<<"patch created"<<endl;
+    cout<<"KNN index created"<<endl;
+    kd.save(fsfn, indfn);
+    cout<<"KNN index saved"<<endl;
+    int i;
     cin>>i;
     nc.exportPatches(desfolder);
+
     return 0;
 }
 
 
 #pragma mark implementation
 
+//detect headless patches
 void headlessDetection(void){
     string name;
-	KNNDetector kd("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt",true);
+	KNNDetector kd;
+    kd.loadText("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt");
 	while(getline(cin, name)){
 		try{
             auto fname = "/Users/lichao/data/data_archive/goodimages/"+name+".jpg";
@@ -92,11 +104,14 @@ void headlessDetection(void){
 	}
 }
 
+
+//detect celebrity patches
 void celebrityDetection(void){
     string name;
 	HumanDetector hd=HumanDetector();
 	//KNNDetector kd("C:\\data\\temp\\picked_fea.txt","C:\\data\\temp\\num.txt");
-	KNNDetector kd("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt",true);
+	KNNDetector kd;
+    kd.loadText("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt");
 	while(getline(cin, name)){
 		try{
             //auto fname = "C:\\data\\data_archive\\goodimages\\2106514165466612.jpg";
