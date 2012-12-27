@@ -1,4 +1,5 @@
 OBJS = main.o Feature.o HumanDetector.o ImageCropper.o NegativeCollector.o KNNDetector.o
+OBJS_SCRIPT = script.o Feature.o HumanDetector.o ImageCropper.o NegativeCollector.o KNNDetector.o
 CC = g++
 DEBUG = -O2 "-std=c++11"
 ROOT = /usr/local
@@ -8,13 +9,20 @@ LFLAGS = $(DEBUG)
 CFLAGS = $(DEBUG) -I$(ROOT)/include -c
 #TARGET = features.exe
 TARGET = unsu
+TARGET_SCRIPT = unsu
 
 all: $(TARGET) 
 
-$(TARGET): $(OBJS) 
+$(TARGET): $(OBJS) $(TARGET_SCRIPT)
 	$(CC) $(OBJS) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET)
 
+$(TARGET_SCRIPT): $(OBJS_SCRIPT) 
+	$(CC) $(OBJS_SCRIPT) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET_SCRIPT)
+
 main.o: main.cpp Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
+	$(CC) $(CFLAGS) main.cpp      
+
+script.o: script.cpp Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
 	$(CC) $(CFLAGS) main.cpp      
 
 Feature.o: Feature.cpp Feature.h
