@@ -35,6 +35,14 @@ void Feature::detect(HumanDetector& hd){
 	hd.detect(vec,category, score);
 }
 
+float Feature::l2(Feature b) {
+    float sum = 0;
+    for (size_t i = 0; i<vec.size(); i++) {
+        sum+=(vec[i]-b.vec[i])*(vec[i]-b.vec[i]);
+    }
+    return sqrt(sum);
+}
+
 void Feature::toHeadless() {
     if(vec.size()==4480){
         cout<<"already headless patch"<<endl;

@@ -15,6 +15,7 @@ public:
 	void detect(HumanDetector& hd);
 	int getCategory(){return category;};
 	float getScore(){return score;};
+    float l2(Feature b);
 	void toHeadless();
     vector<float> vec;//should be private
 	
