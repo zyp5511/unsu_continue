@@ -29,7 +29,6 @@
 		9D50B59F166ED07900FED290 /* libopencv_ts.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B58E166ED07900FED290 /* libopencv_ts.2.4.9.dylib */; };
 		9D50B5A0166ED07900FED290 /* libopencv_video.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B58F166ED07900FED290 /* libopencv_video.2.4.9.dylib */; };
 		9D50B5A1166ED07900FED290 /* libopencv_videostab.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B590166ED07900FED290 /* libopencv_videostab.2.4.9.dylib */; };
-		9D666AA3168C45E900FF561D /* script.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D666AA1168C45E900FF561D /* script.cpp */; };
 		9DFE6F64166380E2003AFA44 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DFE6F63166380E2003AFA44 /* main.cpp */; };
 		9DFE6F66166380E2003AFA44 /* HumanPoseDetector.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9DFE6F65166380E2003AFA44 /* HumanPoseDetector.1 */; };
 /* End PBXBuildFile section */
@@ -241,7 +240,6 @@
 				9D30F3E31664144B00C51025 /* KNNDetector.cpp in Sources */,
 				9D30F3E21664144800C51025 /* ImageCropper.cpp in Sources */,
 				9D0D0E03166D5DCF00DA2D21 /* NegativeCollector.cpp in Sources */,
-				9D666AA3168C45E900FF561D /* script.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
