@@ -62,15 +62,27 @@ void KNNDetector::save(string fsfn,string indfn){
 
 void KNNDetector::load(string fsfn,string indfn){//incompelete: FSload
     
-    FileStorage fs(fsfn, FileStorage::READ);
+    FileStorage fs;
+    cout<<"opening "<<fsfn<<endl;
+    fs.open(fsfn, FileStorage::READ);
     Mat clusMat;
 
-    fs["feature"] >> feavec;
+    cout<<"loading clus list"<<endl;
     fs["index"] >> clusMat;
+    cout<<"transpose clus list"<<endl;
     clus = vector<int>(clusMat.begin<int>(),clusMat.end<int>());
+    cout<<"please input an int to continue"<<endl;
+	int tempi;
+	cin>>tempi;
+
+    cout<<"loading feature matrix"<<endl;
+
+    fs["feature"] >> feavec;
+    fs.release();
     
     
     feaind = make_shared<Index>();
+    cout<<"loading flann index"<<endl;
     feaind->load(feavec,indfn);
     cout<<"index loaded"<<endl;
     

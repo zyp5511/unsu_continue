@@ -9,11 +9,11 @@ LFLAGS = $(DEBUG)
 CFLAGS = $(DEBUG) -I$(ROOT)/include -c
 #TARGET = features.exe
 TARGET = unsu
-TARGET_SCRIPT = unsu
+TARGET_SCRIPT = script
 
-all: $(TARGET) 
+all: $(TARGET) $(TARGET_SCRIPT)
 
-$(TARGET): $(OBJS) $(TARGET_SCRIPT)
+$(TARGET): $(OBJS) 
 	$(CC) $(OBJS) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET)
 
 $(TARGET_SCRIPT): $(OBJS_SCRIPT) 
@@ -22,8 +22,8 @@ $(TARGET_SCRIPT): $(OBJS_SCRIPT)
 main.o: main.cpp Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
 	$(CC) $(CFLAGS) main.cpp      
 
-script.o: script.cpp Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
-	$(CC) $(CFLAGS) main.cpp      
+script.o: script.cpp script.h Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
+	$(CC) $(CFLAGS) script.cpp      
 
 Feature.o: Feature.cpp Feature.h
 	$(CC) $(CFLAGS) Feature.cpp      

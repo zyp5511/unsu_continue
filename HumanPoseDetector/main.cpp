@@ -62,7 +62,10 @@ int main(int argc, const char * argv[])
     } else {
         string name;
         KNNDetector kd;
+	cout<<"start loading index"<<endl;
         kd.load(fsfn, indfn);
+	cout<<"Please input image filename"<<endl;
+
         while(getline(cin, name)){
             try{
                 auto fname = srcfolder+name+".jpg";
