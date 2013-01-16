@@ -8,7 +8,7 @@ public:
 	HumanDetector(void);
 	HumanDetector(string fname);
 	~HumanDetector(void);
-	virtual void detect(vector<float>& vec, int&c, float&score);
+	virtual void detect(const vector<float>& vec, int&c, float&score);
 private:
 	bool load(string fname);
 	float b;//constant term in svm

@@ -35,7 +35,8 @@ HumanDetector::~HumanDetector(void)
 {
 }
 
-void HumanDetector::detect(vector<float>& vec, int& cat, float&score){
+void HumanDetector::detect(const vector<float>& vec, int& cat, float&score){
+	cout<<"using HumanDetector"<<endl;
 	float sum=-b;
 	for(int i = 0;i< vlen;i++){
 		sum+=svm[i]*vec[i];

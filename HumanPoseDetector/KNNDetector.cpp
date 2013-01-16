@@ -71,9 +71,6 @@ void KNNDetector::load(string fsfn,string indfn){//incompelete: FSload
     fs["index"] >> clusMat;
     cout<<"transpose clus list"<<endl;
     clus = vector<int>(clusMat.begin<int>(),clusMat.end<int>());
-    cout<<"please input an int to continue"<<endl;
-	int tempi;
-	cin>>tempi;
 
     cout<<"loading feature matrix"<<endl;
 

@@ -14,7 +14,7 @@ public:
     KNNDetector(const Mat& featureVec,vector<int>& indvec);
     
 	~KNNDetector(void);
-	virtual void detect(const vector<float>& vec, int&c, float&score);
+	virtual void detect(const vector<float>& vec, int&c, float&score) override;
     void save(string fsfn,string indfn);//save feature and indice list and kNN index to FileStorage;
     void load(string fsfn,string indfn);//load feature and indice list and kNN index from FileStorage
     void loadText(string vecfn,string clusfn);//load feature nad indice list from text file, and init index
