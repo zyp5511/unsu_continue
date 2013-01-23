@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
 		string name;
 		KNNDetector kd;
 		cout<<"start loading index"<<endl;
-		kd.load(fsfn, indfn);
+		kd.loadYAML(fsfn, indfn);
 		cout<<"Please input image filename"<<endl;
 
 		while(getline(cin, name)){

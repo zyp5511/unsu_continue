@@ -18,6 +18,7 @@ public:
     void save(string fsfn,string indfn);//save feature and indice list and kNN index to FileStorage;
     void load(string fsfn,string indfn);//load feature and indice list and kNN index from FileStorage
     void loadText(string vecfn,string clusfn);//load feature nad indice list from text file, and init index
+    void loadYAML(string vecfn,string clusfn);//load feature nad indice list from text file, and init index
 
 private:
     
