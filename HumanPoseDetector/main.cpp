@@ -21,6 +21,7 @@ using namespace cv;
 #pragma mark declaration
 void headlessDetection(void);
 void celebrityDetection(void);
+int *processFile(HumanDetector&kd, string fname, int nc);
 
 #pragma mark main
 int main(int argc, const char * argv[])
@@ -46,63 +47,102 @@ int main(int argc, const char * argv[])
 		fsfn = argv[5];
 		indfn = argv[6];
 	}
-	if (toTrain){
-		nc.collectSrcDir(srcfolder);
-		cout<<"Patches created!"<<endl;
+	if (argc>7){
+		cout<<"calucating vectors"<<endl;
+		string vecsrcfn = argv[7];
+		string vecdesfn = argv[8];
+		ofstream fout(vecdesfn);
+		ifstream fin(vecsrcfn);
 
-		nc.kmean(k);
-		cout<<"K Mean Finished!"<<endl;
-		KNNDetector kd(nc.feas,nc.category);
-		cout<<"KNN index created"<<endl;
-		kd.save(fsfn, indfn);
-		cout<<"KNN index saved"<<endl;
-		int i;
-		cin>>i;
-		nc.exportPatches(desfolder);
-	} else {
 		string name;
 		KNNDetector kd;
 		cout<<"start loading index"<<endl;
 		kd.loadYAML(fsfn, indfn);
-		cout<<"Please input image filename"<<endl;
 
-		while(getline(cin, name)){
+		while(getline(fin, name)){
 			try{
-				auto fname = srcfolder+name+".jpg";
+				auto fname = srcfolder+name;
 				cout<<"loading file "<<fname<<endl;
-				Mat img = imread(fname);
-
-				ImageCropper ic=ImageCropper();
-				ic.setSize(128, 96);
-				ic.setUp(img);
-				Mat out = img.clone();
-
-				auto it = ic.getRects();
-				auto itm=ic.getMats();
-				auto itend = ic.getRectsEnd();
-
-				for( ;it!=itend;it++,itm++){
-					Feature temp = Feature(*itm);
-					temp.detect(kd);
-					if (temp.getCategory() >-1)
-					{
-						rectangle(out,*it,Scalar(0,0,255));
-						stringstream ss;
-						ss<<temp.getCategory()<<":"<<temp.getScore();
-						putText(out,ss.str(),(it->br()-Point(50,10)),FONT_HERSHEY_COMPLEX_SMALL,1,Scalar(255,0,0));
-					}
-				}
-				imwrite(desfolder+name+".jpg", out);
-
+				int *vec = processFile(kd,fname, k);
+				for(int i=0;i<k;i++)
+					fout<<vec[i]<<",";
+				fout<<endl;
+				delete [] vec;
 			} catch(Exception e){
 				cerr<<e.msg<<endl;
 			}
+		}
+		fin.close();
+		fout.close();
+	} else{
+		if (toTrain){
+			nc.collectSrcDir(srcfolder);
+			cout<<"Patches created!"<<endl;
+
+			nc.kmean(k);
+			cout<<"K Mean Finished!"<<endl;
+			KNNDetector kd(nc.feas,nc.category);
+			cout<<"KNN index created"<<endl;
+			kd.save(fsfn, indfn);
+			cout<<"KNN index saved"<<endl;
+			int i;
+			cin>>i;
+			nc.exportPatches(desfolder);
+		} else {
+			string name;
+			KNNDetector kd;
+			cout<<"start loading index"<<endl;
+			kd.loadYAML(fsfn, indfn);
 			cout<<"Please input image filename"<<endl;
+
+			while(getline(cin, name)){
+				try{
+					auto fname = srcfolder+name+".jpg";
+					cout<<"loading file "<<fname<<endl;
+
+
+				} catch(Exception e){
+					cerr<<e.msg<<endl;
+				}
+				cout<<"Please input image filename"<<endl;
+			}
 		}
 	}
-
-
 	return 0;
+}
+
+int *processFile(HumanDetector&kd, string fname, int nc){
+	int *vec = new int[nc]();
+	Mat img = imread(fname);
+	ImageCropper ic=ImageCropper();
+	ic.setSize(128, 96);
+	ic.setUp(img);
+	//Mat out = img.clone();
+
+	auto it = ic.getRects();
+	auto itm=ic.getMats();
+	auto itend = ic.getRectsEnd();
+	int count=0;
+
+	for( ;it!=itend;it++,itm++){
+		Feature temp = Feature(*itm);
+		temp.detect(kd);
+		if (temp.getCategory() >-1)
+		{
+			vec[temp.getCategory()]++;
+			//	count++;
+			//	rectangle(out,*it,Scalar(0,0,255));
+			//	stringstream ss;
+			//	ss<<temp.getCategory()<<":"<<temp.getScore();
+			//	putText(out,ss.str(),(it->br()-Point(50,10)),FONT_HERSHEY_COMPLEX_SMALL,1,Scalar(255,0,0));
+			//	if (count % 5==0)
+			//	{
+			//		imwrite(desfolder+name+"_"+to_string(count)+".jpg", out);
+			//		out = img.clone();
+			//	}
+		}
+	}
+	return vec;
 }
 
 
