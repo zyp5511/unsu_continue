@@ -8,10 +8,10 @@
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "HumanDetector.h"
+#include "SVMDetector.h"
 #include "KNNDetector.h"
-#include "NegativeCollector.h"
-#include "ImageCropper.h"
+#include "RandomCropper.h"
+#include "ExhaustiveCropper.h"
 #include "Feature.h"
 
 
@@ -21,14 +21,12 @@ using namespace cv;
 #pragma mark declaration
 void headlessDetection(void);
 void celebrityDetection(void);
-int *processFile(HumanDetector&kd, string fname, int nc);
+int *processFile(PatchDetector&kd, string fname, int nc);
 
 #pragma mark main
 int main(int argc, const char * argv[])
 {
-	//set up patch cropper
-	auto nc = NegativeCollector();
-	nc.setSize(128, 96);
+	
 
 	//default value
 	string srcfolder = "/Users/lichao/data/122012/goodimages/training/";
@@ -76,6 +74,9 @@ int main(int argc, const char * argv[])
 		fout.close();
 	} else{
 		if (toTrain){
+            //set up patch cropper
+            auto nc = RandomCropper();
+            nc.setSize(128, 96);
 			nc.collectSrcDir(srcfolder);
 			cout<<"Patches created!"<<endl;
 
@@ -89,6 +90,9 @@ int main(int argc, const char * argv[])
 			cin>>i;
 			nc.exportPatches(desfolder);
 		} else {
+            //set up patch cropper
+            auto nc = ExhaustiveCropper();
+            nc.setSize(128, 96);
 			string name;
 			KNNDetector kd;
 			cout<<"start loading index"<<endl;
@@ -111,10 +115,10 @@ int main(int argc, const char * argv[])
 	return 0;
 }
 
-int *processFile(HumanDetector&kd, string fname, int nc){
+int *processFile(KNNDetector&kd, string fname, int nc){
 	int *vec = new int[nc]();
 	Mat img = imread(fname);
-	ImageCropper ic=ImageCropper();
+	ImageCropper ic=ExhaustiveCropper();
 	ic.setSize(128, 96);
 	ic.setUp(img);
 	//Mat out = img.clone();

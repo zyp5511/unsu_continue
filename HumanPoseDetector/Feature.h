@@ -1,6 +1,6 @@
 #pragma once
 #include <opencv2/opencv.hpp>
-#include "HumanDetector.h"
+#include "PatchDetector.h"
 
 using namespace std;
 using namespace cv;
@@ -12,7 +12,7 @@ public:
 	~Feature(void);
 	Feature(const vector<float>& aVec){vec=aVec;category=-1;};
 	Feature(Mat patch);
-	void detect(HumanDetector& hd);
+	void detect(PatchDetector& hd);
 	int getCategory(){return category;};
 	float getScore(){return score;};
     float l2(Feature b);

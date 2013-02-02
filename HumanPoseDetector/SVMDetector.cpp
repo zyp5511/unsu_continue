@@ -1,13 +1,13 @@
 #include <opencv2/opencv.hpp>
 #include <fstream>
 #include <sstream>
-#include "HumanDetector.h"
+#include "SVMDetector.h"
 
 using namespace cv;
 using namespace std;
 
 
-HumanDetector::HumanDetector(string fname){
+SVMDetector::SVMDetector(string fname){
 //    ifstream fin(fname);
 	ifstream fin(fname.c_str());
 	string line;
@@ -27,15 +27,15 @@ HumanDetector::HumanDetector(string fname){
 	fin.close();
 }
 
-HumanDetector::HumanDetector(void):HumanDetector("/Users/lichao/data/112012/ori_svm.txt")
+SVMDetector::SVMDetector(void):SVMDetector("/Users/lichao/data/112012/ori_svm.txt")
 {
 }
 
-HumanDetector::~HumanDetector(void)
+SVMDetector::~SVMDetector(void)
 {
 }
 
-void HumanDetector::detect(const vector<float>& vec, int& cat, float&score){
+void SVMDetector::detect(const vector<float>& vec, int& cat, float&score){
 	cout<<"using HumanDetector"<<endl;
 	float sum=-b;
 	for(int i = 0;i< vlen;i++){

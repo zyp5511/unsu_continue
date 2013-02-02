@@ -6,10 +6,10 @@
 //  Copyright (c) 2012 Lichao Chen. All rights reserved.
 //
 
-#include "NegativeCollector.h"
+#include "RandomCropper.h"
 #include <dirent.h>
 
-void NegativeCollector::collectSrcDir(string fname){
+void RandomCropper::collectSrcDir(string fname){
     auto dp = opendir(fname.c_str());
     vector<string> files;
     struct dirent *fp;
@@ -34,17 +34,17 @@ void NegativeCollector::collectSrcDir(string fname){
         
     });
 }
-void NegativeCollector::kmean(){
+void RandomCropper::kmean(){
     kmean(100);
 }
 
-void NegativeCollector::kmean(int k){
-    auto it = all_candidate_mats.begin();
+void RandomCropper::kmean(int k){
+    auto it = all_mats.begin();
     Feature f(*it);
     int numFea = static_cast<int>(f.vec.size());
     
-    feas = Mat(static_cast<int>(all_candidate_mats.size()), numFea,CV_32F);
-    category = vector<int>(all_candidate_mats.size());
+    feas = Mat(static_cast<int>(all_mats.size()), numFea,CV_32F);
+    category = vector<int>(all_mats.size());
     
     for(int i = 0;i<feas.rows;i++){
         feas.row(i)=Mat(Feature(*it++).vec).t();
@@ -53,7 +53,8 @@ void NegativeCollector::kmean(int k){
     for_each(category.begin(),category.end() , [](int i) {cout<<i<<endl;});
     
 }
-void NegativeCollector::exportPatches(string fname){
+
+void RandomCropper::exportPatches(string fname){
     
     if (*fname.rbegin()!='/'){
         cout<<(int)*fname.rbegin()<<endl;
@@ -61,15 +62,15 @@ void NegativeCollector::exportPatches(string fname){
     }
     
     
-    for(int i=0;i<all_candidate_mats.size();i++){
+    for(int i=0;i<all_mats.size();i++){
         stringstream ss;
         ss<<fname<<category[i]<<"/";
         ss<<(i+1)<<".jpg";
         cout<<ss.str()<<endl;
-        imwrite(ss.str(), all_candidate_mats[i]);
+        imwrite(ss.str(), all_mats[i]);
     }
 }
-void NegativeCollector::setUp(Mat img){
+void RandomCropper::setUp(Mat img){
 	vector<double> level_scale;
     cout<<"windows ratio:"<<patch_r<<"\t"<<patch_c<<endl;
     
@@ -111,11 +112,11 @@ void NegativeCollector::setUp(Mat img){
             Size scaled_win_size(cvRound(patch_c * scale), cvRound(patch_r * scale));
             for (auto rs = rowvs.begin(), cs = colvs.begin(); rs!=rowvs.end(); rs++,cs++) {
                 //rect list
-                all_candidates.push_back(Rect(Point2d(*cs,*rs) * scale, scaled_win_size));
+                all_rects.push_back(Rect(Point2d(*cs,*rs) * scale, scaled_win_size));
                 cout<<*cs<<"\t"<<*rs<<endl;
                 //sub mat list
                 Mat temp = smaller_img(Range(*rs,*rs+patch_r),Range(*cs,*cs+patch_c));
-                all_candidate_mats.push_back(temp);
+                all_mats.push_back(temp);
             }
         }
 	}

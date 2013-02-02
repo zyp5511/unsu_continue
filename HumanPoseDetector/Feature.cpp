@@ -31,7 +31,7 @@ Feature::~Feature(void)
 {
 }
 
-void Feature::detect(HumanDetector& hd){
+void Feature::detect(PatchDetector& hd){
 	hd.detect(vec,category, score);
 }
 

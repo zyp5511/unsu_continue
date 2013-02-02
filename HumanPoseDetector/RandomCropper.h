@@ -16,30 +16,22 @@
 using namespace std;
 using namespace cv;
 
-class NegativeCollector:public ImageCropper {
+class RandomCropper:public ImageCropper {
 protected:
     int patchesPerImage=10;
     
 public:
     Mat feas;
     vector<int> category;
-    NegativeCollector(){};
-    ~NegativeCollector(){};
+    RandomCropper(){};
+    ~RandomCropper(){};
     void collectSrcDir(string fname);
+    
     void kmean();
     void kmean(int k);
     void exportPatches(string fname);
     
     virtual void setUp(Mat img);
-    virtual vector<Rect>::const_iterator getRects(){
-        return all_candidates.begin();
-    }
-    virtual vector<Mat>::const_iterator getMats(){
-        return all_candidate_mats.begin();
-    }
-    virtual vector<Rect>::const_iterator getRectsEnd(){
-        return all_candidates.end();
-    }
 };
 
 
