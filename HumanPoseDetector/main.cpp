@@ -104,7 +104,6 @@ int main(int argc, const char * argv[])
 					auto fname = srcfolder+name+".jpg";
 					cout<<"loading file "<<fname<<endl;
 
-
 				} catch(Exception e){
 					cerr<<e.msg<<endl;
 				}

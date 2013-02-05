@@ -1,5 +1,5 @@
-OBJS = main.o Feature.o HumanDetector.o ImageCropper.o NegativeCollector.o KNNDetector.o
-OBJS_SCRIPT = script.o Feature.o HumanDetector.o ImageCropper.o NegativeCollector.o KNNDetector.o
+OBJS = main.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
+OBJS_SCRIPT = script.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o 
 CC = g++
 DEBUG = -O2 "-std=c++11"
 ROOT = /usr/local
@@ -19,26 +19,33 @@ $(TARGET): $(OBJS)
 $(TARGET_SCRIPT): $(OBJS_SCRIPT) 
 	$(CC) $(OBJS_SCRIPT) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET_SCRIPT)
 
-main.o: main.cpp Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
+main.o: main.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp 
 	$(CC) $(CFLAGS) main.cpp      
 
-script.o: script.cpp script.h Feature.cpp Feature.h KNNDetector.cpp KNNDetector.h NegativeCollector.cpp NegativeCollector.h HumanDetector.cpp HumanDetector.h ImageCropper.cpp ImageCropper.h
+script.o: script.cpp script.h Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp  
 	$(CC) $(CFLAGS) script.cpp      
 
 Feature.o: Feature.cpp Feature.h
 	$(CC) $(CFLAGS) Feature.cpp      
 
-KNNDetector.o: KNNDetector.cpp KNNDetector.h HumanDetector.cpp HumanDetector.h
-	$(CC) $(CFLAGS) KNNDetector.cpp          
-
-NegativeCollector.o: NegativeCollector.cpp NegativeCollector.h
-	$(CC) $(CFLAGS) NegativeCollector.cpp 
-
-HumanDetector.o: HumanDetector.cpp HumanDetector.h 
-	$(CC) $(CFLAGS) HumanDetector.cpp          
+RandomCropper.o: RandomCropper.cpp RandomCropper.h
+	$(CC) $(CFLAGS) RandomCropper.cpp 
 
 ImageCropper.o: ImageCropper.cpp ImageCropper.h
-	$(CC) $(CFLAGS) ImageCropper.cpp          
+	$(CC) $(CFLAGS) ImageCropper.cpp 
+
+ExhaustiveCropper.o: ExhaustiveCropper.cpp ExhaustiveCropper.h
+	$(CC) $(CFLAGS) ExhaustiveCropper.cpp          
+
+PatchDetector.o: PatchDetector.cpp PatchDetector.h 
+	$(CC) $(CFLAGS) PatchDetector.cpp          
+
+KNNDetector.o: KNNDetector.cpp KNNDetector.h 
+	$(CC) $(CFLAGS) KNNDetector.cpp          
+
+SVMDetector.o: SVMDetector.cpp SVMDetector.h 
+	$(CC) $(CFLAGS) SVMDetector.cpp          
+
 
 clean:
 	rm -rf *o $(TARGET)

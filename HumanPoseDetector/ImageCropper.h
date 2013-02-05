@@ -16,7 +16,7 @@ using namespace cv;
 class ImageCropper
 {
 public:
-	virtual ~ImageCropper(void)=default;
+	virtual ~ImageCropper(void){};//cannot be default, otherwise wouldn't compile under gcc 4.7
 	virtual void setUp(Mat img)=0;
 	virtual void setSize(int r, int c){
         patch_r = r;
