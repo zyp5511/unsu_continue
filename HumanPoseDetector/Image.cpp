@@ -51,11 +51,11 @@ void ImageWrapper::setBins(int n){
     rtb = vector<vector<Rect>>(n,vector<Rect>());
 }
 
-bool ImageWrapper::match(vector<int> gamecard){
+bool ImageWrapper::match(vector<bool> gamecard){
     bool matched = true;
     size_t len = histogram.size();
     for (int i=0; i<len&&matched; i++) {
-        if (matched&&((gamecard[i]>0&&histogram[i]>0)||(gamecard[i]==0&&histogram[i]==0))) {
+        if (matched&&((gamecard[i]&&histogram[i]>0)||(!gamecard[i]&&histogram[i]==0))) {
             matched = true;
         } else {
             matched = false;

@@ -31,7 +31,7 @@ public:
     void collectResult();
     void calcClusHist();
     void setBins(int n);
-    bool match(vector<int>);
+    bool match(vector<bool>);
     Rect matchArea(vector<bool>);
 };
 #endif /* defined(__HumanPoseDetector__Image__) */

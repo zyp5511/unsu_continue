@@ -13,6 +13,7 @@
 #include "RandomCropper.h"
 #include "ExhaustiveCropper.h"
 #include "Feature.h"
+#include "Image.h"
 
 
 using namespace std;
@@ -49,29 +50,43 @@ int main(int argc, const char * argv[])
 		cout<<"calucating vectors"<<endl;
 		string vecsrcfn = argv[7];
 		string vecdesfn = argv[8];
-		ofstream fout(vecdesfn);
 		ifstream fin(vecsrcfn);
 
 		string name;
-		KNNDetector kd;
+		shared_ptr<KNNDetector> kd(new KNNDetector());
+        shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		cout<<"start loading index"<<endl;
-		kd.loadYAML(fsfn, indfn);
-
+		kd->loadYAML(fsfn, indfn);
+        vector<bool> gc(k,false);
+        gc[855]=gc[678]=gc[523]=true;
+        
 		while(getline(fin, name)){
 			try{
 				auto fname = srcfolder+name;
 				cout<<"loading file "<<fname<<endl;
-				int *vec = processFile(kd,fname, k);
-				for(int i=0;i<k;i++)
-					fout<<vec[i]<<",";
-				fout<<endl;
-				delete [] vec;
+            
+                ImageWrapper iw(kd,ec);
+                Mat mat = imread(fname);
+                iw.setImage(mat);
+                iw.setBins(k);
+                iw.collectPatches();
+                iw.collectResult();
+                iw.calcClusHist();
+                if (iw.match(gc)){
+                    cout<<fname<<" matched!"<<endl;
+                    auto  r= iw.matchArea(gc);
+                    Mat out = mat.clone();
+                    rectangle(out,r,Scalar(0,0,255));
+                    imwrite(desfolder+fname, out);
+                }
+                
+                
 			} catch(Exception e){
 				cerr<<e.msg<<endl;
 			}
 		}
 		fin.close();
-		fout.close();
+//		fout.close();
 	} else{
 		if (toTrain){
             //set up patch cropper
