@@ -145,7 +145,7 @@ void KNNDetector::loadYAML(string fsfn,string indfn){
 		for(int j=0;j<mc;j++){
 			string val;
 			fin>>val;
-			if (count>0||i==mr-1&&j>mc-5)
+			if (count>0||(i==mr-1&&j>mc-5))
 			{
 				cout<<val<<"\t"<<stof(val)<<endl;
 				count--;

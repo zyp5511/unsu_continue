@@ -17,7 +17,7 @@ Feature::Feature(void)
 {
 }
 
-Feature::Feature(Mat patch){
+Feature::Feature(Mat& patch){
     this->patch = patch;
 	Mat patchcl=patch.clone();
 	uchar *data = patchcl.data;
@@ -32,7 +32,7 @@ Feature::~Feature(void)
 }
 
 void Feature::detect(PatchDetector& hd){
-	hd.detect(vec,category, score);
+	hd.detect(vec,res.category, res.score);
 }
 
 float Feature::l2(Feature b) {

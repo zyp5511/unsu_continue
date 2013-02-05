@@ -12,11 +12,14 @@
 #include <iostream>
 #include "PatchDetector.h"
 #include "ImageCropper.h"
+#include "Feature.h"
+
 class ImageWrapper {
     shared_ptr<PatchDetector> pd;
     shared_ptr<ImageCropper> ic;
-    vector<int> results;
+    vector<Result> results;
     vector<int> histogram;
+    vector<vector<Rect>> rtb; //reversal lookup table
     Mat img;
     
 public:
@@ -27,5 +30,8 @@ public:
     void collectPatches();
     void collectResult();
     void calcClusHist();
+    void setBins(int n);
+    bool match(vector<int>);
+    Rect matchArea(vector<bool>);
 };
 #endif /* defined(__HumanPoseDetector__Image__) */

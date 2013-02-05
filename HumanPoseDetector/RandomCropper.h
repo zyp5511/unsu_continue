@@ -31,7 +31,7 @@ public:
     void kmean(int k);
     void exportPatches(string fname);
     
-    virtual void setUp(Mat img);
+    virtual void setUp(Mat img) override;
 };
 
 

@@ -115,10 +115,10 @@ int main(int argc, const char * argv[])
 	return 0;
 }
 
-int *processFile(KNNDetector&kd, string fname, int nc){
+int *processFile(PatchDetector&kd, string fname, int nc){
 	int *vec = new int[nc]();
 	Mat img = imread(fname);
-	ImageCropper ic=ExhaustiveCropper();
+	ExhaustiveCropper ic=ExhaustiveCropper();
 	ic.setSize(128, 96);
 	ic.setUp(img);
 	//Mat out = img.clone();
@@ -163,7 +163,7 @@ void headlessDetection(void){
 			Mat img = imread(fname);
 			//            namedWindow("display", CV_WINDOW_AUTOSIZE);
 
-			ImageCropper ic=ImageCropper();
+			ExhaustiveCropper ic=ExhaustiveCropper();
 			ic.setSize(128, 96);
 			ic.setUp(img);
 			Mat out = img.clone();
@@ -201,7 +201,7 @@ void headlessDetection(void){
 //detect celebrity patches
 void celebrityDetection(void){
 	string name;
-	HumanDetector hd=HumanDetector();
+	SVMDetector hd=SVMDetector();
 	//KNNDetector kd("C:\\data\\temp\\picked_fea.txt","C:\\data\\temp\\num.txt");
 	KNNDetector kd;
 	kd.loadText("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt");
@@ -211,7 +211,7 @@ void celebrityDetection(void){
 			auto fname = "/Users/lichao/data/data_archive/goodimages/"+name+".jpg";
 			Mat img = imread(fname);
 			namedWindow("display", CV_WINDOW_AUTOSIZE);
-			ImageCropper ic=ImageCropper();
+			ExhaustiveCropper ic=ExhaustiveCropper();
 			ic.setUp(img);
 			Mat out = img.clone();
 

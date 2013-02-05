@@ -18,7 +18,7 @@ using namespace std;
 class PatchDetector
 {
 public:
-	virtual ~PatchDetector(void);
-	virtual void detect(const vector<float>& vec, int&c, float&score);
+	virtual ~PatchDetector(void)=default;
+	virtual void detect(const vector<float>& vec, int&c, float&score)=0;
 };
 #endif /* defined(__HumanPoseDetector__PatchDetector__) */

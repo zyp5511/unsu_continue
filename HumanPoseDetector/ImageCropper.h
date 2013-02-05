@@ -16,9 +16,12 @@ using namespace cv;
 class ImageCropper
 {
 public:
-	virtual ~ImageCropper(void);
-	virtual void setUp(Mat img);
-	virtual void setSize(int r, int c);
+	virtual ~ImageCropper(void)=default;
+	virtual void setUp(Mat img)=0;
+	virtual void setSize(int r, int c){
+        patch_r = r;
+        patch_c = c;
+    };
     
     virtual vector<Rect>::const_iterator getRects(){
         return all_rects.begin();
@@ -28,6 +31,9 @@ public:
     }
     virtual vector<Rect>::const_iterator getRectsEnd(){
         return all_rects.end();
+    }
+    virtual vector<Mat>::const_iterator getMatsEnd(){
+        return all_mats.end();
     }
     
 protected:
