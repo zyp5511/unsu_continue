@@ -54,24 +54,32 @@ int main(int argc, const char * argv[])
 
 		string name;
 		shared_ptr<KNNDetector> kd(new KNNDetector());
-        shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+        ec->setSize(128, 96);
 		cout<<"start loading index"<<endl;
 		kd->loadYAML(fsfn, indfn);
         vector<bool> gc(k,false);
         gc[855]=gc[678]=gc[523]=true;
         
 		while(getline(fin, name)){
-			try{
+//			try{
 				auto fname = srcfolder+name;
 				cout<<"loading file "<<fname<<endl;
             
                 ImageWrapper iw(kd,ec);
                 Mat mat = imread(fname);
+				cout<<"loaded file "<<fname<<endl;
+
                 iw.setImage(mat);
                 iw.setBins(k);
                 iw.collectPatches();
+				cout<<"Patch collect done for file "<<fname<<endl;
+				cout<<"number of patches is  "<<(ec->getMatsEnd()-ec->getMats())<<endl;
+
                 iw.collectResult();
+				cout<<"Result Collect for file "<<fname<<endl;
                 iw.calcClusHist();
+				cout<<"Hist Calc done for file "<<fname<<endl;
                 if (iw.match(gc)){
                     cout<<fname<<" matched!"<<endl;
                     auto  r= iw.matchArea(gc);
@@ -81,9 +89,9 @@ int main(int argc, const char * argv[])
                 }
                 
                 
-			} catch(Exception e){
-				cerr<<e.msg<<endl;
-			}
+//			} catch(Exception e){
+//				cerr<<e.msg<<endl;
+//			}
 		}
 		fin.close();
 //		fout.close();

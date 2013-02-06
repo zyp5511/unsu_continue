@@ -14,7 +14,7 @@ ImageWrapper::ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<Image
     pd = detector;
     ic = cropper;
 }
-void ImageWrapper::setImage(Mat& image){
+void ImageWrapper::setImage(Mat image){
     img = image;
     
 }
@@ -26,17 +26,28 @@ void ImageWrapper::collectPatches(){
     ic->setUp(img);
 }
 void ImageWrapper::collectResult(){
-    vector<Mat>::const_iterator it_mats = ic->getMats();
-    vector<Mat>::const_iterator end_mats = ic->getMatsEnd();
+    auto it_mats = ic->getMats();
+		cout<<"get begin"<<endl;
+    auto end_mats = ic->getMatsEnd();
+		cout<<"get end"<<endl;
+	int c =0;
     for(;it_mats!=end_mats;it_mats++){
-        Feature fea = Feature(*it_mats);
+
+		cout<<"mat "<<c<<endl;
+		cout<<"col:"<<it_mats->cols<<endl;
+		cout<<"row:"<<it_mats->rows<<endl;
+        Feature fea(*it_mats);
+		cout<<"feature created"<<c<<endl;
         fea.detect(*pd);
+		cout<<"detection done"<<c<<endl;
         results.push_back(fea.getResult());
+		cout<<"result stored"<<c<<endl;
+		c++;
     }
 }
 void ImageWrapper::calcClusHist(){
-    vector<Rect>::const_iterator it_rects = ic->getRects();
-    vector<Rect>::const_iterator end_rects = ic->getRectsEnd();
+	auto it_rects = ic->getRects();
+    auto end_rects = ic->getRectsEnd();
     int counter = 0;
     for ( ; it_rects!=end_rects; it_rects++,counter++) {
         if (results[counter].category>-1) {
@@ -48,6 +59,7 @@ void ImageWrapper::calcClusHist(){
 
 void ImageWrapper::setBins(int n){
     histogram = vector<int>(n,0);
+	results = vector<Result>();
     rtb = vector<vector<Rect>>(n,vector<Rect>());
 }
 

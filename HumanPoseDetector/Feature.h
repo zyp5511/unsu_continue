@@ -23,6 +23,7 @@ public:
 	int getCategory(){return res.category;};
 	float getScore(){return res.score;};
     Result getResult(){return res;}
+    //Result getResult(Mat& mat);
     float l2(Feature b);
 	void toHeadless();
     vector<float> vec;//should be private

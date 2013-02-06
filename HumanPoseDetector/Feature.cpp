@@ -17,13 +17,19 @@ Feature::Feature(void)
 {
 }
 
-Feature::Feature(Mat& patch){
+Feature::Feature(Mat&patch){
+	cout<<"1"<<endl;
     this->patch = patch;
+	cout<<"2"<<endl;
 	Mat patchcl=patch.clone();
+	cout<<"3"<<endl;
 	uchar *data = patchcl.data;
+	cout<<"4"<<endl;
 	int dims[2] = {patch.rows,patch.cols};
+	cout<<"5"<<endl;
 	int len;
 	vec =(process(data, len, dims, 8));
+	cout<<"6"<<endl;
 }
 
 

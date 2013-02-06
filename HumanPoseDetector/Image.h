@@ -10,6 +10,7 @@
 #define __HumanPoseDetector__Image__
 
 #include <iostream>
+#include <memory>
 #include "PatchDetector.h"
 #include "ImageCropper.h"
 #include "Feature.h"
@@ -24,8 +25,8 @@ class ImageWrapper {
     
 public:
     ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
-    ~ImageWrapper();
-    void setImage(Mat& image);
+    ~ImageWrapper(){};
+    void setImage(Mat image);
     void setImage(string imgFilename);
     void collectPatches();
     void collectResult();

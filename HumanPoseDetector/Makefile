@@ -1,7 +1,7 @@
-OBJS = main.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
+OBJS = main.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
 OBJS_SCRIPT = script.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o 
 CC = g++
-DEBUG = -O2 "-std=c++11"
+DEBUG = -O2 -g "-std=c++11"
 ROOT = /usr/local
 LD = -L$(ROOT)/lib
 LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann
@@ -19,7 +19,7 @@ $(TARGET): $(OBJS)
 $(TARGET_SCRIPT): $(OBJS_SCRIPT) 
 	$(CC) $(OBJS_SCRIPT) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET_SCRIPT)
 
-main.o: main.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp 
+main.o: main.cpp Image.h Image.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp 
 	$(CC) $(CFLAGS) main.cpp      
 
 script.o: script.cpp script.h Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp  
@@ -28,7 +28,10 @@ script.o: script.cpp script.h Feature.h Feature.cpp PatchDetector.h PatchDetecto
 Feature.o: Feature.cpp Feature.h
 	$(CC) $(CFLAGS) Feature.cpp      
 
-RandomCropper.o: RandomCropper.cpp RandomCropper.h
+Image.o: Image.cpp Image.h
+	$(CC) $(CFLAGS) Image.cpp      
+
+RandomCropper.o: RandomCropper.cpp RandomCropper.h Feature.cpp Feature.h
 	$(CC) $(CFLAGS) RandomCropper.cpp 
 
 ImageCropper.o: ImageCropper.cpp ImageCropper.h
