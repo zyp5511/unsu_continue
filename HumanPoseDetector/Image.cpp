@@ -27,21 +27,13 @@ void ImageWrapper::collectPatches(){
 }
 void ImageWrapper::collectResult(){
     auto it_mats = ic->getMats();
-		cout<<"get begin"<<endl;
     auto end_mats = ic->getMatsEnd();
-		cout<<"get end"<<endl;
 	int c =0;
     for(;it_mats!=end_mats;it_mats++){
-
-		cout<<"mat "<<c<<endl;
-		cout<<"col:"<<it_mats->cols<<endl;
-		cout<<"row:"<<it_mats->rows<<endl;
-        Feature fea(*it_mats);
-		cout<<"feature created"<<c<<endl;
+        Mat temp = it_mats -> clone();
+        Feature fea(temp);
         fea.detect(*pd);
-		cout<<"detection done"<<c<<endl;
         results.push_back(fea.getResult());
-		cout<<"result stored"<<c<<endl;
 		c++;
     }
 }

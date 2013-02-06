@@ -30,7 +30,6 @@ public:
     
 private:
     
-    Mat patch;
     Result res=Result(-1,0);
 //    int category=-1;
 //    float score=0;;

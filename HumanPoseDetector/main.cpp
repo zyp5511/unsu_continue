@@ -68,18 +68,13 @@ int main(int argc, const char * argv[])
             
                 ImageWrapper iw(kd,ec);
                 Mat mat = imread(fname);
-				cout<<"loaded file "<<fname<<endl;
 
                 iw.setImage(mat);
                 iw.setBins(k);
                 iw.collectPatches();
-				cout<<"Patch collect done for file "<<fname<<endl;
-				cout<<"number of patches is  "<<(ec->getMatsEnd()-ec->getMats())<<endl;
 
                 iw.collectResult();
-				cout<<"Result Collect for file "<<fname<<endl;
                 iw.calcClusHist();
-				cout<<"Hist Calc done for file "<<fname<<endl;
                 if (iw.match(gc)){
                     cout<<fname<<" matched!"<<endl;
                     auto  r= iw.matchArea(gc);
