@@ -1,7 +1,7 @@
 OBJS = main.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
 OBJS_SCRIPT = script.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o 
-CC = g++
-DEBUG = -O2 -g "-std=c++11"
+CC = clang++
+DEBUG = -O2 -std=c++11 -stdlib=libc++
 ROOT = /usr/local
 LD = -L$(ROOT)/lib
 LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann

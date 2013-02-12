@@ -26,23 +26,32 @@ KNNDetector::~KNNDetector(void)
 
 
 void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
-	int n = 5;
+	int n = 9;
 	vector<int> ind(n);
 	vector<float> dis(n);
 	feaind->knnSearch(vec,ind,dis,n);
-	if (dis[0]<70){
-		c = clus[ind[0]];
-		score = dis[0];
-		cout<<"==============="<<endl;
-
-		for(auto i=0;i<ind.size();i++){
-			cout<<ind[i]<<"\t:\t"<<clus[ind[i]]<<"\t:\t"<<dis[i]<<endl;
+	map<int,int> count = map<int,int>();
+		if (dis[0]<90){
+			cout<<"==============="<<endl;
+			for(auto i=0;i<ind.size();i++){
+				count[clus[ind[i]]]++;
+				cout<<ind[i]<<"\t:\t"<<clus[ind[i]]<<"\t:\t"<<dis[i]<<endl;
+			}
+			int max =0;
+			int maxi = -1;
+			for(const auto& p:count){
+				if (p.second>max){
+					max = p.second;
+					maxi = p.first;
+				}
+			}
+			cout<<"==============="<<endl;
+			c = maxi;
+			score = dis[0];
 		}
-		cout<<"==============="<<endl;
-	}
-	else{
-		c = -1;
-	}
+		else{
+			c = -1;
+		}
 }
 
 
@@ -168,14 +177,14 @@ void KNNDetector::loadYAML(string fsfn,string indfn){
 
 	count=5;
 	for(int j=0;j<clur;j++){
-			string val;
-			fin>>val;
-			if (count>0||j>clur-5)
-			{
-				cout<<val<<"\t"<<stoi(val)<<endl;
-				count--;
-			}
-			clus[j]=stoi(val);
+		string val;
+		fin>>val;
+		if (count>0||j>clur-5)
+		{
+			cout<<val<<"\t"<<stoi(val)<<endl;
+			count--;
+		}
+		clus[j]=stoi(val);
 	}
 
 	//close file
