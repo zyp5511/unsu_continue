@@ -31,27 +31,31 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 	vector<float> dis(n);
 	feaind->knnSearch(vec,ind,dis,n);
 	map<int,int> count = map<int,int>();
-		if (dis[0]<90){
-			cout<<"==============="<<endl;
-			for(auto i=0;i<ind.size();i++){
-				count[clus[ind[i]]]++;
-				cout<<ind[i]<<"\t:\t"<<clus[ind[i]]<<"\t:\t"<<dis[i]<<endl;
+	if (dis[0]<90){
+		cout<<"==============="<<endl;
+		for(auto i=0;i<ind.size();i++){
+			count[clus[ind[i]]]++;
+			cout<<ind[i]<<"\t:\t"<<clus[ind[i]]<<"\t:\t"<<dis[i]<<endl;
+		}
+		int max =0;
+		int maxi = -1;
+		for(const auto& p:count){
+			if (p.second>max){
+				max = p.second;
+				maxi = p.first;
 			}
-			int max =0;
-			int maxi = -1;
-			for(const auto& p:count){
-				if (p.second>max){
-					max = p.second;
-					maxi = p.first;
-				}
-			}
-			cout<<"==============="<<endl;
+		}
+		cout<<"==============="<<endl;
+		if(max>2){
 			c = maxi;
 			score = dis[0];
+		} else {
+			c=-1;
 		}
-		else{
-			c = -1;
-		}
+	}
+	else{
+		c = -1;
+	}
 }
 
 
