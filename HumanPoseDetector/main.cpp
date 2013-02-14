@@ -60,7 +60,7 @@ int main(int argc, const char * argv[])
 		cout<<"start loading index"<<endl;
 		kd->loadYAML(fsfn, indfn);
 		vector<bool> gc(k,false);
-		gc[621]=gc[805]=gc[808]=gc[396]=true;
+		gc[621]=gc[805]=gc[808]=gc[443]=true;
 
 		while(getline(fin, name)){
 			//			try{
@@ -69,8 +69,8 @@ int main(int argc, const char * argv[])
 
 			ImageWrapper iw(kd,ec);
 			Mat mat = imread(fname);
-            if (mat.rows>1200){
-                resize(mat, mat, Size(),1200.0/mat.rows,1200.0/mat.rows);
+            if (mat.rows>600){
+                resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
             }
 
 			iw.setImage(mat);
@@ -83,15 +83,15 @@ int main(int argc, const char * argv[])
 			for(int i=0;i<k;i++)
 				fout<<vec[i]<<",";
 			fout<<endl;
-			vector<Scalar> colors{Scalar(128,0,0),Scalar(0,128,0),Scalar(128,128,0),
-				Scalar(0,128,128)};
+			vector<Scalar> colors{Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+				Scalar(0,255,255)};
 			int count = 0;
 
 			if (iw.match(gc)){
 				cout<<fname<<" matched!"<<endl;
 				auto  r= iw.matchArea(gc);
 				Mat out = mat.clone();
-				rectangle(out,r,Scalar(0,0,255));
+				rectangle(out,r,Scalar(255,255,255));
 				vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
 				for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
 						for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
