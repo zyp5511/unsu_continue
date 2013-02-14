@@ -69,6 +69,9 @@ int main(int argc, const char * argv[])
 
 			ImageWrapper iw(kd,ec);
 			Mat mat = imread(fname);
+            if (mat.rows>1200){
+                resize(mat, mat, Size(),1200.0/mat.rows,1200.0/mat.rows);
+            }
 
 			iw.setImage(mat);
 			iw.setBins(k);
@@ -159,7 +162,6 @@ int *processFile(PatchDetector&kd, string fname, int nc){
 	auto it = ic.getRects();
 	auto itm=ic.getMats();
 	auto itend = ic.getRectsEnd();
-	int count=0;
 
 	for( ;it!=itend;it++,itm++){
 		Feature temp = Feature(*itm);
