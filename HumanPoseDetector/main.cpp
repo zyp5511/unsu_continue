@@ -83,7 +83,7 @@ int main(int argc, const char * argv[])
 			for(int i=0;i<k;i++)
 				fout<<vec[i]<<",";
 			fout<<endl;
-			vector<Scalar> colors{Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+			Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
 				Scalar(0,255,255)};
 			int count = 0;
 

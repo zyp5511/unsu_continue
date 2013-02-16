@@ -18,12 +18,12 @@ using namespace cv;
 
 class RandomCropper:public ImageCropper {
 protected:
-    int patchesPerImage=10;
+    int patchesPerImage;
     
 public:
     Mat feas;
     vector<int> category;
-    RandomCropper(){};
+    RandomCropper(){patchesPerImage = 10;};
     ~RandomCropper(){};
     void collectSrcDir(string fname);
     

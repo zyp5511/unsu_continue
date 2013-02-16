@@ -1,18 +1,24 @@
 #include "KNNDetector.h"
 
+void KNNDetector::init(){
+	vlen = 4480;
+}
 
 KNNDetector::KNNDetector(void)
 {
+	init();
 
 }
 
 
 KNNDetector::KNNDetector(string vecfn,string clusfn)
 {
+	init();
 	loadText(vecfn, clusfn);
 }
 
 KNNDetector::KNNDetector(const Mat& featureVec,vector<int>& clusVec){
+	init();
 	feavec = featureVec;
 	clus = clusVec;
 	KDTreeIndexParams indexParams;
@@ -155,9 +161,13 @@ void KNNDetector::loadYAML(string fsfn,string indfn){
 	int count =5;
 	feavec = Mat(mr,mc,CV_32F);//Memory should be released by Index
 	for(int i=0;i<mr;i++){
+		if(!(i % 1000)) {
+			cout<<"have read "<<i<<" lines"<<endl;
+		}
 		for(int j=0;j<mc;j++){
 			string val;
 			fin>>val;
+
 			if (count>0||(i==mr-1&&j>mc-5))
 			{
 				cout<<val<<"\t"<<stof(val)<<endl;

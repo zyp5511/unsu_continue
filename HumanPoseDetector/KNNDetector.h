@@ -27,7 +27,8 @@ private:
 	vector<int> clus;//cluster tag
     shared_ptr<Index> feaind;//index for knn search
 	Mat feavec;//feature index, hold memory
-	int vlen=4480;//hard coded vector length, not good..
+	int vlen;//hard coded vector length, not good..
+	void init();
 	
     
 };

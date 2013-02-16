@@ -2,3 +2,7 @@
 unsu
 script
 Makefile
+x64
+HumanPoseDetector.*
+*.v11.suo
+*.props

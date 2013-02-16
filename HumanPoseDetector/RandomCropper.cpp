@@ -7,6 +7,38 @@
 //
 
 #include "RandomCropper.h"
+#if defined (_WIN32)
+#include <windows.h>
+
+void RandomCropper::collectSrcDir(string fname){
+
+	 WIN32_FIND_DATA FindFileData;
+	 HANDLE hFind = FindFirstFile(fname.c_str(), &FindFileData);
+
+	vector<string> files;
+    files.push_back(FindFileData.cFileName);
+
+    while (FindNextFile(hFind, &FindFileData))
+		if((string(FindFileData.cFileName).find(".jpg"))!=string::npos){
+        files.push_back(string(FindFileData.cFileName));
+		}
+
+    sort(files.begin(), files.end());
+    auto itend = files.rend();
+    
+    
+#ifdef DEBUG
+    itend = files.rbegin()+50;
+#endif
+    
+    for_each(files.rbegin(), itend, [this,fname](string s){
+        Mat img = imread(fname+s);
+        cout<<fname+s<<endl;
+        this->setUp(img);
+        
+    });
+}
+#else
 #include <dirent.h>
 
 void RandomCropper::collectSrcDir(string fname){
@@ -34,6 +66,8 @@ void RandomCropper::collectSrcDir(string fname){
         
     });
 }
+#endif
+
 void RandomCropper::kmean(){
     kmean(100);
 }
@@ -86,7 +120,7 @@ void RandomCropper::setUp(Mat img){
 		scale *= scale0;
 	}
     
-	levels = std::max(levels, 1);
+	levels = max(levels, 1);
 	level_scale.resize(levels);
 	size_t i;
 	for (i = 0; i < level_scale.size(); i++)

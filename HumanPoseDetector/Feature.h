@@ -7,9 +7,9 @@ using namespace cv;
 
 struct Result {
     Result(int c, float s){category=c;score=s;};
-    Result(){};
-    int category = -1;
-    float score = 0;
+    Result(){category = -1; score = 0;};
+    int category;
+    float score;
 };
 
 class Feature
@@ -30,7 +30,7 @@ public:
     
 private:
     
-    Result res=Result(-1,0);
+    Result res;
 //    int category=-1;
 //    float score=0;;
     vector<float> process(uchar *im, int& len, const int *dims, const int sbin);
