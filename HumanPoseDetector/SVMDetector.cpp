@@ -27,9 +27,6 @@ SVMDetector::SVMDetector(string fname){
 	fin.close();
 }
 
-SVMDetector::SVMDetector(void):SVMDetector("/Users/lichao/data/112012/ori_svm.txt")
-{
-}
 
 SVMDetector::~SVMDetector(void)
 {

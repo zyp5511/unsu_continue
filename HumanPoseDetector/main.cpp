@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <ctime>
 #include <opencv2/opencv.hpp>
 #include "SVMDetector.h"
 #include "KNNDetector.h"
@@ -57,8 +58,14 @@ int main(int argc, const char * argv[])
 		shared_ptr<KNNDetector> kd(new KNNDetector());
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
+		
 		cout<<"start loading index"<<endl;
+		clock_t start = clock();
 		kd->loadYAML(fsfn, indfn);
+		double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
+		cout<<"we use "<<diff<<" seconds to load file!"<<endl;
+
+		system("pause");
 		vector<bool> gc(k,false);
 		gc[621]=gc[805]=gc[808]=gc[443]=true;
 
@@ -236,7 +243,7 @@ void headlessDetection(void){
 //detect celebrity patches
 void celebrityDetection(void){
 	string name;
-	SVMDetector hd=SVMDetector();
+	SVMDetector hd=SVMDetector("/Users/lichao/data/112012/ori_svm.txt");
 	//KNNDetector kd("C:\\data\\temp\\picked_fea.txt","C:\\data\\temp\\num.txt");
 	KNNDetector kd;
 	kd.loadText("/Users/lichao/data/112012/purifiedclusters.txt","/Users/lichao/data/112012/purifiedclustersnum.txt");

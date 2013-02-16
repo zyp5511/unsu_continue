@@ -6,7 +6,6 @@ class SVMDetector: public
 PatchDetector
 {
 public:
-	SVMDetector(void);
 	SVMDetector(string fname);
     ~SVMDetector(void);
 	virtual void detect(const vector<float>& vec, int&c, float&score) override;
