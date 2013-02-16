@@ -58,14 +58,18 @@ int main(int argc, const char * argv[])
 		shared_ptr<KNNDetector> kd(new KNNDetector());
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
-		
+
 		cout<<"start loading index"<<endl;
 		clock_t start = clock();
 		kd->loadYAML(fsfn, indfn);
 		double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
 		cout<<"we use "<<diff<<" seconds to load file!"<<endl;
-
+#if defined (_WIN32)
 		system("pause");
+#else
+		system("read -p \" paused\"");
+#endif
+
 		vector<bool> gc(k,false);
 		gc[621]=gc[805]=gc[808]=gc[443]=true;
 
@@ -76,9 +80,9 @@ int main(int argc, const char * argv[])
 
 			ImageWrapper iw(kd,ec);
 			Mat mat = imread(fname);
-            if (mat.rows>600){
-                resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
-            }
+			if (mat.rows>600){
+				resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
+			}
 
 			iw.setImage(mat);
 			iw.setBins(k);
@@ -101,11 +105,11 @@ int main(int argc, const char * argv[])
 				rectangle(out,r,Scalar(255,255,255));
 				vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
 				for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
-						for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
-							rectangle(out,r,colors[count]);
-							});
-						count++;
-						});
+					for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
+						rectangle(out,r,colors[count]);
+					});
+					count++;
+				});
 				imwrite(desfolder+name, out);
 			}
 
