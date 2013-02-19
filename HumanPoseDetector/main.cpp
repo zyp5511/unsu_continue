@@ -15,6 +15,8 @@
 #include "ExhaustiveCropper.h"
 #include "Feature.h"
 #include "Image.h"
+#include "FeatureLoader.h"
+#include "FeatureWriter.h"
 
 
 using namespace std;
@@ -26,6 +28,7 @@ void celebrityDetection(void);
 int *processFile(PatchDetector&kd, string fname, int nc);
 
 #pragma mark main
+
 int main(int argc, const char * argv[])
 {
 
@@ -38,90 +41,29 @@ int main(int argc, const char * argv[])
 	bool toTrain = false;
 	int k =100;
 	if (argc>3) {
-		if (string(argv[1])=="train"){
-			toTrain = true;
-		}
+
+
 		k = stoi(argv[2]);
 		srcfolder = argv[3];
 		desfolder = argv[4];
 		fsfn = argv[5];
 		indfn = argv[6];
-	}
-	if (argc>7){
-		cout<<"calucating vectors"<<endl;
-		string vecsrcfn = argv[7];
-		string vecdesfn = argv[8];
-		ifstream fin(vecsrcfn);
-		ofstream fout(vecdesfn);
 
-		string name;
-		shared_ptr<KNNDetector> kd(new KNNDetector());
-		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-		ec->setSize(128, 96);
+		auto oper = string(argv[1]);
 
-		cout<<"start loading index"<<endl;
-		clock_t start = clock();
-		kd->loadYAML(fsfn, indfn);
-		double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
-		cout<<"we use "<<diff<<" seconds to load file!"<<endl;
-#if defined (_WIN32)
-		system("pause");
-#else
-		system("read -p \" paused\"");
-#endif
-
-		vector<bool> gc(k,false);
-		gc[621]=gc[805]=gc[808]=gc[443]=true;
-
-		while(getline(fin, name)){
-			//			try{
-			auto fname = srcfolder+name;
-			cout<<"loading file "<<fname<<endl;
-
-			ImageWrapper iw(kd,ec);
-			Mat mat = imread(fname);
-			if (mat.rows>600){
-				resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
-			}
-
-			iw.setImage(mat);
-			iw.setBins(k);
-			iw.collectPatches();
-
-			iw.collectResult();
-			iw.calcClusHist();
-			vector<int> vec = iw.histogram;
-			for(int i=0;i<k;i++)
-				fout<<vec[i]<<",";
-			fout<<endl;
-			Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-				Scalar(0,255,255)};
-			int count = 0;
-
-			if (iw.match(gc)){
-				cout<<fname<<" matched!"<<endl;
-				auto  r= iw.matchArea(gc);
-				Mat out = mat.clone();
-				rectangle(out,r,Scalar(255,255,255));
-				vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
-				for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
-					for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
-						rectangle(out,r,colors[count]);
-					});
-					count++;
-				});
-				imwrite(desfolder+name, out);
-			}
-
-
-			//			} catch(Exception e){
-			//				cerr<<e.msg<<endl;
-			//			}
-		}
-		fin.close();
-		fout.close();
-	} else{
-		if (toTrain){
+		if(oper=="pca"){
+			string evfn = argv[7];
+			auto fl = FeatureLoader();
+			auto fea = fl.loadBigYAML(fsfn);
+			PCA a(fea,noArray(),CV_PCA_DATA_AS_ROW,500);
+			auto shortfea = a.project(fea);
+			FileStorage fs(evfn,FileStorage::WRITE);
+			fs<<"eigenvalues"<<a.eigenvalues;
+			fs.release();
+			cout<<"eigenvalue written in "<<evfn<<endl;
+			auto fw = FeatureWriter();
+			fw.saveYAML(indfn,shortfea);//use indfn as the destination.
+		} else if (oper=="knntrain"){
 			//set up patch cropper
 			auto nc = RandomCropper();
 			nc.setSize(128, 96);
@@ -137,7 +79,7 @@ int main(int argc, const char * argv[])
 			int i;
 			cin>>i;
 			nc.exportPatches(desfolder);
-		} else {
+		} else if( oper == "knnclassify") {
 			//set up patch cropper
 			auto nc = ExhaustiveCropper();
 			nc.setSize(128, 96);
@@ -157,10 +99,95 @@ int main(int argc, const char * argv[])
 				}
 				cout<<"Please input image filename"<<endl;
 			}
+		} else if ( oper == "knncombo" ){
+			cout<<"calucating vectors"<<endl;
+			string vecsrcfn = argv[7];
+			string vecdesfn = argv[8];
+			ifstream fin(vecsrcfn);
+			ofstream fout(vecdesfn);
+
+			string name;
+			shared_ptr<KNNDetector> kd(new KNNDetector());
+			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+			ec->setSize(128, 96);
+
+			cout<<"start loading index"<<endl;
+			clock_t start = clock();
+			kd->loadYAML(fsfn, indfn);
+			double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
+			cout<<"we use "<<diff<<" seconds to load file!"<<endl;
+#if defined (_WIN32)
+			system("pause");
+#else
+			system("read -p \" paused\"");
+#endif
+
+			vector<bool> gc(k,false);
+			gc[621]=gc[805]=gc[808]=gc[443]=true;
+
+			while(getline(fin, name)){
+				//			try{
+				auto fname = srcfolder+name;
+				cout<<"loading file "<<fname<<endl;
+
+				ImageWrapper iw(kd,ec);
+				Mat mat = imread(fname);
+				if (mat.rows>600){
+					resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
+				}
+
+				iw.setImage(mat);
+				iw.setBins(k);
+				iw.collectPatches();
+
+				iw.collectResult();
+				iw.calcClusHist();
+				vector<int> vec = iw.histogram;
+				for(int i=0;i<k;i++)
+					fout<<vec[i]<<",";
+				fout<<endl;
+				Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+					Scalar(0,255,255)};
+				int count = 0;
+
+				if (iw.match(gc)){
+					cout<<fname<<" matched!"<<endl;
+					auto  r= iw.matchArea(gc);
+					Mat out = mat.clone();
+					rectangle(out,r,Scalar(255,255,255));
+					vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
+					for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
+						for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
+							rectangle(out,r,colors[count]);
+						});
+						count++;
+					});
+					imwrite(desfolder+name, out);
+				}
+
+
+				//			} catch(Exception e){
+				//				cerr<<e.msg<<endl;
+				//			}
+			}
+			fin.close();
+			fout.close();
 		}
+
+	} else {
+		cerr<<"Number of args must > 3!"<<endl;
 	}
+
+#if defined (_WIN32)
+	system("pause");
+
+#endif
 	return 0;
 }
+
+
+
+
 
 int *processFile(PatchDetector&kd, string fname, int nc){
 	int *vec = new int[nc]();

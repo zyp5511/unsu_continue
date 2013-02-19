@@ -12,6 +12,8 @@
 #include <iostream>
 #include "Feature.h"
 #include <opencv2/opencv.hpp>
+#include "FeatureLoader.h"
+#include "FeatureWriter.h"
 
 #endif /* defined(__HumanPoseDetector__script__) */
 
