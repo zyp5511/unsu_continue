@@ -51,7 +51,9 @@ int main(int argc, const char * argv[])
 
 		auto oper = string(argv[1]);
 
-		if(oper=="pca"){
+		if(oper=="kmean"){ 
+			
+		} else if(oper=="pca"){
 			string evfn = argv[7];
 			auto fl = FeatureLoader();
 			auto fea = fl.loadBigYAML(fsfn);
