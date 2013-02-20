@@ -17,6 +17,7 @@
 #include "Image.h"
 #include "FeatureLoader.h"
 #include "FeatureWriter.h"
+#include "FeaturePartitioner.h"
 
 
 using namespace std;
@@ -38,7 +39,7 @@ int main(int argc, const char * argv[])
 	string desfolder = "/Users/lichao/data/122012/clneg/";
 	string fsfn = "/Users/lichao/data/122012/kNNfea.yml";
 	string indfn = "/Users/lichao/data/122012/kNNind.txt";
-	bool toTrain = false;
+    
 	int k =100;
 	if (argc>3) {
 
@@ -51,8 +52,17 @@ int main(int argc, const char * argv[])
 
 		auto oper = string(argv[1]);
 
-		if(oper=="kmean"){ 
-			
+		if(oper=="kmean"){
+            auto fp = FeaturePartitioner();
+            auto fl = FeatureLoader();
+			auto fea = fl.loadBigYAML(fsfn);
+            vector<int> category(fea.rows);
+            fp.kmean(fea, category, 1002);
+            string resfn = argv[7];
+            FileStorage fs(resfn,FileStorage::WRITE);
+            fs<<"feature"<<fea;
+            fs<<"index"<<category;
+            fs.release();
 		} else if(oper=="pca"){
 			string evfn = argv[7];
 			auto fl = FeatureLoader();

@@ -29,6 +29,9 @@
 		9D50B59F166ED07900FED290 /* libopencv_ts.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B58E166ED07900FED290 /* libopencv_ts.2.4.9.dylib */; };
 		9D50B5A0166ED07900FED290 /* libopencv_video.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B58F166ED07900FED290 /* libopencv_video.2.4.9.dylib */; };
 		9D50B5A1166ED07900FED290 /* libopencv_videostab.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D50B590166ED07900FED290 /* libopencv_videostab.2.4.9.dylib */; };
+		9D7B3D2516D4475E006E65F2 /* FeatureLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B3D2116D4475E006E65F2 /* FeatureLoader.cpp */; };
+		9D7B3D2616D4475E006E65F2 /* FeatureWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B3D2316D4475E006E65F2 /* FeatureWriter.cpp */; };
+		9D7B3D2916D447D0006E65F2 /* FeaturePartitioner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D7B3D2716D447D0006E65F2 /* FeaturePartitioner.cpp */; };
 		9DCFB9D416BC9BFB00C6D73B /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DCFB9D216BC9BFB00C6D73B /* Image.cpp */; };
 		9DCFB9D716BC9C9600C6D73B /* PatchDetector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DCFB9D516BC9C9600C6D73B /* PatchDetector.cpp */; };
 		9DCFB9DC16BCA35D00C6D73B /* ImageCropper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DCFB9DA16BCA35D00C6D73B /* ImageCropper.cpp */; };
@@ -81,6 +84,12 @@
 		9D50B590166ED07900FED290 /* libopencv_videostab.2.4.9.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_videostab.2.4.9.dylib; path = /usr/local/lib/libopencv_videostab.2.4.9.dylib; sourceTree = "<absolute>"; };
 		9D666AA1168C45E900FF561D /* script.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = script.cpp; sourceTree = "<group>"; };
 		9D666AA2168C45E900FF561D /* script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script.h; sourceTree = "<group>"; };
+		9D7B3D2116D4475E006E65F2 /* FeatureLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatureLoader.cpp; sourceTree = "<group>"; };
+		9D7B3D2216D4475E006E65F2 /* FeatureLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatureLoader.h; sourceTree = "<group>"; };
+		9D7B3D2316D4475E006E65F2 /* FeatureWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatureWriter.cpp; sourceTree = "<group>"; };
+		9D7B3D2416D4475E006E65F2 /* FeatureWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeatureWriter.h; sourceTree = "<group>"; };
+		9D7B3D2716D447D0006E65F2 /* FeaturePartitioner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeaturePartitioner.cpp; sourceTree = "<group>"; };
+		9D7B3D2816D447D0006E65F2 /* FeaturePartitioner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FeaturePartitioner.h; sourceTree = "<group>"; };
 		9DCFB9D216BC9BFB00C6D73B /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
 		9DCFB9D316BC9BFB00C6D73B /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
 		9DCFB9D516BC9C9600C6D73B /* PatchDetector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PatchDetector.cpp; sourceTree = "<group>"; };
@@ -200,6 +209,12 @@
 		9DFE6F62166380E2003AFA44 /* HumanPoseDetector */ = {
 			isa = PBXGroup;
 			children = (
+				9D7B3D2116D4475E006E65F2 /* FeatureLoader.cpp */,
+				9D7B3D2216D4475E006E65F2 /* FeatureLoader.h */,
+				9D7B3D2316D4475E006E65F2 /* FeatureWriter.cpp */,
+				9D7B3D2416D4475E006E65F2 /* FeatureWriter.h */,
+				9D7B3D2716D447D0006E65F2 /* FeaturePartitioner.cpp */,
+				9D7B3D2816D447D0006E65F2 /* FeaturePartitioner.h */,
 				9DCFB9D916BCA2BB00C6D73B /* ImageCropper */,
 				9DCFB9D816BC9C9C00C6D73B /* PatchDetector */,
 				9D30F3B51664138F00C51025 /* Feature.cpp */,
@@ -274,6 +289,9 @@
 				9DCFB9D416BC9BFB00C6D73B /* Image.cpp in Sources */,
 				9DCFB9D716BC9C9600C6D73B /* PatchDetector.cpp in Sources */,
 				9DCFB9DC16BCA35D00C6D73B /* ImageCropper.cpp in Sources */,
+				9D7B3D2516D4475E006E65F2 /* FeatureLoader.cpp in Sources */,
+				9D7B3D2616D4475E006E65F2 /* FeatureWriter.cpp in Sources */,
+				9D7B3D2916D447D0006E65F2 /* FeaturePartitioner.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
