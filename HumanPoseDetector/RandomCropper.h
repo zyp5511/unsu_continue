@@ -33,6 +33,7 @@ class RandomCropper:public ImageCropper {
 		void kmean(int k);
 		void pca();
 		void exportPatches(string fname);
+		void exportFeatures(string fname);
 		void exportSeperators(string fname);
 
 		virtual void setUp(Mat img) override;

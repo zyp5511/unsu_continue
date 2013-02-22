@@ -75,21 +75,14 @@ int main(int argc, const char * argv[])
 			cout<<"eigenvalue written in "<<evfn<<endl;
 			auto fw = FeatureWriter();
 			fw.saveYAML(indfn,shortfea);//use indfn as the destination.
-		} else if (oper=="knntrain"){
+		} else if (oper=="randomcrop"){
 			//set up patch cropper
 			string seperator_fn = argv[7];
 			auto nc = RandomCropper();
 			nc.setSize(128, 96);
 			nc.collectSrcDir(srcfolder);
 			cout<<"Patches created!"<<endl;
-
-			nc.pca();
-			nc.kmean(k);
-			cout<<"K Mean Finished!"<<endl;
-			KNNDetector kd(nc.feas,nc.category);
-			cout<<"KNN index created"<<endl;
-			kd.save(fsfn, indfn);
-			cout<<"KNN index saved"<<endl;
+			nc.exportFeatures(fsfn);
 			nc.exportPatches(desfolder);
 			nc.exportSeperators(seperator_fn);
 		} else if( oper == "knnclassify") {

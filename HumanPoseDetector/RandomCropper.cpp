@@ -115,6 +115,11 @@ void RandomCropper::pca(){
 	feavec = shortfea;
 }
 
+void RandomCropper::exportFeatures(string fname){
+	FileStorage fs(fname, FileStorage::WRITE);
+	fs<<"feature"<<feavec;
+	fs.release();
+}
 void RandomCropper::exportSeperators(string fname){
 	ofstream fout(fname);
 	for_each(seperators.begin(), seperators.end(),[&fout](int i){
@@ -128,15 +133,10 @@ void RandomCropper::exportPatches(string fname){
 		cout<<(int)*fname.rbegin()<<endl;
 		fname = fname+"/";
 	}
-
-
-	for(int i=0;i<all_mats.size();i++){
-		stringstream ss;
-		ss<<fname<<category[i]<<"/";
-		ss<<(i+1)<<".jpg";
-		cout<<ss.str()<<endl;
-		imwrite(ss.str(), all_mats[i]);
+	for(size_t i=0;i<all_mats.size();i++){
+		imwrite(fname+to_string(i+1)+".jpg",all_mats[i]);
 	}
+
 }
 void RandomCropper::setUp(Mat img){
 	seperators.push_back(all_mats.size());
