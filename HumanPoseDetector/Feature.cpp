@@ -17,6 +17,15 @@ Feature::Feature(void)
 {
 }
 
+Feature::Feature(Mat& patch, const PCA& pca){
+	Mat patchcl=patch.clone();
+	uchar *data = patchcl.data;
+	int dims[2] = {patch.rows,patch.cols};
+	int len;
+	vec =(process(data, len, dims, 8));
+	Mat temp= pca.project(vec);
+	vec = vector<float>(temp.begin<float>(),temp.end<float>());
+}
 Feature::Feature(Mat&patch){
 	Mat patchcl=patch.clone();
 	uchar *data = patchcl.data;

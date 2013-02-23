@@ -9,6 +9,7 @@
 #include <iostream>
 #include <ctime>
 #include <opencv2/opencv.hpp>
+#include <dirent.h>
 #include "SVMDetector.h"
 #include "KNNDetector.h"
 #include "RandomCropper.h"
@@ -39,7 +40,7 @@ int main(int argc, const char * argv[])
 	string desfolder = "/Users/lichao/data/122012/clneg/";
 	string fsfn = "/Users/lichao/data/122012/kNNfea.yml";
 	string indfn = "/Users/lichao/data/122012/kNNind.txt";
-    
+
 	int k =100;
 	if (argc>3) {
 
@@ -53,24 +54,26 @@ int main(int argc, const char * argv[])
 		auto oper = string(argv[1]);
 
 		if(oper=="kmean"){
-            auto fp = FeaturePartitioner();
-            auto fl = FeatureLoader();
+			auto fp = FeaturePartitioner();
+			auto fl = FeatureLoader();
 			auto fea = fl.loadBigYAML(fsfn);
-            vector<int> category(fea.rows);
-            fp.kmean(fea, category, 1002);
-            string resfn = argv[7];
-            FileStorage fs(resfn,FileStorage::WRITE);
-            fs<<"feature"<<fea;
-            fs<<"index"<<category;
-            fs.release();
+			vector<int> category(fea.rows);
+			fp.kmean(fea, category, 1002);
+			string resfn = argv[7];
+			FileStorage fs(resfn,FileStorage::WRITE);
+			fs<<"feature"<<fea;
+			fs<<"index"<<category;
+			fs.release();
 		} else if(oper=="pca"){
 			string evfn = argv[7];
 			auto fl = FeatureLoader();
 			auto fea = fl.loadBigYAML(fsfn);
-			PCA a(fea,noArray(),CV_PCA_DATA_AS_ROW,500);
+			PCA a(fea,noArray(),CV_PCA_DATA_AS_ROW,0.95);
 			auto shortfea = a.project(fea);
 			FileStorage fs(evfn,FileStorage::WRITE);
+			fs<<"eigenmeans"<<a.mean;
 			fs<<"eigenvalues"<<a.eigenvalues;
+			fs<<"eigenvectors"<<a.eigenvectors;
 			fs.release();
 			cout<<"eigenvalue written in "<<evfn<<endl;
 			auto fw = FeatureWriter();
@@ -107,10 +110,9 @@ int main(int argc, const char * argv[])
 			}
 		} else if ( oper == "knncombo" ){
 			cout<<"calucating vectors"<<endl;
-			string vecsrcfn = argv[7];
-			string vecdesfn = argv[8];
-			ifstream fin(vecsrcfn);
-			ofstream fout(vecdesfn);
+			string pcafn = argv[7];
+			string vecoutfn= argv[8];
+			ofstream fout(vecoutfn);
 
 			string name;
 			shared_ptr<KNNDetector> kd(new KNNDetector());
@@ -122,61 +124,73 @@ int main(int argc, const char * argv[])
 			kd->loadYAML(fsfn, indfn);
 			double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
 			cout<<"we use "<<diff<<" seconds to load file!"<<endl;
-#if defined (_WIN32)
-			system("pause");
-#else
-			system("read -p \" paused\"");
-#endif
+
+			FileStorage pcafs(pcafn, FileStorage::READ);
+			PCA pca;
+			pcafs["mean"]>>pca.mean;
+			pcafs["eigenvalues"]>>pca.eigenvalues;
+			pcafs["eigenvectors"]>>pca.eigenvectors;
 
 			vector<bool> gc(k,false);
 			gc[621]=gc[805]=gc[808]=gc[443]=true;
 
-			while(getline(fin, name)){
-				//			try{
-				auto fname = srcfolder+name;
-				cout<<"loading file "<<fname<<endl;
-
-				ImageWrapper iw(kd,ec);
-				Mat mat = imread(fname);
-				if (mat.rows>600){
-					resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
+			auto dp = opendir(srcfolder.c_str());
+			vector<string> files;
+			struct dirent *fp;
+			while ((fp = readdir(dp)) != NULL) {
+				if(((string(fp->d_name)).find(".jpg"))!=string::npos){
+					files.push_back(string(fp->d_name));
 				}
-
-				iw.setImage(mat);
-				iw.setBins(k);
-				iw.collectPatches();
-
-				iw.collectResult();
-				iw.calcClusHist();
-				vector<int> vec = iw.histogram;
-				for(int i=0;i<k;i++)
-					fout<<vec[i]<<",";
-				fout<<endl;
-				Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-					Scalar(0,255,255)};
-				int count = 0;
-
-				if (iw.match(gc)){
-					cout<<fname<<" matched!"<<endl;
-					auto  r= iw.matchArea(gc);
-					Mat out = mat.clone();
-					rectangle(out,r,Scalar(255,255,255));
-					vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
-					for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
-						for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
-							rectangle(out,r,colors[count]);
-						});
-						count++;
-					});
-					imwrite(desfolder+name, out);
-				}
-
-
-				//			} catch(Exception e){
-				//				cerr<<e.msg<<endl;
-				//			}
 			}
-			fin.close();
+			closedir(dp);
+			sort(files.begin(), files.end());
+			auto itend = files.rend();
+			cout<<"there are "<<files.size()<<" images"<<endl;
+
+
+#ifdef DEBUG
+			itend = files.rbegin()+50;
+#endif
+
+			for_each(files.rbegin(), itend, [desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s){
+					auto fname = srcfolder+s;
+					ImageWrapper iw(kd,ec);
+					Mat mat = imread(fname);
+					if (mat.rows>600){
+					resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
+					}
+
+					iw.setImage(mat);
+					iw.setBins(k);
+					iw.collectPatches();
+
+					iw.collectResult(pca);
+					iw.calcClusHist();
+					vector<int> vec = iw.histogram;
+					for(int i=0;i<k;i++)
+						fout<<vec[i]<<",";
+					fout<<endl;
+					Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+						Scalar(0,255,255)};
+					int count = 0;
+
+					if (iw.match(gc)){
+						cout<<fname<<" matched!"<<endl;
+						auto  r= iw.matchArea(gc);
+						Mat out = mat.clone();
+						rectangle(out,r,Scalar(255,255,255));
+						vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
+						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs){
+								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r){
+									rectangle(out,r,colors[count]);
+									});
+								count++;
+								});
+						imwrite(desfolder+s, out);
+					}
+
+			});
+
 			fout.close();
 		}
 

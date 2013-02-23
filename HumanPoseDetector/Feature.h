@@ -19,6 +19,7 @@ public:
 	~Feature(void);
 	Feature(const vector<float>& aVec){vec=aVec;};
 	Feature(Mat& patch);
+	Feature(Mat& patch, const PCA& pca);
 	void detect(PatchDetector& hd);
 	int getCategory(){return res.category;};
 	float getScore(){return res.score;};

@@ -25,6 +25,18 @@ void ImageWrapper::setImage(string imgFilename){
 void ImageWrapper::collectPatches(){
 	ic->setUp(img);
 }
+void ImageWrapper::collectResult(const PCA& pca){
+	auto it_mats = ic->getMats();
+	auto end_mats = ic->getMatsEnd();
+	int c =0;
+	for(;it_mats!=end_mats;it_mats++){
+		Mat temp = it_mats -> clone();
+		Feature fea(temp,pca);
+		fea.detect(*pd);
+		results.push_back(fea.getResult());
+		c++;
+	}
+}
 void ImageWrapper::collectResult(){
 	auto it_mats = ic->getMats();
 	auto end_mats = ic->getMatsEnd();
