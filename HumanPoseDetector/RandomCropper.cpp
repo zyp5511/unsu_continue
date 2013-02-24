@@ -45,7 +45,7 @@ void RandomCropper::collectSrcDir(string fname){
 
 	feavec = Mat(numrow, numcol,CV_32F);
 
-	for(int i = 0;i<feas.rows;i++){
+	for(int i = 0;i<numrow;i++){
 		feavec.row(i)=Mat(Feature(*it++).vec).t();
 	}
 	cout<<"Feature Matrix Created"<<endl;
@@ -86,7 +86,7 @@ void RandomCropper::collectSrcDir(string fname){
 
 	feavec = Mat(numrow, numcol,CV_32F);
 
-	for(int i = 0;i<feas.rows;i++){
+	for(int i = 0;i<numrow;i++){
 		feavec.row(i)=Mat(Feature(*it++).vec).t();
 	}
 	cout<<"Feature Matrix Created"<<endl;

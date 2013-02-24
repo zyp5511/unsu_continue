@@ -23,7 +23,6 @@ class RandomCropper:public ImageCropper {
 		vector<int> seperators;
 
 	public:
-		Mat feas;
 		vector<int> category;
 		RandomCropper(){patchesPerImage = 50;};
 		~RandomCropper(){};
