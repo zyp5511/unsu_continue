@@ -58,7 +58,7 @@ int main(int argc, const char * argv[])
 			auto fl = FeatureLoader();
 			auto fea = fl.loadBigYAML(fsfn);
 			vector<int> category(fea.rows);
-			fp.kmean(fea, category, 1002);
+			fp.kmean(fea, category, k);
 			string resfn = argv[7];
 			FileStorage fs(resfn,FileStorage::WRITE);
 			fs<<"feature"<<fea;
@@ -67,7 +67,12 @@ int main(int argc, const char * argv[])
 		} else if(oper=="pca"){
 			string evfn = argv[7];
 			auto fl = FeatureLoader();
+
+			clock_t start = clock();
 			auto fea = fl.loadBigYAML(fsfn);
+			double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
+			cout<<"we use "<<diff<<" seconds to load file!"<<endl;
+
 			PCA a(fea,noArray(),CV_PCA_DATA_AS_ROW,0.95);
 			auto shortfea = a.project(fea);
 			FileStorage fs(evfn,FileStorage::WRITE);
@@ -167,11 +172,12 @@ int main(int argc, const char * argv[])
 					iw.collectResult(pca);
 					iw.calcClusHist();
 					vector<int> vec = iw.histogram;
-					for(int i=0;i<k;i++)
-						fout<<vec[i]<<",";
+					for(int i=0;i<k;i++){
+					fout<<vec[i]<<",";
+					}
 					fout<<endl;
 					Scalar colors[]={Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-						Scalar(0,255,255)};
+					Scalar(0,255,255)};
 					int count = 0;
 
 					if (iw.match(gc)){
