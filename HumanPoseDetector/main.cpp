@@ -86,7 +86,7 @@ int main(int argc, const char * argv[])
 			fs.release();
 			cout<<"eigenvalue written in "<<evfn<<endl;
 			auto fw = FeatureWriter();
-			fw.saveYAML(indfn,shortfea);//use indfn as the destination.
+			fw.saveTab(indfn,shortfea);//use indfn as the destination.
 		} else if (oper=="randomcrop"){
 			//set up patch cropper
 			string seperator_fn = argv[7];
