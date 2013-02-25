@@ -56,24 +56,28 @@ int main(int argc, const char * argv[])
 		if(oper=="kmean"){
 			auto fp = FeaturePartitioner();
 			auto fl = FeatureLoader();
-			auto fea = fl.loadBigYAML(fsfn);
+			auto fw = FeatureWriter();
+			auto fea = fl.loadTab(fsfn);
 			vector<int> category(fea.rows);
 			fp.kmean(fea, category, k);
 			string resfn = argv[7];
-			FileStorage fs(resfn,FileStorage::WRITE);
-			fs<<"feature"<<fea;
-			fs<<"index"<<category;
-			fs.release();
+			//FileStorage fs(resfn,FileStorage::WRITE);
+			//fs<<"feature"<<fea;
+			//fs<<"index"<<category;
+			//fs.release();
+			
+			fw.saveTab(indfn,Mat(category));//use indfn as the destination.
 		} else if(oper=="pca"){
 			string evfn = argv[7];
 			auto fl = FeatureLoader();
 
 			clock_t start = clock();
-			auto fea = fl.loadBigYAML(fsfn);
+			auto fea = fl.loadTab(fsfn);
 			double diff = (clock() - start)/(double) CLOCKS_PER_SEC;
 			cout<<"we use "<<diff<<" seconds to load file!"<<endl;
 
 			PCA a(fea,noArray(),CV_PCA_DATA_AS_ROW,0.95);
+			cout<<"there are "<<a.eigenvalues.size()<<" components in PCA"<<endl;
 			auto shortfea = a.project(fea);
 			FileStorage fs(evfn,FileStorage::WRITE);
 			fs<<"eigenmeans"<<a.mean;

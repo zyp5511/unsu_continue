@@ -9,6 +9,19 @@ FeatureLoader::FeatureLoader(void)
 FeatureLoader::~FeatureLoader(void)
 {
 }
+Mat FeatureLoader::loadTab(string fn){
+	int mr,mc;
+	ifstream fin(fn);
+	fin>>mr;
+	fin>>mc;
+	Mat feavec(mr, mc, CV_32F);
+	for(size_t i=0;i<mr;i++)
+		for(size_t j=0;j<mc;j++){
+			fin>>feavec.at<float>(i,j);
+		}
+	fin.close();
+	return feavec;
+}
 
 Mat FeatureLoader::loadYAML(string fsfn){
 	FileStorage fs;

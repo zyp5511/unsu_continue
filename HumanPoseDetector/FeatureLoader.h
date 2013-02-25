@@ -5,12 +5,13 @@ using namespace std;
 using namespace cv;
 class FeatureLoader
 {
-public:
-	FeatureLoader(void);
-	~FeatureLoader(void);
+	public:
+		FeatureLoader(void);
+		~FeatureLoader(void);
 
-	Mat loadYAML(string fsfn);//load feature vecs from YAML, small
-    Mat loadBigYAML(string fsfn);//load feature vecs from YAML, big
+		Mat loadYAML(string fsfn);//load feature vecs from YAML, small
+		Mat loadBigYAML(string fsfn);//load feature vecs from YAML, big
+		Mat loadTab(string fn);
 
 
 };

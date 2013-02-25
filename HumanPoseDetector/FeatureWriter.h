@@ -5,9 +5,10 @@ using namespace cv;
 
 class FeatureWriter
 {
-public:
-	FeatureWriter(void);
-	~FeatureWriter(void);
-	void saveYAML(string fsfn, Mat& feavec);
+	public:
+		FeatureWriter(void);
+		~FeatureWriter(void);
+		void saveYAML(string fsfn, const Mat& feavec);
+		void saveTab(string fname, const Mat& feavec);
 };
 
