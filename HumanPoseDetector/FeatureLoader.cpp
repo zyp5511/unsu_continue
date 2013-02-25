@@ -37,23 +37,23 @@ Mat FeatureLoader::loadBigYAML(string fsfn){
 	int count =5;
 	Mat feavec = Mat(mr,mc,CV_32F);//Memory should be released by Index
 	for(int i=0;i<mr;i++){
-		if(!(i % 1000)) {
+		if(!(i % 10000)) {
 			cout<<"have read "<<i<<" lines"<<endl;
 		}
 		for(int j=0;j<mc;j++){
 			string val;
 			fin>>val;
-
+			float fval = stof(val);
 			if (count>0||(i==mr-1&&j>mc-5))
 			{
-				cout<<val<<"\t"<<stof(val)<<endl;
+				cout<<val<<"\t"<<fval<<endl;
 				count--;
 			}
-			feavec.at<float>(i,j)=stof(val);
+			feavec.at<float>(i,j)=fval;
 		}
 	}
 	cout<<"feature loaded"<<endl;
-	
+
 
 	//close file
 	fin.close();

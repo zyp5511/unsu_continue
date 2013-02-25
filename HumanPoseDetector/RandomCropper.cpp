@@ -116,9 +116,21 @@ void RandomCropper::pca(){
 }
 
 void RandomCropper::exportFeatures(string fname){
-	FileStorage fs(fname, FileStorage::WRITE);
-	fs<<"feature"<<feavec;
-	fs.release();
+	//	FileStorage fs(fname, FileStorage::WRITE);
+	//	fs<<"feature"<<feavec;
+	//	fs.release();
+	ofstream fout(fname);
+	fout<<feavec.rows<<endl;
+	fout<<feavec.cols<<endl;
+
+	for(int i = 0;i<feavec.rows;i++){
+		Mat tempr = feavec.row(i);
+		for(auto j = tempr.begin<float>();j!=tempr.end<float>();j++){
+			fout<<*j<<"\t";
+		}
+		fout<<"\n";//I think endl is slow, haven't tested :)
+	}
+	fout.close();
 }
 void RandomCropper::exportSeperators(string fname){
 	ofstream fout(fname);
