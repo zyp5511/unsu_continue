@@ -37,7 +37,7 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 	vector<float> dis(n);
 	feaind->knnSearch(vec,ind,dis,n);
 	map<int,int> count = map<int,int>();
-	if (dis[0]<90){
+	if (dis[0]<9){
 		cout<<"==============="<<endl;
 		for(auto i=0;i<ind.size();i++){
 			count[clus[ind[i]]]++;
@@ -157,6 +157,7 @@ void KNNDetector::loadYAML(string fsfn,string indfn){
 	fin>>k;
 	fin>>mc;
 	cout<<"there are "<<mc<<" clos"<<endl;
+	vlen = mc;
 	fin>>k; fin>>k; fin>>k; fin>>k;
 	int count =5;
 	feavec = Mat(mr,mc,CV_32F);//Memory should be released by Index
@@ -206,6 +207,21 @@ void KNNDetector::loadYAML(string fsfn,string indfn){
 
 	feaind = make_shared<Index>();
 	cout<<"loading flann index"<<endl;
-	feaind->load(feavec,indfn);
+
+	ifstream my_file(indfn);
+	if (my_file.good())
+	{
+		my_file.close();
+
+		feaind->load(feavec,indfn);
+	}else {
+		cout<<"file doesn't exist, begin creating..."<<endl;
+		KDTreeIndexParams indexParams;
+		feaind=make_shared<Index>(feavec,indexParams);
+
+		cout<<"index build"<<endl;
+		feaind->save(indfn);
+		cout<<"index saved"<<endl;
+	}
 	cout<<"index loaded"<<endl;
 }
