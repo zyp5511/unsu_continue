@@ -37,19 +37,21 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 	vector<float> dis(n);
 	feaind->knnSearch(vec,ind,dis,n);
 	map<int,int> count = map<int,int>();
-	if (dis[0]<9){
+	if (dis[0]<20){
 		cout<<"==============="<<endl;
 		for(auto i=0;i<ind.size();i++){
-			count[clus[ind[i]]]++;
-			cout<<ind[i]<<"\t:\t"<<clus[ind[i]]<<"\t:\t"<<dis[i]<<endl;
+			int nind = ind[i];
+			int nclu = clus[nind];
+			count[nclu]++;
+			cout<<nind<<"\t:\t"<<nclu<<"\t:\t"<<dis[i]<<endl;
 		}
 		int max =0;
 		int maxi = -1;
 		for(const auto& p:count){
 			if (p.second>max){
 				max = p.second;
-				maxi = p.first;
-			}
+				maxi = p.first; 
+			} 
 		}
 		cout<<"==============="<<endl;
 		if(max>2){
@@ -84,16 +86,18 @@ void KNNDetector::load(string fsfn,string indfn){//incompelete: FSload
 	FileStorage fs;
 	cout<<"opening "<<fsfn<<endl;
 	fs.open(fsfn, FileStorage::READ);
-	Mat clusMat;
-
-	cout<<"loading clus list"<<endl;
-	fs["index"] >> clusMat;
-	cout<<"transpose clus list"<<endl;
-	clus = vector<int>(clusMat.begin<int>(),clusMat.end<int>());
 
 	cout<<"loading feature matrix"<<endl;
-
 	fs["feature"] >> feavec;
+	int nr =feavec.rows;
+
+	cout<<"loading clus list"<<endl;
+	clus = vector<int>(nr);
+
+	fs["index"] >> clus;
+	cout<<"nr = "<<nr<<endl;
+	cout<<"clus size = "<<clus.size()<<endl;
+
 	fs.release();
 
 

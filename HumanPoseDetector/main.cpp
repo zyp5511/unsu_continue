@@ -109,7 +109,7 @@ int main(int argc, const char * argv[]) {
 					<< endl;
 			auto shortfea = a.project(fea);
 			FileStorage fs(evfn, FileStorage::WRITE);
-			fs << "eigenmeans" << a.mean;
+			fs << "mean" << a.mean;
 			fs << "eigenvalues" << a.eigenvalues;
 			fs << "eigenvectors" << a.eigenvectors;
 			fs.release();
@@ -157,17 +157,19 @@ int main(int argc, const char * argv[]) {
 			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 			ec->setSize(128, 96);
 
-			cout << "start loading index" << endl;
-			clock_t start = clock();
-			kd->loadYAML(fsfn, indfn);
-			double diff = (clock() - start) / (double) CLOCKS_PER_SEC;
-			cout << "we use " << diff << " seconds to load file!" << endl;
-
 			FileStorage pcafs(pcafn, FileStorage::READ);
 			PCA pca;
 			pcafs["mean"] >> pca.mean;
 			pcafs["eigenvalues"] >> pca.eigenvalues;
 			pcafs["eigenvectors"] >> pca.eigenvectors;
+			cout << "PCA loaded" << endl;
+
+			cout << "start loading index" << endl;
+			clock_t start = clock();
+			kd->load(fsfn, indfn);
+			double diff = (clock() - start) / (double) CLOCKS_PER_SEC;
+			cout << "we use " << diff << " seconds to load file!" << endl;
+
 
 			vector<bool> gc(k, false);
 			gc[14] = gc[15] = gc[19] = true;
