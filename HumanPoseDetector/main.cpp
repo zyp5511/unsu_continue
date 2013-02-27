@@ -80,15 +80,9 @@ int main(int argc, const char * argv[]) {
 
 			auto fp = FeaturePartitioner();
 			auto fl = FeatureLoader();
-			auto fw = FeatureWriter();
 			auto fea = fl.loadTab(fsfn);
 			vector<int> category(fea.rows);
 			fp.kmean(fea, category, k);
-			string resfn = argv[7];
-			//FileStorage fs(resfn,FileStorage::WRITE);
-			//fs<<"feature"<<fea;
-			//fs<<"index"<<category;
-			//fs.release();
 
 			ofstream fout(indfn);
 			for(auto i:category){
