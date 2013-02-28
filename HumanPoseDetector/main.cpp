@@ -113,7 +113,7 @@ int main(int argc, const char * argv[]) {
 		} else if (oper == "randomcrop") {
 			//set up patch cropper
 			string seperator_fn = argv[7];
-			auto nc = RandomCropper();
+			auto nc = RandomCropper(k);
 			nc.setSize(128, 96);
 			nc.collectSrcDir(srcfolder);
 			cout << "Patches created!" << endl;
