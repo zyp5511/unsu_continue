@@ -25,6 +25,7 @@ class RandomCropper:public ImageCropper {
 	public:
 		vector<int> category;
 		RandomCropper(){patchesPerImage = 50;};
+		RandomCropper(int k){patchesPerImage = k;};
 		~RandomCropper(){};
 		void collectSrcDir(string fname);
 

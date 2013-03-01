@@ -1,7 +1,7 @@
 OBJS = main.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
 CC = g++
 #CC = clang++
-DEBUG = -O2 -std=c++11 
+DEBUG = -O2 -g -std=c++11 
 #DEBUG = -O2 -std=c++11 -stdlib=libc++
 ROOT = /usr/local
 LD = -L$(ROOT)/lib
@@ -11,7 +11,7 @@ CFLAGS = $(DEBUG) -I$(ROOT)/include -c
 #TARGET = features.exe
 TARGET = unsu
 
-all: $(TARGET) $(TARGET_SCRIPT)
+all: $(TARGET)
 
 $(TARGET): $(OBJS) 
 	$(CC) $(OBJS) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET)
