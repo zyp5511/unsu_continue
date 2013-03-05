@@ -1,6 +1,5 @@
 *.o
 unsu
-script
 x64
 HumanPoseDetector.*
 *.v11.suo
