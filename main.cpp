@@ -47,24 +47,25 @@ int main(int argc, const char * argv[]) {
 		auto oper = string(argv[1]);
 
 		if (oper == "clusteranalysis") {
-			//auto fl = FeatureLoader();
-			//auto feavec = fl.loadTab(fsfn);
-			//ifstream fin(indfn);
+			auto fl = FeatureLoader();
+			auto feavec = fl.loadTab(fsfn);
+			ifstream fin(indfn);
+			int numvec = feavec.rows;
+			vector<int> ind(numvec);
+			for(int i=0;i<numvec;i++){
+				fin>>ind[i];
+			}
+			fin.close();
+
+			//Mat feavec;
 			//vector<int> ind(k);
-			//for(int i=0;i<k;i++){
-			//	fin>>ind[i];
-			//}
-			//fin.close();
+			//FileStorage fs(fsfn,FileStorage::READ);
+			//fs["feature"]>>feavec;
+			//fs["index"]>>ind;
+			//fs.release();
+			//cout<<"Feature Loaded"<<endl;
 
-			Mat feavec;
-			vector<int> ind(k);
-			FileStorage fs(fsfn,FileStorage::READ);
-			fs["feature"]>>feavec;
-			fs["index"]>>ind;
-			fs.release();
-			cout<<"Feature Loaded"<<endl;
 			auto clus = Cluster::makeClusters(feavec, ind, k);
-
 			string resfn = argv[7];
 			ofstream fout(resfn);
 			fout<<"Index\tMin\tMax\tAvg"<<endl;
