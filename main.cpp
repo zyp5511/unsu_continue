@@ -10,7 +10,11 @@
 #include <ctime>
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dirent.h>
+#endif
 #include "SVMDetector.h"
 #include "KNNDetector.h"
 #include "RandomCropper.h"
@@ -37,6 +41,9 @@ int main(int argc, const char * argv[]) {
 	string desfolder = "/Users/lichao/data/122012/clneg/";
 	string fsfn = "/Users/lichao/data/122012/kNNfea.yml";
 	string indfn = "/Users/lichao/data/122012/kNNind.txt";
+	clock_t overall_start = clock();
+
+			
 
 	int k = 100;
 	if (argc > 3) {
@@ -173,9 +180,12 @@ int main(int argc, const char * argv[]) {
 
 			vector<bool> gc(k, false);
 			gc[14] = gc[15] = gc[19] = true;
+			vector<string> files;
+
+#ifndef _WIN32
 
 			auto dp = opendir(srcfolder.c_str());
-			vector<string> files;
+
 			struct dirent *fp;
 			while ((fp = readdir(dp)) != NULL) {
 				if (((string(fp->d_name)).find(".jpg")) != string::npos) {
@@ -183,6 +193,23 @@ int main(int argc, const char * argv[]) {
 				}
 			}
 			closedir(dp);
+#else
+			
+
+			WIN32_FIND_DATA FindFileData;
+			HANDLE hFind = FindFirstFile(srcfolder.c_str(), &FindFileData);
+
+			files.push_back(FindFileData.cFileName);
+
+			while (FindNextFile(hFind, &FindFileData)){
+				if((string(FindFileData.cFileName).find(".jpg"))!=string::npos){
+					files.push_back(string(FindFileData.cFileName));
+				}
+			}
+
+#endif
+
+
 			sort(files.begin(), files.end());
 			auto itend = files.rend();
 			cout << "there are " << files.size() << " images" << endl;
@@ -190,6 +217,7 @@ int main(int argc, const char * argv[]) {
 #ifdef DEBUG
 			itend = files.rbegin()+50;
 #endif
+
 
 			for_each(files.rbegin(), itend,
 					[desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s) {
@@ -239,10 +267,10 @@ int main(int argc, const char * argv[]) {
 	} else {
 		cerr << "Number of args must > 3!" << endl;
 	}
-
+	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
+	cout << "FINISHED!  " << overall_diff << " seconds used." << endl;
 #if defined (_WIN32)
 	system("pause");
-
 #endif
 	return 0;
 }

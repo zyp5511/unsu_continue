@@ -9,31 +9,50 @@ FeatureLoader::FeatureLoader(void)
 FeatureLoader::~FeatureLoader(void)
 {
 }
-
+#define FAST_TAB_LOAD 1
 void FeatureLoader::loadTab2Eigen(string fn, MatrixXf& feavec){
+	clock_t overall_start = clock(); 
 	int mr,mc;
 	ifstream fin(fn);
 	fin>>mr;
 	fin>>mc;
 	feavec = MatrixXf(mr,mc);
-	for(size_t i=0;i<mr;i++)
+	for(size_t i=0;i<mr;i++){
+
+#ifdef FAST_TAB_LOAD
+		string line;
+		getline(fin,line);
+		istringstream iss(line);
+		for(size_t j=0;j<mc;j++){
+			string item;
+			iss>>feavec(i,j);
+		}
+#else
 		for(size_t j=0;j<mc;j++){
 			fin>>feavec(i,j);
 		}
+#endif
+	}
 	fin.close();
+	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
+	cout << "we use " << overall_diff << " seconds to write file!" << endl;
 }
 
 Mat FeatureLoader::loadTab(string fn){
+	clock_t overall_start = clock(); 
 	int mr,mc;
 	ifstream fin(fn);
 	fin>>mr;
 	fin>>mc;
 	Mat feavec(mr, mc, CV_32F);
-	for(size_t i=0;i<mr;i++)
+	for(size_t i=0;i<mr;i++){
 		for(size_t j=0;j<mc;j++){
 			fin>>feavec.at<float>(i,j);
 		}
+	}
 	fin.close();
+	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
+	cout << "we use " << overall_diff << " seconds to write file!" << endl;
 	return feavec;
 }
 

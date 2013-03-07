@@ -18,6 +18,7 @@ void FeatureWriter::saveYAML(string fsfn, const Mat& feavec){
 	fs.release();
 }
 void FeatureWriter::saveEigen2Tab(string fname, const MatrixXf& feavec){
+	clock_t overall_start = clock(); 
 	ofstream fout(fname);
 	auto nr = feavec.rows();
 	auto nc = feavec.cols();
@@ -32,8 +33,12 @@ void FeatureWriter::saveEigen2Tab(string fname, const MatrixXf& feavec){
 		fout<<"\n";//I think endl is slow, haven't tested :)
 	}
 	fout.close();
+
+	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
+	cout << "we use " << overall_diff << " seconds to write file!" << endl;
 }
 void FeatureWriter::saveTab(string fname, const Mat& feavec){
+	clock_t overall_start = clock(); 
 	ofstream fout(fname);
 	fout<<feavec.rows<<endl;
 	fout<<feavec.cols<<endl;
@@ -46,4 +51,6 @@ void FeatureWriter::saveTab(string fname, const Mat& feavec){
 		fout<<"\n";//I think endl is slow, haven't tested :)
 	}
 	fout.close();
+	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
+	cout << "we use " << overall_diff << " seconds to write file!" << endl;
 }
