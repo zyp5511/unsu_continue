@@ -9,6 +9,20 @@ FeatureLoader::FeatureLoader(void)
 FeatureLoader::~FeatureLoader(void)
 {
 }
+
+void FeatureLoader::loadTab2Eigen(string fn, MatrixXf& feavec){
+	int mr,mc;
+	ifstream fin(fn);
+	fin>>mr;
+	fin>>mc;
+	feavec = MatrixXf(mr,mc);
+	for(size_t i=0;i<mr;i++)
+		for(size_t j=0;j<mc;j++){
+			fin>>feavec(i,j);
+		}
+	fin.close();
+}
+
 Mat FeatureLoader::loadTab(string fn){
 	int mr,mc;
 	ifstream fin(fn);

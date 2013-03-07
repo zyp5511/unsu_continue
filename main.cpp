@@ -9,6 +9,7 @@
 #include <iostream>
 #include <ctime>
 #include <opencv2/opencv.hpp>
+#include <eigen3/Eigen/Dense>
 #include <dirent.h>
 #include "SVMDetector.h"
 #include "KNNDetector.h"
@@ -19,10 +20,12 @@
 #include "FeatureLoader.h"
 #include "FeatureWriter.h"
 #include "FeaturePartitioner.h"
+#include "FeaturePCA.h"
 #include "Cluster.h"
 
 using namespace std;
 using namespace cv;
+using namespace Eigen;
 
 
 #pragma mark main
@@ -95,14 +98,16 @@ int main(int argc, const char * argv[]) {
 			auto fl = FeatureLoader();
 
 			clock_t start = clock();
-			auto fea = fl.loadTab(fsfn);
+			MatrixXf fea;
+			fl.loadTab2Eigen(fsfn,fea);
 			double diff = (clock() - start) / (double) CLOCKS_PER_SEC;
 			cout << "we use " << diff << " seconds to load file!" << endl;
-
-			PCA a(fea, noArray(), CV_PCA_DATA_AS_ROW, 0.95);
-			cout << "there are " << a.eigenvalues.size() << " components in PCA"
+			auto pca = FeaturePCA(fea,0.95);
+			cout << "there are " << pca.ev.size() << " components in PCA"
 					<< endl;
-			auto shortfea = a.project(fea);
+			auto a = pca.getCVPCA();
+			MatrixXf shortfea;
+			pca.project(fea,shortfea);
 			FileStorage fs(evfn, FileStorage::WRITE);
 			fs << "mean" << a.mean;
 			fs << "eigenvalues" << a.eigenvalues;
@@ -110,7 +115,7 @@ int main(int argc, const char * argv[]) {
 			fs.release();
 			cout << "eigenvalue written in " << evfn << endl;
 			auto fw = FeatureWriter();
-			fw.saveTab(indfn, shortfea);		//use indfn as the destination.
+			fw.saveEigen2Tab(indfn, shortfea);		//use indfn as the destination.
 		} else if (oper == "randomcrop") {
 			//set up patch cropper
 			string seperator_fn = argv[7];

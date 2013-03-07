@@ -17,6 +17,22 @@ void FeatureWriter::saveYAML(string fsfn, const Mat& feavec){
 	fs << "feature" << feavec;
 	fs.release();
 }
+void FeatureWriter::saveEigen2Tab(string fname, const MatrixXf& feavec){
+	ofstream fout(fname);
+	auto nr = feavec.rows();
+	auto nc = feavec.cols();
+	fout<<nr<<endl;
+	fout<<nc<<endl;
+
+	for(int i = 0;i<nr;i++){
+		auto tempr = feavec.row(i);
+		for(int j=0;j<nc;j++){
+			fout<<tempr(j)<<"\t";
+		}
+		fout<<"\n";//I think endl is slow, haven't tested :)
+	}
+	fout.close();
+}
 void FeatureWriter::saveTab(string fname, const Mat& feavec){
 	ofstream fout(fname);
 	fout<<feavec.rows<<endl;

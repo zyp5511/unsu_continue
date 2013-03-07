@@ -1,8 +1,8 @@
-OBJS = main.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
-CC = g++
-#CC = clang++
-DEBUG = -O2 -g -std=c++11 
-#DEBUG = -O2 -std=c++11 -stdlib=libc++
+OBJS = main.o FeaturePCA.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
+#CC = g++
+CC = clang++
+#DEBUG = -O2 -g -std=c++11 
+DEBUG = -O2 -std=c++11 -stdlib=libc++
 ROOT = /usr/local
 LD = -L$(ROOT)/lib
 LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann
@@ -16,7 +16,7 @@ all: $(TARGET)
 $(TARGET): $(OBJS) 
 	$(CC) $(OBJS) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET)
 
-main.o: main.cpp Cluster.cpp Cluster.h FeatureWriter.cpp FeatureWriter.h FeaturePartitioner.cpp FeaturePartitioner.h FeatureLoader.cpp FeatureLoader.h Image.h Image.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp 
+main.o: main.cpp Cluster.cpp Cluster.h FeatureWriter.cpp FeatureWriter.h FeaturePartitioner.cpp FeaturePartitioner.h FeatureLoader.cpp FeatureLoader.h Image.h Image.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp FeaturePCA.cpp FeaturePCA.h
 	$(CC) $(CFLAGS) main.cpp      
 
 
@@ -25,6 +25,9 @@ Feature.o: Feature.cpp Feature.h
 
 FeatureLoader.o: FeatureLoader.cpp FeatureLoader.h
 	$(CC) $(CFLAGS) FeatureLoader.cpp      
+
+FeaturePCA.o: FeaturePCA.cpp FeaturePCA.h
+	$(CC) $(CFLAGS) FeaturePCA.cpp
 
 FeaturePartitioner.o: FeaturePartitioner.cpp FeaturePartitioner.h
 	$(CC) $(CFLAGS) FeaturePartitioner.cpp      
