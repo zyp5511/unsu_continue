@@ -43,7 +43,7 @@ int main(int argc, const char * argv[]) {
 	string indfn = "/Users/lichao/data/122012/kNNind.txt";
 	clock_t overall_start = clock();
 
-			
+
 
 	int k = 100;
 	if (argc > 3) {
@@ -101,20 +101,21 @@ int main(int argc, const char * argv[]) {
 			}
 			fout.close(); //use indfn as the destination.
 		} else if (oper == "pca") {
+#ifndef OLD_PCA
 			string evfn = argv[7];
 			auto fl = FeatureLoader();
 
-			clock_t start = clock();
 			MatrixXf fea;
 			fl.loadTab2Eigen(fsfn,fea);
-			double diff = (clock() - start) / (double) CLOCKS_PER_SEC;
-			cout << "we use " << diff << " seconds to load file!" << endl;
 			auto pca = FeaturePCA(fea,0.95);
-			cout << "there are " << pca.ev.size() << " components in PCA"
-					<< endl;
+			cout << "there are " << pca.el.size() << " components in PCA"
+				<< endl;
 			auto a = pca.getCVPCA();
 			MatrixXf shortfea;
-			pca.project(fea,shortfea);
+#ifdef DEBUG_PCA
+			cout<<"fea:"<<endl<<fea<<endl;
+#endif
+			pca.projectZeroMean(fea,shortfea);
 			FileStorage fs(evfn, FileStorage::WRITE);
 			fs << "mean" << a.mean;
 			fs << "eigenvalues" << a.eigenvalues;
@@ -123,12 +124,30 @@ int main(int argc, const char * argv[]) {
 			cout << "eigenvalue written in " << evfn << endl;
 			auto fw = FeatureWriter();
 			fw.saveEigen2Tab(indfn, shortfea);		//use indfn as the destination.
+#else
+			string evfn = argv[7];
+			auto fl = FeatureLoader();
+
+			auto fea = fl.loadTab(fsfn);
+
+			PCA a(fea, noArray(), CV_PCA_DATA_AS_ROW, 0.95);
+			cout << "there are " << a.eigenvalues.size() << " components in PCA"
+				<< endl;
+			auto shortfea = a.project(fea);
+			FileStorage fs(evfn, FileStorage::WRITE);
+			fs << "mean" << a.mean;
+			fs << "eigenvalues" << a.eigenvalues;
+			fs << "eigenvectors" << a.eigenvectors;
+			fs.release();
+			cout << "eigenvalue written in " << evfn << endl;
+			auto fw = FeatureWriter();
+			fw.saveTab(indfn, shortfea);    //use indfn as the destination.
+#endif
 		} else if (oper == "randomcrop") {
 			//set up patch cropper
 			string seperator_fn = argv[7];
 			auto nc = RandomCropper(k);
-			nc.setSize(128, 96);
-			nc.collectSrcDir(srcfolder);
+			nc.setSize(128, 96); nc.collectSrcDir(srcfolder);
 			cout << "Patches created!" << endl;
 			nc.exportFeatures(fsfn);
 			nc.exportPatches(desfolder);
@@ -194,7 +213,7 @@ int main(int argc, const char * argv[]) {
 			}
 			closedir(dp);
 #else
-			
+
 
 			WIN32_FIND_DATA FindFileData;
 			HANDLE hFind = FindFirstFile(srcfolder.c_str(), &FindFileData);
@@ -221,43 +240,43 @@ int main(int argc, const char * argv[]) {
 
 			for_each(files.rbegin(), itend,
 					[desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s) {
-						auto fname = srcfolder+s;
-						cout<<fname<<endl;
-						ImageWrapper iw(kd,ec);
-						Mat mat = imread(fname);
-						if (mat.rows>600) {
-							resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
-						}
+					auto fname = srcfolder+s;
+					cout<<fname<<endl;
+					ImageWrapper iw(kd,ec);
+					Mat mat = imread(fname);
+					if (mat.rows>600) {
+					resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
+					}
 
-						iw.setImage(mat);
-						iw.setBins(k);
-						iw.collectPatches();
+					iw.setImage(mat);
+					iw.setBins(k);
+					iw.collectPatches();
 
-						iw.collectResult(pca);
-						iw.calcClusHist();
-						vector<int> vec = iw.histogram;
-						for(int i=0;i<k;i++) {
-							fout<<vec[i]<<",";
-						}
-						fout<<endl;
-						Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-							Scalar(0,255,255)};
-						int count = 0;
+					iw.collectResult(pca);
+					iw.calcClusHist();
+					vector<int> vec = iw.histogram;
+					for(int i=0;i<k;i++) {
+					fout<<vec[i]<<",";
+					}
+					fout<<endl;
+					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+						Scalar(0,255,255)};
+					int count = 0;
 
-						if (iw.match(gc)) {
-							cout<<fname<<" matched!"<<endl;
-							auto r= iw.matchArea(gc);
-							Mat out = mat.clone();
-							rectangle(out,r,Scalar(255,255,255));
-							vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
-							for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs) {
-										for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r) {
-													rectangle(out,r,colors[count]);
-												});
-										count++;
+					if (iw.match(gc)) {
+						cout<<fname<<" matched!"<<endl;
+						auto r= iw.matchArea(gc);
+						Mat out = mat.clone();
+						rectangle(out,r,Scalar(255,255,255));
+						vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
+						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs) {
+								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r) {
+									rectangle(out,r,colors[count]);
 									});
-							imwrite(desfolder+s, out);
-						}
+								count++;
+								});
+						imwrite(desfolder+s, out);
+					}
 
 					});
 

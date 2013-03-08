@@ -1,8 +1,8 @@
 OBJS = main.o FeaturePCA.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
-#CC = g++
-CC = clang++
-#DEBUG = -O2 -g -std=c++11 
-DEBUG = -O2 -std=c++11 -stdlib=libc++
+CC = g++
+#CC = clang++
+DEBUG =  -O2 -g -std=c++11 
+#DEBUG = -O2 -std=c++11 -stdlib=libc++
 ROOT = /usr/local
 LD = -L$(ROOT)/lib
 LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann

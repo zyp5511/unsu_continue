@@ -9,7 +9,6 @@ FeatureLoader::FeatureLoader(void)
 FeatureLoader::~FeatureLoader(void)
 {
 }
-#define FAST_TAB_LOAD 1
 void FeatureLoader::loadTab2Eigen(string fn, MatrixXf& feavec){
 	clock_t overall_start = clock(); 
 	int mr,mc;
@@ -35,7 +34,7 @@ void FeatureLoader::loadTab2Eigen(string fn, MatrixXf& feavec){
 	}
 	fin.close();
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
-	cout << "we use " << overall_diff << " seconds to write file!" << endl;
+	cout << "we use " << overall_diff << " seconds to load file!" << endl;
 }
 
 Mat FeatureLoader::loadTab(string fn){
