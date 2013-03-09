@@ -11,7 +11,7 @@ FeaturePCA::FeaturePCA(MatrixXf&fea, float retainedVar){
 	MatrixXf covar(len, len);
 	fea.rowwise()-=mean;
 
-	covar = fea.transpose()*fea;
+	covar = fea.transpose()*fea/in_count;
 #ifdef DEBUG_PCA
 	cout<<"cor"<<endl;
 	cout<<covar<<endl;
