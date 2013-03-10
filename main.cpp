@@ -153,20 +153,66 @@ int main(int argc, const char * argv[]) {
 			nc.exportPatches(desfolder);
 			nc.exportSeperators(seperator_fn);
 		} else if (oper == "knnclassify") {
+			string pcafn = argv[7];
+
 			//set up patch cropper
-			auto nc = ExhaustiveCropper();
-			nc.setSize(128, 96);
-			string name;
-			KNNDetector kd;
+			shared_ptr<KNNDetector> kd(new KNNDetector());
+			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+			ec->setSize(128, 96);
+
+			FileStorage pcafs(pcafn, FileStorage::READ);
+			PCA pca;
+			pcafs["mean"] >> pca.mean;
+			pcafs["eigenvalues"] >> pca.eigenvalues;
+			pcafs["eigenvectors"] >> pca.eigenvectors;
+			cout << "PCA loaded" << endl;
+
 			cout << "start loading index" << endl;
-			kd.loadYAML(fsfn, indfn);
+			kd->load(fsfn, indfn);
+
+			string name;
 			cout << "Please input image filename" << endl;
+
+			vector<bool> gc(k, false);
+			gc[14] = gc[15] = gc[19] = true;
 
 			while (getline(cin, name)) {
 				try {
 					auto fname = srcfolder + name + ".jpg";
 					cout << "loading file " << fname << endl;
 
+					ImageWrapper iw(kd,ec);
+					Mat mat = imread(fname);
+
+					iw.setImage(mat);
+					iw.setBins(k);
+					iw.collectPatches();
+
+					iw.collectResult(pca);
+					iw.calcClusHist();
+					vector<int> vec = iw.histogram;
+					for(int i=0;i<k;i++) {
+						cout<<vec[i]<<",";
+					}
+					cout<<endl;
+					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+						Scalar(0,255,255)};
+					int count = 0;
+
+					if (iw.match(gc)) {
+						cout<<fname<<" matched!"<<endl;
+						auto r= iw.matchArea(gc);
+						Mat out = mat.clone();
+						rectangle(out,r,Scalar(255,255,255));
+						vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
+						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs) {
+								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r) {
+									rectangle(out,r,colors[count]);
+									});
+								count++;
+								});
+						imwrite(desfolder+name+".jpg", out);
+					}
 				} catch (Exception e) {
 					cerr << e.msg << endl;
 				}
@@ -191,10 +237,7 @@ int main(int argc, const char * argv[]) {
 			cout << "PCA loaded" << endl;
 
 			cout << "start loading index" << endl;
-			clock_t start = clock();
 			kd->load(fsfn, indfn);
-			double diff = (clock() - start) / (double) CLOCKS_PER_SEC;
-			cout << "we use " << diff << " seconds to load file!" << endl;
 
 
 			vector<bool> gc(k, false);
@@ -244,9 +287,6 @@ int main(int argc, const char * argv[]) {
 					cout<<fname<<endl;
 					ImageWrapper iw(kd,ec);
 					Mat mat = imread(fname);
-					if (mat.rows>600) {
-					resize(mat, mat, Size(),600.0/mat.rows,600.0/mat.rows);
-					}
 
 					iw.setImage(mat);
 					iw.setBins(k);
@@ -260,7 +300,7 @@ int main(int argc, const char * argv[]) {
 					}
 					fout<<endl;
 					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-						Scalar(0,255,255)};
+					Scalar(0,255,255)};
 					int count = 0;
 
 					if (iw.match(gc)) {
