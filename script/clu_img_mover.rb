@@ -6,7 +6,7 @@ clulist = ARGV[2]
 puts "Collecting imgs from #{ srcfolder } to #{ desfolder } acording to #{clulist} ..."
 set = Set.new
 IO.foreach(clulist).with_index do|c,i|
-		subdir = "#{desfolder}#{c}".chomp
+		subdir = "#{desfolder}/#{c}".chomp
 	if !set.include?(c)
 		FileUtils.mkdir(subdir)
 		set<<c;

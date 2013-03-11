@@ -174,7 +174,8 @@ int main(int argc, const char * argv[]) {
 			cout << "Please input image filename" << endl;
 
 			vector<bool> gc(k, false);
-			gc[14] = gc[15] = gc[19] = true;
+			gc[112]=gc[604]=true;
+			//gc[14] = gc[15] = gc[19] = true;
 
 			while (getline(cin, name)) {
 				try {
@@ -241,7 +242,8 @@ int main(int argc, const char * argv[]) {
 
 
 			vector<bool> gc(k, false);
-			gc[14] = gc[15] = gc[19] = true;
+			//gc[14] = gc[15] = gc[19] = true;
+			gc[112]=gc[604]=true;
 			vector<string> files;
 
 #ifndef _WIN32

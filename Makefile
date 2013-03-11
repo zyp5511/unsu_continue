@@ -1,4 +1,4 @@
-OBJS = main.o FeaturePCA.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o KNNDetector.o
+OBJS = main.o FeaturePCA.o Cluster.o FeaturePartitioner.o FeatureWriter.o FeatureLoader.o Image.o Feature.o PatchDetector.o SVMDetector.o ExhaustiveCropper.o ImageCropper.o RandomCropper.o FLANNDetector.o KNNDetector.o
 CC = g++
 #CC = icpc
 #CC = clang++
@@ -9,7 +9,7 @@ DEBUG = $(MKL) -O2 -g -std=c++11
 LOCAL = /usr/local
 EIGEN = /usr/local/include/eigen3
 LD = -L$(LOCAL)/lib
-LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann $(MKLLIBS)
+LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann $(MKLLIBSOMP)
 MKLLIBS = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm
 MKLLIBSOMP = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm
 LFLAGS = $(DEBUG)
@@ -22,7 +22,7 @@ all: $(TARGET)
 $(TARGET): $(OBJS) 
 	$(CC) $(OBJS) $(LFLAGS) $(LD) $(LDLIBS) -o $(TARGET)
 
-main.o: main.cpp Cluster.cpp Cluster.h FeatureWriter.cpp FeatureWriter.h FeaturePartitioner.cpp FeaturePartitioner.h FeatureLoader.cpp FeatureLoader.h Image.h Image.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp FeaturePCA.cpp FeaturePCA.h
+main.o: main.cpp Cluster.cpp Cluster.h FeatureWriter.cpp FeatureWriter.h FeaturePartitioner.cpp FeaturePartitioner.h FeatureLoader.cpp FeatureLoader.h Image.h Image.cpp Feature.h Feature.cpp PatchDetector.h PatchDetector.cpp SVMDetector.h SVMDetector.cpp ExhaustiveCropper.h ExhaustiveCropper.cpp ImageCropper.h ImageCropper.cpp RandomCropper.h RandomCropper.cpp KNNDetector.h KNNDetector.cpp FLANNDetector.h FLANNDetector.cpp FeaturePCA.cpp FeaturePCA.h
 	$(CC) $(CFLAGS) main.cpp      
 
 
@@ -61,6 +61,9 @@ PatchDetector.o: PatchDetector.cpp PatchDetector.h
 
 KNNDetector.o: KNNDetector.cpp KNNDetector.h 
 	$(CC) $(CFLAGS) KNNDetector.cpp          
+
+FLANNDetector.o: FLANNDetector.cpp FLANNDetector.h 
+	$(CC) $(CFLAGS) FLANNDetector.cpp          
 
 SVMDetector.o: SVMDetector.cpp SVMDetector.h 
 	$(CC) $(CFLAGS) SVMDetector.cpp          

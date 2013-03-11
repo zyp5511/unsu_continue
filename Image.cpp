@@ -24,6 +24,7 @@ void ImageWrapper::setImage(string imgFilename){
 }
 void ImageWrapper::collectPatches(){
 	ic->setUp(img);
+	cout<<"We collected "<<ic->size()<<" patches."<<endl;
 }
 void ImageWrapper::collectResult(const PCA& pca){
 	auto it_mats = ic->getMats();
