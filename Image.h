@@ -15,6 +15,12 @@
 #include "ImageCropper.h"
 #include "Feature.h"
 
+#ifndef SEQ_IMG 
+#include "tbb/tbb.h"
+#endif
+
+using namespace tbb;
+
 class ImageWrapper {
 	shared_ptr<PatchDetector> pd;
 	shared_ptr<ImageCropper> ic;

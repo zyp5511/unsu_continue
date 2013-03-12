@@ -5,11 +5,11 @@ CC = g++
 MKL = -DEIGEN_USE_MKL_ALL 
 DEBUG = $(MKL) -O2 -g -std=c++11 
 #DEBUG =  -O2 -g -std=c++11
-#DEBUG = -O2 -std=c++11 -stdlib=libc++
+#DEBUG = -O2 $(MKL) -std=c++11 -stdlib=libc++
 LOCAL = /usr/local
 EIGEN = /usr/local/include/eigen3
 LD = -L$(LOCAL)/lib
-LDLIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann $(MKLLIBSOMP)
+LDLIBS = -ltbb -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_flann $(MKLLIBSOMP)
 MKLLIBS = -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm
 MKLLIBSOMP = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm
 LFLAGS = $(DEBUG)

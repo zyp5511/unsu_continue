@@ -30,6 +30,19 @@ void ImageWrapper::collectResult(const PCA& pca){
 	auto it_mats = ic->getMats();
 	auto end_mats = ic->getMatsEnd();
 	int c =0;
+#ifndef SEQ_IMG 
+	parallel_for_each(
+			it_mats,
+			end_mats,[&](Mat m)
+			{
+			Mat temp = m.clone();
+			Feature fea(temp,pca);
+			fea.detect(*pd);
+			results.push_back(fea.getResult());
+			c++;
+			}
+			);
+#else
 	for(;it_mats!=end_mats;it_mats++){
 		Mat temp = it_mats -> clone();
 		Feature fea(temp,pca);
@@ -37,6 +50,8 @@ void ImageWrapper::collectResult(const PCA& pca){
 		results.push_back(fea.getResult());
 		c++;
 	}
+
+#endif
 }
 void ImageWrapper::collectResult(){
 	auto it_mats = ic->getMats();
