@@ -1,0 +1,14 @@
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Unsu_SOURCE_DIR}/cmake)
+include_directories(${Unsu_SOURCE_DIR}/include)
+find_package( TBB REQUIRED )
+find_package( OpenCV REQUIRED)
+
+
+set(SRCS Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp)
+
+add_executable(unsu ${SRCS})
+include_directories(${TBB_INCLUDE_DIRS})
+target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} )
+
+
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
