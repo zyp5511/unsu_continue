@@ -31,16 +31,17 @@ void ImageWrapper::collectResult(const PCA& pca){
 	auto end_mats = ic->getMatsEnd();
 	int c =0;
 #ifndef SEQ_IMG 
-	parallel_for_each(
-			it_mats,
-			end_mats,[&](Mat m)
+	auto mat_count = ic->all_mats.size();
+	results = concurrent_vector<Result>(mat_count);
+	parallel_for(
+			size_t(0),
+			mat_count,
+			[&](size_t i)
 			{
-			Mat temp = m.clone();
+			Mat temp = ic->all_mats[i].clone();
 			Feature fea(temp,pca);
 			fea.detect(*pd);
-			results.push_back(fea.getResult());
-			c++;
-			}
+			results[i]=(fea.getResult()); }
 			);
 #else
 	for(;it_mats!=end_mats;it_mats++){
@@ -79,7 +80,7 @@ void ImageWrapper::calcClusHist(){
 
 void ImageWrapper::setBins(int n){
 	histogram = vector<int>(n,0);
-	results = vector<Result>();
+	results = concurrent_vector<Result>();
 	rtb = vector<vector<Rect>>(n,vector<Rect>());
 }
 

@@ -39,13 +39,13 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 	}
 	
 	map<int,int> count = map<int,int>();
-	if (dis[0]<10){
-		cout<<"==============="<<endl;
+	if (dis[0]<12){
+		//cout<<"==============="<<endl;
 		for(auto i=0;i<n;i++){
 			int nind = ind[i];
 			int nclu = clus[nind];
 			count[nclu]++;
-			cout<<nind<<"\t:\t"<<nclu<<"\t:\t"<<dis[i]<<endl;
+			//cout<<nind<<"\t:\t"<<nclu<<"\t:\t"<<dis[i]<<endl;
 		}
 		int max =0;
 		int maxi = -1;
@@ -55,7 +55,7 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 				maxi = p.first; 
 			} 
 		}
-		cout<<"==============="<<endl;
+		//cout<<"==============="<<endl;
 		if(max>1){
 			c = maxi;
 			score = dis[0];//not good.. not real distance.

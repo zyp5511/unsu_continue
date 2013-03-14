@@ -11,4 +11,4 @@ include_directories(${TBB_INCLUDE_DIRS})
 target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} )
 
 
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-O2 -std=c++11 ${CMAKE_CXX_FLAGS}")

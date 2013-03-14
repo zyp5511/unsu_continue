@@ -39,13 +39,14 @@ class ImageCropper
 		size_t size(){
 			return all_rects.size();
 		}
+		vector<Rect> all_rects;
+		vector<Mat> all_mats;
+
 
 	protected:
 		int patch_r;
 		int patch_c;
 		int stride;
 		vector<Mat> pyr;
-		vector<Rect> all_rects;
-		vector<Mat> all_mats;
 };
 #endif /* defined(__HumanPoseDetector__ImageCropper__) */

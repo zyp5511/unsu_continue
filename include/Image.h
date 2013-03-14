@@ -24,7 +24,7 @@ using namespace tbb;
 class ImageWrapper {
 	shared_ptr<PatchDetector> pd;
 	shared_ptr<ImageCropper> ic;
-	vector<Result> results;
+	concurrent_vector<Result> results;
 	vector<vector<Rect>> rtb; //reversal lookup table
 	Mat img;
 

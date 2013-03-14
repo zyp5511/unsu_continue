@@ -243,7 +243,8 @@ int main(int argc, const char * argv[]) {
 
 			vector<bool> gc(k, false);
 			//gc[14] = gc[15] = gc[19] = true;
-			gc[112]=gc[604]=true;
+			//gc[112]=gc[604]=true;
+			gc[30]=true;
 			vector<string> files;
 
 #ifndef _WIN32
@@ -286,9 +287,9 @@ int main(int argc, const char * argv[]) {
 			for_each(files.rbegin(), itend,
 					[desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s) {
 					auto fname = srcfolder+s;
-					cout<<fname<<endl;
 					ImageWrapper iw(kd,ec);
 					Mat mat = imread(fname);
+					cout<<fname<<"\t"<<mat.size()<<endl;
 
 					iw.setImage(mat);
 					iw.setBins(k);
