@@ -4,7 +4,7 @@ find_package( TBB REQUIRED )
 find_package( OpenCV REQUIRED)
 
 
-set(SRCS Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp)
+set(SRCS Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp)
 
 add_executable(unsu ${SRCS})
 include_directories(${TBB_INCLUDE_DIRS})
@@ -12,3 +12,7 @@ target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} )
 
 
 set(CMAKE_CXX_FLAGS "-O2 -std=c++11 ${CMAKE_CXX_FLAGS}")
+
+if(APPLE)
+	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+endif(APPLE)

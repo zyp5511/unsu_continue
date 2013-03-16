@@ -9,7 +9,7 @@ void KNNDetector::load(string vecfn,string clusfn){
 	auto fl = FeatureLoader();
 	feavec = fl.loadTab(vecfn);
 	int in_count = feavec.rows;
-	
+
 	//Load cluster index
 	ifstream fin(clusfn);
 	clus = vector<int>(in_count);
@@ -17,7 +17,10 @@ void KNNDetector::load(string vecfn,string clusfn){
 		fin>>clus[i];
 	}
 	fin.close();
+	cout<<"there are "<<feavec.rows<<" samples out of "<<feavec.rows<<endl;
 }
+
+
 
 void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 	int n = 5;
@@ -37,7 +40,7 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 		dis[j]=temp;
 		ind[j]=i;
 	}
-	
+
 	map<int,int> count = map<int,int>();
 	if (dis[0]<12){
 		//cout<<"==============="<<endl;

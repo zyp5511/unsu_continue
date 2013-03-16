@@ -16,7 +16,7 @@ class KNNDetector :
 		~KNNDetector(void)=default;
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 		void load(string fsfn,string clusfn);//load feature and indice list
-	private:
+	protected:
 		vector<int> clus;//cluster tag
 		Mat feavec;//feature index, hold memory
 };

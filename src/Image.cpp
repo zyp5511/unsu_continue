@@ -26,6 +26,20 @@ void ImageWrapper::collectPatches(){
 	ic->setUp(img);
 	cout<<"We collected "<<ic->size()<<" patches."<<endl;
 }
+void ImageWrapper::scan(const vector<bool>& gamecard, const PCA& pca){
+	auto mat_count = ic->all_mats.size();
+	results = concurrent_vector<Result>(mat_count);
+	parallel_for(
+			size_t(0),
+			mat_count,
+			[&](size_t i)
+			{
+			Mat temp = ic->all_mats[i].clone();
+			Feature fea(temp,pca);
+			fea.detect(*pd);
+			results[i]=(fea.getResult()); }
+			);
+}
 void ImageWrapper::collectResult(const PCA& pca){
 	auto it_mats = ic->getMats();
 	auto end_mats = ic->getMatsEnd();
@@ -51,7 +65,6 @@ void ImageWrapper::collectResult(const PCA& pca){
 		results.push_back(fea.getResult());
 		c++;
 	}
-
 #endif
 }
 void ImageWrapper::collectResult(){

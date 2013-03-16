@@ -39,6 +39,7 @@ class ImageWrapper {
 	void collectResult(const PCA& pca);
 	void calcClusHist();
 	void setBins(int n);
+	void scan(const vector<bool>& gamecard, const PCA& pca);
 	bool match(vector<bool>);
 	Rect matchArea(vector<bool>);
 	vector<vector<Rect>> matchAreaDebug(vector<bool>);
