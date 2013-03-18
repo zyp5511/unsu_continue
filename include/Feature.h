@@ -10,6 +10,7 @@ struct Result {
 	Result(){category = -1; score = 0;};
 	int category;
 	float score;
+	Rect rect;
 };
 
 class Feature

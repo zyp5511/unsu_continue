@@ -17,7 +17,6 @@ void KNNDetector::load(string vecfn,string clusfn){
 		fin>>clus[i];
 	}
 	fin.close();
-	cout<<"there are "<<feavec.rows<<" samples out of "<<feavec.rows<<endl;
 }
 
 

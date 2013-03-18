@@ -144,8 +144,9 @@ vector<Rect> ImageWrapper::scanDebug(int len){
 			return results[x].score<results[y].score;
 			});
 	auto res = vector<Rect>();
+	int reslen = len>mat_count?mat_count:len;
 	for (int i=0; i<len; i++) {
-			res.push_back(ic->all_rects[i]);
+			res.push_back(ic->all_rects[a[i]]);
 	}
 	return res;
 }

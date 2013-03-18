@@ -17,6 +17,7 @@ LatentDetector::LatentDetector(string vecfname,string clusfname,const vector<boo
 			feavec.push_back(temp.row(i));
 		}
 	}
+	cout<<"There are "<<feavec.rows<<" vectors out of "<<temp.rows<<endl;
 	fin.close();
 }
 

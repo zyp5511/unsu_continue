@@ -156,7 +156,7 @@ int main(int argc, const char * argv[]) {
 			string pcafn = argv[7];
 
 			//set up patch cropper
-			shared_ptr<LatentDetector> kd(new LatentDetector());
+			shared_ptr<LatentDetector> kd;
 			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 			ec->setSize(128, 96);
 
@@ -167,14 +167,15 @@ int main(int argc, const char * argv[]) {
 			pcafs["eigenvectors"] >> pca.eigenvectors;
 			cout << "PCA loaded" << endl;
 
+			vector<bool> gc(k, false);
+			gc[19]=true;
+
 			cout << "start loading index" << endl;
-			kd->load(fsfn, indfn);
+			kd=make_shared<LatentDetector>(fsfn, indfn,gc);
 
 			string name;
 			cout << "Please input image filename" << endl;
 
-			vector<bool> gc(k, false);
-			gc[112]=gc[604]=true;
 			//gc[14] = gc[15] = gc[19] = true;
 
 			while (getline(cin, name)) {
@@ -184,7 +185,7 @@ int main(int argc, const char * argv[]) {
 					Mat mat = imread(fname);
 					cout << "loading file " << fname << endl;
 					ImageWrapper iw(kd,ec);
-					
+
 					//Prepare Image Wrapper
 					iw.setImage(mat);
 					iw.setBins(k);
@@ -195,10 +196,11 @@ int main(int argc, const char * argv[]) {
 					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
 						Scalar(0,255,255)};
 					Mat out = mat.clone();
-					vector<Rect> debugs = iw.scanDebug(gc);
+					vector<Rect> debugs = iw.scanDebug(10);
 					int dsize= debugs.size();
-					for(size_t i=0;i<dsize;i++){
-							rectangle(out,debugs[i],colors[0]);
+					rectangle(out,debugs[0],colors[1]);
+					for(size_t i=1;i<dsize;i++){
+						rectangle(out,debugs[i],colors[0]);
 					}
 					imwrite(desfolder+name+".jpg", out);
 				} catch (Exception e) {
