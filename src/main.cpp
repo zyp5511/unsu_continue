@@ -17,6 +17,7 @@
 #endif
 #include "SVMDetector.h"
 #include "KNNDetector.h"
+#include "LatentDetector.h"
 #include "RandomCropper.h"
 #include "ExhaustiveCropper.h"
 #include "Feature.h"
@@ -55,7 +56,6 @@ int main(int argc, const char * argv[]) {
 		indfn = argv[6];
 
 		auto oper = string(argv[1]);
-
 		if (oper == "clusteranalysis") {
 			auto fl = FeatureLoader();
 			auto feavec = fl.loadTab(fsfn);
@@ -152,6 +152,60 @@ int main(int argc, const char * argv[]) {
 			nc.exportFeatures(fsfn);
 			nc.exportPatches(desfolder);
 			nc.exportSeperators(seperator_fn);
+		} else if (oper == "latent") {
+			string pcafn = argv[7];
+
+			//set up patch cropper
+			shared_ptr<LatentDetector> kd(new LatentDetector());
+			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+			ec->setSize(128, 96);
+
+			FileStorage pcafs(pcafn, FileStorage::READ);
+			PCA pca;
+			pcafs["mean"] >> pca.mean;
+			pcafs["eigenvalues"] >> pca.eigenvalues;
+			pcafs["eigenvectors"] >> pca.eigenvectors;
+			cout << "PCA loaded" << endl;
+
+			cout << "start loading index" << endl;
+			kd->load(fsfn, indfn);
+
+			string name;
+			cout << "Please input image filename" << endl;
+
+			vector<bool> gc(k, false);
+			gc[112]=gc[604]=true;
+			//gc[14] = gc[15] = gc[19] = true;
+
+			while (getline(cin, name)) {
+				try {
+					//Read Image
+					auto fname = srcfolder + name + ".jpg";
+					Mat mat = imread(fname);
+					cout << "loading file " << fname << endl;
+					ImageWrapper iw(kd,ec);
+					
+					//Prepare Image Wrapper
+					iw.setImage(mat);
+					iw.setBins(k);
+
+					iw.collectPatches();//cropping
+					iw.scan(gc,pca);//kNN matching
+
+					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+						Scalar(0,255,255)};
+					Mat out = mat.clone();
+					vector<Rect> debugs = iw.scanDebug(gc);
+					int dsize= debugs.size();
+					for(size_t i=0;i<dsize;i++){
+							rectangle(out,debugs[i],colors[0]);
+					}
+					imwrite(desfolder+name+".jpg", out);
+				} catch (Exception e) {
+					cerr << e.msg << endl;
+				}
+				cout << "Please input image filename" << endl;
+			}
 		} else if (oper == "knnclassify") {
 			string pcafn = argv[7];
 

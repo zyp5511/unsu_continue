@@ -32,16 +32,28 @@ class ImageWrapper {
 	vector<int> histogram;
 	ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
 	~ImageWrapper(){};
+	/*
+	 * pre-processing
+	 */
 	void setImage(Mat image);
 	void setImage(string imgFilename);
 	void collectPatches();
+	void setBins(int n);
+	
+	/*
+	 * batch KNN matching, observation vector generating, pattern matching
+	 */
 	void collectResult();
 	void collectResult(const PCA& pca);
 	void calcClusHist();
-	void setBins(int n);
-	void scan(const vector<bool>& gamecard, const PCA& pca);
-	bool match(vector<bool>);
-	Rect matchArea(vector<bool>);
-	vector<vector<Rect>> matchAreaDebug(vector<bool>);
+	bool match(vector<bool>);//if certain pattern are matched by image's histogram
+	Rect matchArea(vector<bool>);//minRect cover all rects from certain clusters of kNN result 
+	vector<vector<Rect>> matchAreaDebug(vector<bool>);//all rects from certain clusters of kNN result
+
+	/*
+	 * scanning latent variables
+	 */
+	void scan(const vector<bool>& gamecard, const PCA& pca);//best match for a given set of clusters
+	vector<Rect> scanDebug(int i);//rects of top i responce from certain clusters of scan result
 };
 #endif /* defined(__HumanPoseDetector__Image__) */
