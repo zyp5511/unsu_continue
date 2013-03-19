@@ -300,7 +300,8 @@ int main(int argc, const char * argv[]) {
 			vector<bool> gc(k, false);
 			//gc[14] = gc[15] = gc[19] = true;
 			//gc[112]=gc[604]=true;
-			gc[30]=true;
+			//gc[30]=true;
+			gc[112]=gc[893]=true;
 			vector<string> files;
 
 #ifndef _WIN32
