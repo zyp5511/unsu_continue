@@ -301,7 +301,11 @@ int main(int argc, const char * argv[]) {
 			//gc[14] = gc[15] = gc[19] = true;
 			//gc[112]=gc[604]=true;
 			//gc[30]=true;
-			gc[112]=gc[893]=true;
+			//gc[112]=gc[893]=true;
+			vector<int> trueset{331,112,991,942,222,732,458,685,184,273,893};
+			for_each(trueset.begin(),trueset.end(),[&](int i){
+					gc[i]=true;
+					});
 			vector<string> files;
 
 #ifndef _WIN32
@@ -359,8 +363,11 @@ int main(int argc, const char * argv[]) {
 					fout<<vec[i]<<",";
 					}
 					fout<<endl;
-					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-					Scalar(0,255,255)};
+					Scalar colors[]= {Scalar(128,0,0),Scalar(0,128,0),Scalar(0,0,128),
+					Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+					Scalar(0,255,255),Scalar(255,0,255),Scalar(255,255,0),
+					Scalar(0,128,128),Scalar(128,0,128),Scalar(128,128,0),
+					Scalar(64,64,64),Scalar(128,128,128),Scalar(255,255,255)};
 					int count = 0;
 
 					if (iw.match(gc)) {
