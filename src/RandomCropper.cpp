@@ -9,13 +9,15 @@
 #include "RandomCropper.h"
 #include<fstream>
 
-
-
+#if defined (_WIN32)
+#include <windows.h>
+#else
+#include <dirent.h>
+#endif
 void RandomCropper::collectSrcDir(string fname){
 
 	vector<string> files;
 #if defined (_WIN32)
-#include <windows.h>
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = FindFirstFile(fname.c_str(), &FindFileData);
 
@@ -27,7 +29,6 @@ void RandomCropper::collectSrcDir(string fname){
 		}
 
 #else
-#include <dirent.h>
 	auto dp = opendir(fname.c_str());
 	struct dirent *fp;
 	while ((fp = readdir(dp)) != NULL) {
