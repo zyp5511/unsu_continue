@@ -8,15 +8,17 @@
 
 #include "RandomCropper.h"
 #include<fstream>
-#if defined (_WIN32)
-#include <windows.h>
+
+
 
 void RandomCropper::collectSrcDir(string fname){
 
+	vector<string> files;
+#if defined (_WIN32)
+#include <windows.h>
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = FindFirstFile(fname.c_str(), &FindFileData);
 
-	vector<string> files;
 	files.push_back(FindFileData.cFileName);
 
 	while (FindNextFile(hFind, &FindFileData))
@@ -24,40 +26,9 @@ void RandomCropper::collectSrcDir(string fname){
 			files.push_back(string(FindFileData.cFileName));
 		}
 
-	sort(files.begin(), files.end());
-	auto itend = files.rend();
-
-
-#ifdef DEBUG
-	itend = files.rbegin()+50;
-#endif
-
-	for_each(files.rbegin(), itend, [this,fname](string s){
-			Mat img = imread(fname+s);
-			cout<<fname+s<<endl;
-			this->setUp(img);
-
-			});
-	auto it = all_mats.begin();
-	Feature f(*it);
-	int numcol= static_cast<int>(f.vec.size());
-	int numrow= static_cast<int>(all_mats.size());
-
-	feavec = Mat(numrow, numcol,CV_32F);
-
-	for(int i = 0;i<numrow;i++){
-		feavec.row(i)=Mat(Feature(*it++).vec).t();
-	}
-	cout<<"Feature Matrix Created"<<endl;
-	cout<<"Rows:\t"<<numrow<<endl;
-	cout<<"Cols:\t"<<numcol<<endl;
-}
 #else
 #include <dirent.h>
-
-void RandomCropper::collectSrcDir(string fname){
 	auto dp = opendir(fname.c_str());
-	vector<string> files;
 	struct dirent *fp;
 	while ((fp = readdir(dp)) != NULL) {
 		if(((string(fp->d_name)).find(".jpg"))!=string::npos){
@@ -65,6 +36,7 @@ void RandomCropper::collectSrcDir(string fname){
 		}
 	}
 	closedir(dp);
+#endif
 	sort(files.begin(), files.end());
 	auto itend = files.rend();
 
@@ -93,7 +65,6 @@ void RandomCropper::collectSrcDir(string fname){
 	cout<<"Rows:\t"<<numrow<<endl;
 	cout<<"Cols:\t"<<numcol<<endl;
 }
-#endif
 
 void RandomCropper::kmean(){
 	kmean(100);
@@ -153,7 +124,7 @@ void RandomCropper::exportPatches(string fname){
 void RandomCropper::setUp(Mat img){
 	seperators.push_back(all_mats.size());
 	vector<double> level_scale;
-	cout<<"windows ratio:"<<patch_r<<"\t"<<patch_c<<endl;
+	//cout<<"windows ratio:"<<patch_r<<"\t"<<patch_c<<endl;
 
 	double scale = 1.;
 	double scale0 = 1.2;
@@ -172,9 +143,8 @@ void RandomCropper::setUp(Mat img){
 	size_t i;
 	for (i = 0; i < level_scale.size(); i++)
 	{
-		int imgs = patchesPerImage/scale/scale;
-
 		scale = level_scale[i];
+		int imgs = patchesPerImage/scale/scale;
 		Size sz(cvRound(img.cols / scale), cvRound(img.rows / scale));
 		Mat smaller_img;
 
@@ -185,7 +155,7 @@ void RandomCropper::setUp(Mat img){
 			resize(img,smaller_img, sz);
 		}
 		//cout<<"windows scale:"<<smaller_img.rows<<"\t"<<smaller_img.cols<<endl;
-		if(smaller_img.rows-patch_r>-1&&smaller_img.cols-patch_c> -1&&imgs>1){
+		if(smaller_img.rows-patch_r>-1&&smaller_img.cols-patch_c> -1&&imgs>0){
 			vector<int> rowvs(imgs),colvs(imgs);
 			cout<<imgs<<endl;
 			cv::randu(rowvs, 0, smaller_img.rows-patch_r+1);

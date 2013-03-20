@@ -8,3 +8,4 @@ HumanPoseDetector.*
 .project
 .cproject
 .settings/
+.ycm_extra_conf.pyc
