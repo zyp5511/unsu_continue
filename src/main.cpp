@@ -191,16 +191,16 @@ int main(int argc, const char * argv[]) {
 					iw.setBins(k);
 
 					iw.collectPatches();//cropping
-					iw.scan(gc,pca);//kNN matching
+					iw.collectResult(pca);//kNN matching
 
 					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
 						Scalar(0,255,255)};
 					Mat out = mat.clone();
-					vector<Rect> debugs = iw.scanDebug(10);
+					vector<Result> debugs = iw.getBestResults(10);
 					int dsize= debugs.size();
-					rectangle(out,debugs[0],colors[1]);
+					rectangle(out,debugs[0].rect,colors[1]);
 					for(size_t i=1;i<dsize;i++){
-						rectangle(out,debugs[i],colors[0]);
+						rectangle(out,debugs[i].rect,colors[0]);
 					}
 					imwrite(desfolder+name+".jpg", out);
 				} catch (Exception e) {
@@ -261,10 +261,10 @@ int main(int argc, const char * argv[]) {
 						auto r= iw.matchArea(gc);
 						Mat out = mat.clone();
 						rectangle(out,r,Scalar(255,255,255));
-						vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
-						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs) {
-								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r) {
-									rectangle(out,r,colors[count]);
+						vector<vector<Result>> debugs = iw.getMatchedResults(gc);
+						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Result>& rs) {
+								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Result r) {
+									rectangle(out,r.rect,colors[count]);
 									});
 								count++;
 								});
@@ -335,7 +335,6 @@ int main(int argc, const char * argv[]) {
 
 #endif
 
-
 			sort(files.begin(), files.end());
 			auto itend = files.rend();
 			cout << "there are " << files.size() << " images" << endl;
@@ -355,14 +354,23 @@ int main(int argc, const char * argv[]) {
 					iw.setImage(mat);
 					iw.setBins(k);
 					iw.collectPatches();
-
 					iw.collectResult(pca);
 					iw.calcClusHist();
 					vector<int> vec = iw.histogram;
-					for(int i=0;i<k;i++) {
+
+					fout<<s<<endl;
+					fout<<"vector:\t";
+					for(int i=0;i<k-1;i++) {
 					fout<<vec[i]<<",";
 					}
-					fout<<endl;
+					fout<<vec[k-1]<<endl;
+					
+					auto goodRes = iw.getGoodResults();
+					for(const Result& r:goodRes){
+						fout<<r.category<<"\t"<<r.score<<"\t";
+						fout<<r.rect.x<<":"<<r.rect.y<<":"<<r.rect.width<<":"<<r.rect.height<<endl;
+					}
+
 					Scalar colors[]= {Scalar(128,0,0),Scalar(0,128,0),Scalar(0,0,128),
 					Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
 					Scalar(0,255,255),Scalar(255,0,255),Scalar(255,255,0),
@@ -375,10 +383,10 @@ int main(int argc, const char * argv[]) {
 						auto r= iw.matchArea(gc);
 						Mat out = mat.clone();
 						rectangle(out,r,Scalar(255,255,255));
-						vector<vector<Rect>> debugs = iw.matchAreaDebug(gc);
-						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Rect>& rs) {
-								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Rect r) {
-									rectangle(out,r,colors[count]);
+						vector<vector<Result>> debugs = iw.getMatchedResults(gc);
+						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Result>& rs) {
+								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Result r) {
+									rectangle(out,r.rect,colors[count]);
 									});
 								count++;
 								});

@@ -26,24 +26,26 @@ void ImageWrapper::collectPatches(){
 	ic->setUp(img);
 	cout<<"We collected "<<ic->size()<<" patches."<<endl;
 }
+
 void ImageWrapper::collectResult(const PCA& pca){
-	auto it_mats = ic->getMats();
-	auto end_mats = ic->getMatsEnd();
-	int c =0;
 #ifndef SEQ_IMG 
 	auto mat_count = ic->all_mats.size();
 	results = concurrent_vector<Result>(mat_count);
 	parallel_for(
 			size_t(0),
 			mat_count,
-			[&](size_t i)
-			{
+			[&](size_t i) {
 			Mat temp = ic->all_mats[i].clone();
 			Feature fea(temp,pca);
 			fea.detect(*pd);
-			results[i]=(fea.getResult()); }
-			);
+			Result tempres = fea.getResult();
+			tempres.rect = ic->all_rects[i];
+			results[i]=(tempres); 
+			});
 #else
+	auto it_mats = ic->getMats();
+	auto end_mats = ic->getMatsEnd();
+	int c =0;
 	for(;it_mats!=end_mats;it_mats++){
 		Mat temp = it_mats -> clone();
 		Feature fea(temp,pca);
@@ -72,7 +74,7 @@ void ImageWrapper::calcClusHist(){
 	for ( ; it_rects!=end_rects; it_rects++,counter++) {
 		if (results[counter].category>-1) {
 			histogram[results[counter].category]++;
-			rtb[results[counter].category].push_back(*it_rects);
+			rtb[results[counter].category].push_back(results[counter]);
 		}
 	}
 }
@@ -80,7 +82,7 @@ void ImageWrapper::calcClusHist(){
 void ImageWrapper::setBins(int n){
 	histogram = vector<int>(n,0);
 	results = concurrent_vector<Result>();
-	rtb = vector<vector<Rect>>(n,vector<Rect>());
+	rtb = vector<vector<Result>>(n,vector<Result>());
 }
 
 bool ImageWrapper::match(vector<bool> gamecard){
@@ -89,6 +91,7 @@ bool ImageWrapper::match(vector<bool> gamecard){
 	for (int i=0; i<len; i++) {
 		if ((gamecard[i]&&histogram[i]>0)) {
 			matched = true;
+			break;
 		}
 	}
 	return matched;
@@ -99,17 +102,17 @@ Rect ImageWrapper::matchArea(vector<bool> gamecard){
 	vector<Point> points;
 	for (int i=0; i<len; i++) {
 		if(gamecard[i]){
-			for_each(rtb[i].begin(), rtb[i].end(), [&points](Rect r){
-					points.push_back(r.tl());
-					points.push_back(r.br());
+			for_each(rtb[i].begin(), rtb[i].end(), [&points](Result r){
+					points.push_back(r.rect.tl());
+					points.push_back(r.rect.br());
 					});
 		}
 	}
 	return boundingRect(points);
 }
 
-vector<vector<Rect>> ImageWrapper::matchAreaDebug(vector<bool> gamecard){
-	auto res = vector<vector<Rect>>();
+vector<vector<Result>> ImageWrapper::getMatchedResults(vector<bool> gamecard){
+	auto res = vector<vector<Result>>();
 	size_t len = histogram.size();
 	for (int i=0; i<len; i++) {
 		if(gamecard[i]){
@@ -118,24 +121,8 @@ vector<vector<Rect>> ImageWrapper::matchAreaDebug(vector<bool> gamecard){
 	}
 	return res;
 }
-void ImageWrapper::scan(const vector<bool>& gamecard, const PCA& pca){
+vector<Result> ImageWrapper::getBestResults(int len){
 	auto mat_count = ic->all_mats.size();
-	results = concurrent_vector<Result>(mat_count);
-	parallel_for(
-			size_t(0),
-			mat_count,
-			[&](size_t i)
-			{
-			Mat temp = ic->all_mats[i].clone();
-			Feature fea(temp,pca);
-			fea.detect(*pd);
-			results[i]=(fea.getResult()); }
-			);
-
-}
-vector<Rect> ImageWrapper::scanDebug(int len){
-	auto mat_count = ic->all_mats.size();
-	
 	vector<int> a = vector<int>(mat_count);
 	for(size_t i=0;i<mat_count;i++) {
 		a[i]=i;
@@ -143,10 +130,19 @@ vector<Rect> ImageWrapper::scanDebug(int len){
 	sort(a.begin(),a.end(),[&](int x, int y){
 			return results[x].score<results[y].score;
 			});
-	auto res = vector<Rect>();
+	auto res = vector<Result>();
 	int reslen = len>mat_count?mat_count:len;
 	for (int i=0; i<len; i++) {
-			res.push_back(ic->all_rects[a[i]]);
+			res.push_back(results[a[i]]);
+	}
+	return res;
+}
+vector<Result> ImageWrapper::getGoodResults(){
+	auto mat_count = ic->all_mats.size();
+	auto res = vector<Result>();
+	for (int i=0; i<mat_count; i++) {
+			if (results[i].category>-1)
+				res.push_back(results[i]);
 	}
 	return res;
 }

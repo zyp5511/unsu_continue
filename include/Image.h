@@ -25,7 +25,8 @@ class ImageWrapper {
 	shared_ptr<PatchDetector> pd;
 	shared_ptr<ImageCropper> ic;
 	concurrent_vector<Result> results;
-	vector<vector<Rect>> rtb; //reversal lookup table
+	concurrent_vector<Result> good_results;
+	vector<vector<Result>> rtb; //reversal lookup table
 	Mat img;
 
 	public:
@@ -39,7 +40,7 @@ class ImageWrapper {
 	void setImage(string imgFilename);
 	void collectPatches();
 	void setBins(int n);
-	
+
 	/*
 	 * batch KNN matching, observation vector generating, pattern matching
 	 */
@@ -48,12 +49,15 @@ class ImageWrapper {
 	void calcClusHist();
 	bool match(vector<bool>);//if certain pattern are matched by image's histogram
 	Rect matchArea(vector<bool>);//minRect cover all rects from certain clusters of kNN result 
-	vector<vector<Rect>> matchAreaDebug(vector<bool>);//all rects from certain clusters of kNN result
+	vector<vector<Rect>> matchAreaDebug(vector<bool>);
+	vector<vector<Result>> getMatchedResults(vector<bool> gamecard);//all rects from certain clusters of kNN result
 
 	/*
 	 * scanning latent variables
 	 */
-	void scan(const vector<bool>& gamecard, const PCA& pca);//best match for a given set of clusters
-	vector<Rect> scanDebug(int i);//rects of top i responce from certain clusters of scan result
+	void scan(const PCA& pca);//best match for a given set of clusters
+	vector<Rect> scanDebug(int i);
+	vector<Result> getBestResults(int len);//rects of top i responce from certain clusters of scan result
+	vector<Result> getGoodResults();
 };
 #endif /* defined(__HumanPoseDetector__Image__) */

@@ -3,6 +3,7 @@
  *
  *  Created on: Feb 25, 2013
  *      Author: lichao
+ *  For cluster analysis
  */
 
 #include "Cluster.h"

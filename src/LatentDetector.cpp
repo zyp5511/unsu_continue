@@ -24,12 +24,16 @@ LatentDetector::LatentDetector(string vecfname,string clusfname,const vector<boo
 
 void LatentDetector::detect(const vector<float>& vec,int&c, float&score){
 	float min = FLT_MAX;
+	size_t ind = -1;
 	auto len = feavec.rows;
 	for(int i=0;i<len;i++){
 		auto temp = norm(feavec.row(i),vec);
-		if (temp<min)
+		if (temp<min) {
 			min = temp;
+			ind = i;
+		}
 	}
+	c = clus[ind];
 	score = min;
 }
 
