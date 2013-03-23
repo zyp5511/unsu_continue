@@ -302,7 +302,7 @@ int main(int argc, const char * argv[]) {
 			//gc[112]=gc[604]=true;
 			//gc[30]=true;
 			//gc[112]=gc[893]=true;
-			vector<int> trueset{176,652,604,156,392,0,
+			vector<int> trueset{582,522,176,652,604,156,392,0,
 				876,967,331,112,991,942,
 				222,732,458,685,184,273,893};
 			for_each(trueset.begin(),trueset.end(),[&](int i){
