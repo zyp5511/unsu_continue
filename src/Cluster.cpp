@@ -45,6 +45,7 @@ float Cluster::getMinDistance() {
 	return minDistance;
 }
 
+
 vector<Cluster> Cluster::makeClusters(const Mat& feavecs,
 		const vector<int>& ind, int k) {
 	vector<Cluster> clus(k);
@@ -69,6 +70,11 @@ vector<Cluster> Cluster::makeClusters(const Mat& feavecs,
 void Cluster::init() {
 	size_t numvec = feavec.rows;
 	double sum = 0;
+	feamean = feavec.row(0).clone();
+	for(size_t i=1;i<numvec;i++){
+		feamean +=feavec.row(i);
+	}
+	feamean /=numvec;
 	minDistance = norm(feavec.row(0), feavec.row(1));
 	double dis;
 	for (size_t i = 0; i < numvec - 1; i++)

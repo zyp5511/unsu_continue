@@ -22,12 +22,16 @@ public:
 	float getAvgDistance();
 	float getMaxDistance();
 	float getMinDistance();
+	float distance(const Cluster& b){
+		return norm(feamean, b.feamean);
+	}
 
 private:
 	void init();
 	float avgDistance = -1;
 	float maxDistance = -1;
 	float minDistance = -1;
+	Mat feamean;
 	Mat feavec;
 
 };
