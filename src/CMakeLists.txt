@@ -11,7 +11,7 @@ include_directories(${TBB_INCLUDE_DIRS})
 target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} )
 
 
-set(CMAKE_CXX_FLAGS "-O2 -std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-g -O2 -std=c++11 ${CMAKE_CXX_FLAGS}")
 
 if(APPLE)
 	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")

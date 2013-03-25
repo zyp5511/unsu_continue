@@ -75,10 +75,12 @@ int main(int argc, const char * argv[]) {
 			//fs.release();
 			//cout<<"Feature Loaded"<<endl;
 
-			auto clus = Cluster::makeClusters(feavec, ind, k);
+			vector<Cluster> clus = Cluster::makeClusters(feavec, ind, k);
 			string resfn = argv[7];
+			string resfn2 = argv[8];
 			ofstream fout(resfn);
-			fout<<"Index\tMin\tMax\tAvg"<<endl;
+			ofstream fout2(resfn2);
+			fout<<"Min\tMax\tAvg"<<endl;
 			for(int i=0;i<k;i++){
 				float mindis = clus[i].getMinDistance();
 				float maxdis = clus[i].getMaxDistance();
@@ -86,6 +88,13 @@ int main(int argc, const char * argv[]) {
 				fout<<mindis<<"\t"<<maxdis<<"\t"<<avgdis<<endl;
 			}
 			fout.close();
+			for(size_t i=0;i<k;i++){
+				for(size_t j=0;j<k-1;j++){
+					fout2<<clus[i].distance(clus[j])<<",";
+				}
+					fout2<<clus[i].distance(clus[k-1])<<endl;
+			}
+			fout2.close();
 
 		} else if (oper == "kmean") {
 

@@ -51,7 +51,7 @@ Mat FeatureLoader::loadTab(string fn){
 	}
 	fin.close();
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
-	cout << "we use " << overall_diff << " seconds to write file!" << endl;
+	cout << "we use " << overall_diff << " seconds to load file!" << endl;
 	return feavec;
 }
 
