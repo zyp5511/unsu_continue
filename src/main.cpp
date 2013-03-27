@@ -359,8 +359,16 @@ int main(int argc, const char * argv[]) {
 					[desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s) {
 					auto fname = srcfolder+s;
 					ImageWrapper iw(kd,ec);
-					Mat mat = imread(fname);
-					cout<<fname<<"\t"<<mat.size()<<endl;
+					Mat raw = imread(fname);
+					Mat mat;
+					cout<<fname<<"\t"<<raw.size()<<endl;
+					if (raw.rows>800){
+					float ratio = 800./raw.rows;
+						resize(raw, mat,Size(),ratio,ratio);
+					cout<<"resized to \t"<<mat.size()<<endl;
+					} else {
+					mat = raw;
+					}
 
 					iw.setImage(mat);
 					iw.setBins(k);
