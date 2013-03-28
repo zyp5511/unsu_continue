@@ -6,6 +6,7 @@ report = ARGV[2]
 
 
 class Record
+	@@colors = Hash.new{|h,k|h[k]="\##{Random.rand(16777216).to_i.to_s(16).rjust(6,'0')}"}
 	def initialize(src,des,lines)
 		@filename = lines[0];
 		@vectors = lines[1]
@@ -15,23 +16,21 @@ class Record
 	end
 
 	def draw_rects
-		#@rects.each{|r| self.draw_rect(r)};
-		self.draw_rect(@rects[2])
+		@rects.each{|r| self.draw_rect(r)};
+		@ori.write(File.join(@dest,@filename).to_s)
 	end
 	def draw_rect(desc)
 		
 		eles = desc.split
-		type = eles[0]
+		type = eles[0].to_i
 		x,y,w,h = eles[2].split(':').map{|x|x.to_i};
-		temp = @ori.clone
 
 		rect = Magick::Draw.new
-		rect.stroke('black').stroke_width(1)
-		rect.text(x,y,type.to_s)
+		rect.text(x,y+10,type.to_s)
+		rect.stroke(@@colors[type]).stroke_width(0.5)
 		rect.fill("transparent")
 		rect.rectangle(x,y,x+w-1,y+h-1)
-		rect.draw(temp)
-		temp.write(File.join(@dest,@filename).to_s)
+		rect.draw(@ori)
 	end
 
 	def self.seperate_records(src,des,lines)
