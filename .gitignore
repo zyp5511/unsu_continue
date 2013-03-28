@@ -9,3 +9,5 @@ HumanPoseDetector.*
 .cproject
 .settings/
 .ycm_extra_conf.pyc
+.DS_Store
+script/cl_res_drawer_test/des/
