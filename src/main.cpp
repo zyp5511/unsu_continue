@@ -34,10 +34,17 @@ using namespace Eigen;
 
 
 void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ofstream& fout);
-vector<bool> buildGameCard(string gcfn){
-	ifstream fin(gcfn){
-		
+
+vector<bool> buildGameCard(string gcfn,int k){
+	auto res = vector<bool>(k,false);
+	ifstream fin(gcfn);
+	istream_iterator<int> eos;
+	istream_iterator<int> iit(fin);
+	while(iit!=eos){
+		res[*iit]=true;
+		iit++;
 	}
+	return res;
 }
 #pragma mark main
 
@@ -62,7 +69,10 @@ int main(int argc, const char * argv[]) {
 		indfn = argv[6];
 
 		auto oper = string(argv[1]);
-		if (oper == "clusteranalysis") {
+		if (oper == "test") {
+			buildGameCard(indfn,k);
+			
+		} else if (oper == "clusteranalysis") {
 			auto fl = FeatureLoader();
 			auto feavec = fl.loadTab(fsfn);
 			ifstream fin(indfn);
@@ -169,6 +179,7 @@ int main(int argc, const char * argv[]) {
 			nc.exportSeperators(seperator_fn);
 		} else if (oper == "latent") {
 			string pcafn = argv[7];
+			string gcfn = argv[8];
 
 			//set up patch cropper
 			shared_ptr<LatentDetector> kd;
@@ -182,8 +193,7 @@ int main(int argc, const char * argv[]) {
 			pcafs["eigenvectors"] >> pca.eigenvectors;
 			cout << "PCA loaded" << endl;
 
-			vector<bool> gc(k, false);
-			gc[19]=true;
+			vector<bool> gc = buildGameCard(gcfn, k);
 
 			cout << "start loading index" << endl;
 			kd=make_shared<LatentDetector>(fsfn, indfn,gc);
@@ -226,6 +236,7 @@ int main(int argc, const char * argv[]) {
 		} else if (oper == "knnclassify") {
 			string pcafn = argv[7];
 			string vecoutfn = argv[8];
+			string gcfn = argv[9];
 			ofstream fout(vecoutfn);
 
 			//set up patch cropper
@@ -246,19 +257,7 @@ int main(int argc, const char * argv[]) {
 			string name;
 			cout << "Please input image filename" << endl;
 
-			vector<bool> gc(k, false);
-			vector<int> trueset{
-				239,898,74,20,697,
-					978,221,485,971,662,
-					419,338,477,367,293,
-					90,679,423,594,238,
-					613,807,
-					582,522,176,652,604,156,392,0,
-					876,967,331,112,991,942,
-					222,732,458,685,184,273,893};
-			for(auto i:trueset){
-				gc[i]=true;
-			};
+			vector<bool> gc = buildGameCard(gcfn,k);
 
 			while (getline(cin, name)) {
 				try {
@@ -273,6 +272,7 @@ int main(int argc, const char * argv[]) {
 			cout << "calucating vectors" << endl;
 			string pcafn = argv[7];
 			string vecoutfn = argv[8];
+			string gcfn = argv[9];
 			ofstream fout(vecoutfn);
 
 			string name;
@@ -290,20 +290,8 @@ int main(int argc, const char * argv[]) {
 			cout << "start loading index" << endl;
 			kd->load(fsfn, indfn);
 
+			vector<bool> gc = buildGameCard(gcfn,k);
 
-			vector<bool> gc(k, false);
-			vector<int> trueset{
-				239,898,74,20,697,
-					978,221,485,971,662,
-					419,338,477,367,293,
-					90,679,423,594,238,
-					613,807,
-					582,522,176,652,604,156,392,0,
-					876,967,331,112,991,942,
-					222,732,458,685,184,273,893};
-			for(auto i:trueset){
-				gc[i]=true;
-			};
 			vector<string> files;
 
 #ifndef _WIN32

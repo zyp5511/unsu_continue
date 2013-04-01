@@ -1,43 +1,29 @@
-require 'RMagick'
+require_relative 'record'
+require 'set'
 
-src = ARGV[0]
-des = ARGV[1]
-report = ARGV[2]
-
-
-class Record
-	@@colors = Hash.new{|h,k|h[k]="\##{Random.rand(16777216).to_i.to_s(16).rjust(6,'0')}"}
-	def initialize(src,des,lines)
-		@filename = lines[0];
-		@vectors = lines[1]
-		@rects = lines.drop(2)
-		@dest = des
-		@ori = Magick::Image.read(File.join(src,@filename).to_s).first
-	end
-
-	def draw_rects
-		@rects.each{|r| self.draw_rect(r)};
-		@ori.write(File.join(@dest,@filename).to_s)
-	end
-	def draw_rect(desc)
-		
-		eles = desc.split
-		type = eles[0].to_i
-		x,y,w,h = eles[2].split(':').map{|x|x.to_i};
-
-		rect = Magick::Draw.new
-		rect.text(x,y+10,type.to_s)
-		rect.stroke(@@colors[type]).stroke_width(0.5)
-		rect.fill("transparent")
-		rect.rectangle(x,y,x+w-1,y+h-1)
-		rect.draw(@ori)
-	end
-
-	def self.seperate_records(src,des,lines)
-		lines.map{|x|x.chomp}.chunk{|l|l.end_with?("jpg")}.each_slice(2).map{|a| Record.new(src,des,a[0][1]+a[1][1])}
-	end
-end
+type = ARGV[0]
+src = ARGV[1]
+des = ARGV[2]
+report = ARGV[3]
 
 records = Record::seperate_records(src,des,IO.foreach(report))
-records.each{|x|x.draw_rects }
+puts "there are #{records.count} records"
 
+if type == "if"
+	clufn= ARGV[4]
+	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
+	c = 0;
+	records.each do|x|
+		goodset = x.rects.select{|r|head.include? r.type }
+		if goodset.count > 0
+			c+=1
+			goodset.each{|r|x.draw_rect r}
+			x.export
+		end
+	end
+	puts " #{c} images are selected"
+else
+	records.each do|x|
+		x.rects.each{|r|x.draw_rect r; x.export}
+	end
+end
