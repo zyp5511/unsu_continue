@@ -33,6 +33,12 @@ using namespace cv;
 using namespace Eigen;
 
 
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ofstream& fout);
+vector<bool> buildGameCard(string gcfn){
+	ifstream fin(gcfn){
+		
+	}
+}
 #pragma mark main
 
 int main(int argc, const char * argv[]) {
@@ -92,7 +98,7 @@ int main(int argc, const char * argv[]) {
 				for(size_t j=0;j<k-1;j++){
 					fout2<<clus[i].distance(clus[j])<<",";
 				}
-					fout2<<clus[i].distance(clus[k-1])<<endl;
+				fout2<<clus[i].distance(clus[k-1])<<endl;
 			}
 			fout2.close();
 
@@ -219,6 +225,8 @@ int main(int argc, const char * argv[]) {
 			}
 		} else if (oper == "knnclassify") {
 			string pcafn = argv[7];
+			string vecoutfn = argv[8];
+			ofstream fout(vecoutfn);
 
 			//set up patch cropper
 			shared_ptr<KNNDetector> kd(new KNNDetector());
@@ -239,51 +247,28 @@ int main(int argc, const char * argv[]) {
 			cout << "Please input image filename" << endl;
 
 			vector<bool> gc(k, false);
-			gc[112]=gc[604]=true;
-			//gc[14] = gc[15] = gc[19] = true;
+			vector<int> trueset{
+				239,898,74,20,697,
+					978,221,485,971,662,
+					419,338,477,367,293,
+					90,679,423,594,238,
+					613,807,
+					582,522,176,652,604,156,392,0,
+					876,967,331,112,991,942,
+					222,732,458,685,184,273,893};
+			for(auto i:trueset){
+				gc[i]=true;
+			};
 
 			while (getline(cin, name)) {
 				try {
-					auto fname = srcfolder + name + ".jpg";
-					cout << "loading file " << fname << endl;
-
-					ImageWrapper iw(kd,ec);
-					Mat mat = imread(fname);
-
-					iw.setImage(mat);
-					iw.setBins(k);
-					iw.collectPatches();
-
-					iw.collectResult(pca);
-					iw.calcClusHist();
-					vector<int> vec = iw.histogram;
-					for(int i=0;i<k;i++) {
-						cout<<vec[i]<<",";
-					}
-					cout<<endl;
-					Scalar colors[]= {Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-						Scalar(0,255,255)};
-					int count = 0;
-
-					if (iw.match(gc)) {
-						cout<<fname<<" matched!"<<endl;
-						auto r= iw.matchArea(gc);
-						Mat out = mat.clone();
-						rectangle(out,r,Scalar(255,255,255));
-						vector<vector<Result>> debugs = iw.getMatchedResults(gc);
-						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Result>& rs) {
-								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Result r) {
-									rectangle(out,r.rect,colors[count]);
-									});
-								count++;
-								});
-						imwrite(desfolder+name+".jpg", out);
-					}
+					classify(kd, ec,srcfolder,desfolder,k,pca,name,gc,fout);
 				} catch (Exception e) {
 					cerr << e.msg << endl;
 				}
 				cout << "Please input image filename" << endl;
 			}
+			fout.close();
 		} else if (oper == "knncombo") {
 			cout << "calucating vectors" << endl;
 			string pcafn = argv[7];
@@ -307,22 +292,18 @@ int main(int argc, const char * argv[]) {
 
 
 			vector<bool> gc(k, false);
-			//gc[14] = gc[15] = gc[19] = true;
-			//gc[112]=gc[604]=true;
-			//gc[30]=true;
-			//gc[112]=gc[893]=true;
 			vector<int> trueset{
 				239,898,74,20,697,
-				978,221,485,971,662,
-				419,338,477,367,293,
-				90,679,423,594,238,
-				613,807,
-				582,522,176,652,604,156,392,0,
-				876,967,331,112,991,942,
-				222,732,458,685,184,273,893};
-			for_each(trueset.begin(),trueset.end(),[&](int i){
-					gc[i]=true;
-					});
+					978,221,485,971,662,
+					419,338,477,367,293,
+					90,679,423,594,238,
+					613,807,
+					582,522,176,652,604,156,392,0,
+					876,967,331,112,991,942,
+					222,732,458,685,184,273,893};
+			for(auto i:trueset){
+				gc[i]=true;
+			};
 			vector<string> files;
 
 #ifndef _WIN32
@@ -361,64 +342,9 @@ int main(int argc, const char * argv[]) {
 #endif
 
 
-			for_each(files.rbegin(), itend,
-					[desfolder,srcfolder,&kd,&ec,k,&pca,&fout,&gc](string s) {
-					auto fname = srcfolder+s;
-					ImageWrapper iw(kd,ec);
-					Mat raw = imread(fname);
-					Mat mat;
-					cout<<fname<<"\t"<<raw.size()<<endl;
-					if (raw.rows>800){
-					float ratio = 800./raw.rows;
-						resize(raw, mat,Size(),ratio,ratio);
-					cout<<"resized to \t"<<mat.size()<<endl;
-					} else {
-					mat = raw;
-					}
-
-					iw.setImage(mat);
-					iw.setBins(k);
-					iw.collectPatches();
-					iw.collectResult(pca);
-					iw.calcClusHist();
-					vector<int> vec = iw.histogram;
-
-					fout<<s<<endl;
-					fout<<"vector:\t";
-					for(int i=0;i<k-1;i++) {
-					fout<<vec[i]<<",";
-					}
-					fout<<vec[k-1]<<endl;
-					
-					auto goodRes = iw.getGoodResults();
-					for(const Result& r:goodRes){
-						fout<<r.category<<"\t"<<r.score<<"\t";
-						fout<<r.rect.x<<":"<<r.rect.y<<":"<<r.rect.width<<":"<<r.rect.height<<endl;
-					}
-
-					Scalar colors[]= {Scalar(128,0,0),Scalar(0,128,0),Scalar(0,0,128),
-					Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
-					Scalar(0,255,255),Scalar(255,0,255),Scalar(255,255,0),
-					Scalar(0,128,128),Scalar(128,0,128),Scalar(128,128,0),
-					Scalar(64,64,64),Scalar(128,128,128),Scalar(255,255,255)};
-					int count = 0;
-
-					if (iw.match(gc)) {
-						cout<<fname<<" matched!"<<endl;
-						auto r= iw.matchArea(gc);
-						Mat out = mat.clone();
-						rectangle(out,r,Scalar(255,255,255));
-						vector<vector<Result>> debugs = iw.getMatchedResults(gc);
-						for_each(debugs.begin(), debugs.end(), [&out,&count,&colors](vector<Result>& rs) {
-								for_each(rs.begin(), rs.end(), [&out,&count,&colors](Result r) {
-									rectangle(out,r.rect,colors[count]);
-									});
-								count++;
-								});
-						imwrite(desfolder+s, out);
-					}
-
-					});
+			for(auto s:files){
+				classify(kd, ec,srcfolder,desfolder,k,pca,s,gc, fout);
+			}
 
 			fout.close();
 		}
@@ -434,3 +360,56 @@ int main(int argc, const char * argv[]) {
 	return 0;
 }
 
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ofstream& fout){
+	auto fname = srcfolder+s;
+	ImageWrapper iw(kd,ec);
+	Mat raw = imread(fname);
+	Mat mat;
+	cout<<fname<<"\t"<<raw.size()<<endl;
+	if (raw.rows>800){
+		float ratio = 800./raw.rows;
+		resize(raw, mat,Size(),ratio,ratio);
+		cout<<"resized to \t"<<mat.size()<<endl;
+	} else {
+		mat = raw;
+	}
+
+	iw.setImage(mat);
+	iw.setBins(k);
+	iw.collectPatches();
+	iw.collectResult(pca);
+	iw.calcClusHist();
+	vector<int> vec = iw.histogram;
+
+	fout<<s<<endl;
+	fout<<"vector:\t";
+	for(int i=0;i<k-1;i++) {
+		fout<<vec[i]<<",";
+	}
+	fout<<vec[k-1]<<endl;
+
+	auto goodRes = iw.getGoodResults();
+	for(const Result& r:goodRes){
+		fout<<r.category<<"\t"<<r.score<<"\t";
+		fout<<r.rect.x<<":"<<r.rect.y<<":"<<r.rect.width<<":"<<r.rect.height<<endl;
+	}
+
+	Scalar colors[]= {Scalar(128,0,0),Scalar(0,128,0),Scalar(0,0,128),
+		Scalar(255,0,0),Scalar(0,255,0),Scalar(0,0,255),
+		Scalar(0,255,255),Scalar(255,0,255),Scalar(255,255,0),
+		Scalar(0,128,128),Scalar(128,0,128),Scalar(128,128,0),
+		Scalar(64,64,64),Scalar(128,128,128),Scalar(255,255,255)};
+	int count = 0;
+
+	if (iw.match(gc)) {
+		cout<<fname<<" matched!"<<endl;
+		Mat out = mat.clone();
+		vector<vector<Result>> debugs = iw.getMatchedResults(gc);
+		for(auto&rs:debugs){
+			for(auto&r:rs){
+				rectangle(out,r.rect,colors[count]);
+			}
+		}
+		imwrite(desfolder+s, out);
+	}
+}
