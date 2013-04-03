@@ -14,6 +14,8 @@
 #include <windows.h>
 #else
 #include <dirent.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #endif
 #include "SVMDetector.h"
 #include "KNNDetector.h"
@@ -33,7 +35,7 @@ using namespace cv;
 using namespace Eigen;
 
 
-void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ofstream& fout);
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ostream& fout);
 
 vector<bool> buildGameCard(string gcfn,int k){
 	auto res = vector<bool>(k,false);
@@ -69,9 +71,94 @@ int main(int argc, const char * argv[]) {
 		indfn = argv[6];
 
 		auto oper = string(argv[1]);
-		if (oper == "test") {
-			buildGameCard(indfn,k);
-			
+		if (oper == "daemon") {
+			string pcafn = argv[7];
+			string portn = argv[8];
+			string gcfn = argv[9];
+
+			//set up patch cropper
+			shared_ptr<KNNDetector> kd(new KNNDetector());
+			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+			ec->setSize(128, 96);
+
+			FileStorage pcafs(pcafn, FileStorage::READ);
+			PCA pca;
+			pcafs["mean"] >> pca.mean;
+			pcafs["eigenvalues"] >> pca.eigenvalues;
+			pcafs["eigenvectors"] >> pca.eigenvectors;
+			cout << "PCA loaded" << endl;
+
+			cout << "start loading index" << endl;
+			kd->load(fsfn, indfn);
+			vector<bool> gc = buildGameCard(gcfn,k);
+
+			//set up socket
+			int sockfd, newsockfd, portno;
+			socklen_t clilen;
+			char buffer[256];
+			struct sockaddr_in serv_addr, cli_addr;
+			int n;
+			sockfd = socket(AF_INET, SOCK_STREAM, 0);
+			if (sockfd < 0){
+				fprintf(stderr,"ERROR opening socket");
+				exit(1);
+			}
+			bzero((char *) &serv_addr, sizeof(serv_addr));
+			portno = stoi(portn);
+			serv_addr.sin_family = AF_INET;
+			serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+			serv_addr.sin_port = htons(portno);
+			if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+				fprintf(stderr,"ERROR on binding");
+				exit(1);
+			}
+			listen(sockfd,1024);
+			clilen = sizeof(cli_addr);
+
+			string name;
+			cout << "Please input image filename" << endl;
+
+			newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+			if (newsockfd < 0){
+				cerr<<("ERROR on accept")<<endl;
+				return -1;
+			}
+			bzero(buffer,256);
+
+			n = read(newsockfd,buffer,255);
+			if (n < 0){
+				cerr<<("ERROR reading from socket")<<endl;
+				return -1;
+			}
+
+			while (n>=0) {
+				stringstream iss(buffer);
+				getline(iss,name);
+				printf("Here is the message: %s\n",buffer);
+				ostringstream ss;
+				try {
+					classify(kd, ec,srcfolder,desfolder,k,pca,name,gc,ss);
+				} catch (Exception e) {
+					cerr << e.msg << endl;
+				}
+				n = write(newsockfd,ss.str().c_str(),ss.str().size());
+				if (n < 0) {
+					cerr<<("ERROR writing to socket")<<endl;
+					return -1;
+				}
+				close(newsockfd);
+				cout << "Please input image filename" << endl;
+				newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+				if (newsockfd < 0){
+					cerr<<("ERROR on accept")<<endl;
+					return -1;
+				}
+				bzero(buffer,256);
+				n = read(newsockfd,buffer,255);
+			}
+
+			close(sockfd);
+			return 0;
 		} else if (oper == "clusteranalysis") {
 			auto fl = FeatureLoader();
 			auto feavec = fl.loadTab(fsfn);
@@ -348,7 +435,7 @@ int main(int argc, const char * argv[]) {
 	return 0;
 }
 
-void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ofstream& fout){
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ostream& fout){
 	auto fname = srcfolder+s;
 	ImageWrapper iw(kd,ec);
 	Mat raw = imread(fname);

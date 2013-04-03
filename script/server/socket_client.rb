@@ -1,9 +1,13 @@
 require 'socket'      # Sockets are in standard library
 
 host= 'localhost'
-port = 2000
+port = 7456
 
 s = TCPSocket.open(host, port)
+
+puts "please input file name"
+
+s.puts gets
 
 while line = s.gets   # Read lines from the socket
 	  puts line.chop      # And print with platform line terminator
