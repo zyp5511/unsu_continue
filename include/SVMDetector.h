@@ -7,7 +7,7 @@ PatchDetector
 {
 public:
 	SVMDetector(string fname);
-    ~SVMDetector(void);
+  ~SVMDetector(void)noexcept=default;
 	virtual void detect(const vector<float>& vec, int&c, float&score) override;
 private:
 	bool load(string fname);

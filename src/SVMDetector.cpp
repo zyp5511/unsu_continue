@@ -28,10 +28,6 @@ SVMDetector::SVMDetector(string fname){
 }
 
 
-SVMDetector::~SVMDetector(void)
-{
-}
-
 void SVMDetector::detect(const vector<float>& vec, int& cat, float&score){
 	cout<<"using HumanDetector"<<endl;
 	float sum=-b;

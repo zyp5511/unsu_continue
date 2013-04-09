@@ -36,8 +36,10 @@ void KNNDetector::detect(const vector<float>& vec, int&c, float&score){
 			}
 			j--;
 		}
-		dis[j]=temp;
-		ind[j]=i;
+		if(j<n){
+			dis[j]=temp;
+			ind[j]=i;
+		}
 	}
 
 	map<int,int> count = map<int,int>();

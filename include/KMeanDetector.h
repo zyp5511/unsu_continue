@@ -6,17 +6,20 @@
 
 using namespace cv;
 
-class KNNDetector :
-	public PatchDetector
+class KMeanDetector :
+	public PatchDetector 
+	/*classify patches by comaparing distances from centers of clusters, instead 
+												 of all training samples*/
 {
 	public:
-		KNNDetector(void)=default;
-		KNNDetector(string vecfname,string clusfname);
-		KNNDetector(const Mat& featurevec,vector<int>& clusvec):feavec(featurevec),clus(clusvec){};
-		~KNNDetector(void)noexcept{};
+		KMeanDetector(void)=default;
+		KMeanDetector(string vecfname,string clusfname);
+		KMeanDetector(const Mat& featurevec,vector<int>& clusvec):feavec(featurevec),clus(clusvec){};
+		~KMeanDetector(void)noexcept{};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 		void load(string fsfn,string clusfn) override;//load feature and indice list
 	protected:
+		Mat centers;
 		vector<int> clus;//cluster tag
 		Mat feavec;//feature index, hold memory
 };

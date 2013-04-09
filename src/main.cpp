@@ -19,6 +19,7 @@
 #endif
 #include "SVMDetector.h"
 #include "KNNDetector.h"
+#include "KMeanDetector.h"
 #include "LatentDetector.h"
 #include "RandomCropper.h"
 #include "ExhaustiveCropper.h"
@@ -35,6 +36,7 @@ using namespace cv;
 using namespace Eigen;
 
 
+vector<string> loadFolder(string srcfolder);
 void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,string srcfolder,string desfolder,int k, PCA& pca, string s,vector<bool>& gc, ostream& fout);
 
 vector<bool> buildGameCard(string gcfn,int k){
@@ -71,13 +73,15 @@ int main(int argc, const char * argv[]) {
 		indfn = argv[6];
 
 		auto oper = string(argv[1]);
-		if (oper == "daemon") {
+		if (oper == "daemon"||oper =="kmeandaemon") {
 			string pcafn = argv[7];
 			string portn = argv[8];
 			string gcfn = argv[9];
 
 			//set up patch cropper
-			shared_ptr<KNNDetector> kd(new KNNDetector());
+			shared_ptr<PatchDetector> kd(new KNNDetector());
+			if (oper == "kmeandaemon")
+				kd = make_shared<KMeanDetector>();
 			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 			ec->setSize(128, 96);
 
@@ -379,43 +383,38 @@ int main(int argc, const char * argv[]) {
 
 			vector<bool> gc = buildGameCard(gcfn,k);
 
-			vector<string> files;
+			vector<string> files=loadFolder(srcfolder);
 
-#ifndef _WIN32
-
-			auto dp = opendir(srcfolder.c_str());
-
-			struct dirent *fp;
-			while ((fp = readdir(dp)) != NULL) {
-				if (((string(fp->d_name)).find(".jpg")) != string::npos) {
-					files.push_back(string(fp->d_name));
-				}
-			}
-			closedir(dp);
-#else
-
-
-			WIN32_FIND_DATA FindFileData;
-			HANDLE hFind = FindFirstFile(srcfolder.c_str(), &FindFileData);
-
-			files.push_back(FindFileData.cFileName);
-
-			while (FindNextFile(hFind, &FindFileData)){
-				if((string(FindFileData.cFileName).find(".jpg"))!=string::npos){
-					files.push_back(string(FindFileData.cFileName));
-				}
+			for(auto s:files){
+				classify(kd, ec,srcfolder,desfolder,k,pca,s,gc, fout);
 			}
 
-#endif
+			fout.close();
+		} else if (oper == "kmeancombo") {
+			cout << "calucating vectors" << endl;
+			string pcafn = argv[7];
+			string vecoutfn = argv[8];
+			string gcfn = argv[9];
+			ofstream fout(vecoutfn);
 
-			sort(files.begin(), files.end());
-			auto itend = files.rend();
-			cout << "there are " << files.size() << " images" << endl;
+			string name;
+			shared_ptr<KMeanDetector> kd(new KMeanDetector());
+			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+			ec->setSize(128, 96);
 
-#ifdef DEBUG
-			itend = files.rbegin()+50;
-#endif
+			FileStorage pcafs(pcafn, FileStorage::READ);
+			PCA pca;
+			pcafs["mean"] >> pca.mean;
+			pcafs["eigenvalues"] >> pca.eigenvalues;
+			pcafs["eigenvectors"] >> pca.eigenvectors;
+			cout << "PCA loaded" << endl;
 
+			cout << "start loading index" << endl;
+			kd->load(fsfn, indfn);
+
+			vector<bool> gc = buildGameCard(gcfn,k);
+
+			vector<string> files=loadFolder(srcfolder);
 
 			for(auto s:files){
 				classify(kd, ec,srcfolder,desfolder,k,pca,s,gc, fout);
@@ -487,4 +486,43 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper>ec,stri
 		}
 		imwrite(desfolder+s, out);
 	}
+}
+
+vector<string> loadFolder(string srcfolder){
+	vector<string> files;
+#ifndef _WIN32
+
+	auto dp = opendir(srcfolder.c_str());
+
+	struct dirent *fp;
+	while ((fp = readdir(dp)) != NULL) {
+		if (((string(fp->d_name)).find(".jpg")) != string::npos) {
+			files.push_back(string(fp->d_name));
+		}
+	}
+	closedir(dp);
+#else
+
+
+	WIN32_FIND_DATA FindFileData;
+	HANDLE hFind = FindFirstFile(srcfolder.c_str(), &FindFileData);
+
+	files.push_back(FindFileData.cFileName);
+
+	while (FindNextFile(hFind, &FindFileData)){
+		if((string(FindFileData.cFileName).find(".jpg"))!=string::npos){
+			files.push_back(string(FindFileData.cFileName));
+		}
+	}
+
+#endif
+
+	sort(files.begin(), files.end());
+	auto itend = files.rend();
+	cout << "there are " << files.size() << " images" << endl;
+
+#ifdef DEBUG
+	itend = files.rbegin()+50;
+#endif
+	return files;
 }

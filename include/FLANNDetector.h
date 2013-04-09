@@ -14,11 +14,11 @@ class FLANNDetector :
 		FLANNDetector(string vecfname,string indfname);
 		FLANNDetector(const Mat& featureVec,vector<int>& indvec);
 
-		~FLANNDetector(void);
+		~FLANNDetector(void)noexcept{};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 
 		void save(string fsfn,string indfn);//save feature and indice list and kNN index to FileStorage;
-		void load(string fsfn,string indfn);//load feature and indice list and kNN index from FileStorage
+		void load(string fsfn,string indfn) override;//load feature and indice list and kNN index from FileStorage
 		void loadText(string vecfn,string clusfn);//load feature nad indice list from text file, and init index
 		void loadYAML(string fsfn,string indfn);//load feature nad indice list from text file, and init index
 

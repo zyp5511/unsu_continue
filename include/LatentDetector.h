@@ -12,7 +12,7 @@ class LatentDetector:
 	public:
 		LatentDetector(void)=default;
 		LatentDetector(string vecfname,string clusfname,const vector<bool>& gamecard);
-		~LatentDetector(void)=default;
+		~LatentDetector(void)noexcept{};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 };
 

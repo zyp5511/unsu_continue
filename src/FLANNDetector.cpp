@@ -26,10 +26,6 @@ FLANNDetector::FLANNDetector(const Mat& featureVec,vector<int>& clusVec){
 }
 
 
-FLANNDetector::~FLANNDetector(void)
-{
-}
-
 
 void FLANNDetector::detect(const vector<float>& vec, int&c, float&score){
 	int n = 9;
