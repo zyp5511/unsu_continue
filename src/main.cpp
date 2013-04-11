@@ -496,7 +496,7 @@ vector<string> loadFolder(string srcfolder){
 
 	struct dirent *fp;
 	while ((fp = readdir(dp)) != NULL) {
-		if (((string(fp->d_name)).find(".jpg")) != string::npos) {
+		if (((string(fp->d_name)).find(".png")) != string::npos||((string(fp->d_name)).find(".jpg")) != string::npos) {
 			files.push_back(string(fp->d_name));
 		}
 	}
