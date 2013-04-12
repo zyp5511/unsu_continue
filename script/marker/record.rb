@@ -43,7 +43,12 @@ class Record
 		rdraw.draw(@ori)
 	end
 
+	def crop_rect(rect)
+		temp = @ori.crop(rect.x,rect.y,rect.w,rect.h,true)
+		temp.write("#{File.join(@dest,File.basename(@filename, File.extname(@filename))).to_s}_#{rect.x}:#{rect.y}:#{rect.w}:#{rect.h}_#{@type}#{File.extname(@filename)}")
+	end
+
 	def self.seperate_records(src,des,lines)
-		lines.map{|x|x.chomp}.chunk{|l|l.end_with?("jpg")}.each_slice(2).map{|a| Record.new(src,des,a[0][1]+a[1][1])}
+		lines.map{|x|x.chomp}.chunk{|l|l.end_with?("jpg")||l.end_with?("png") }.each_slice(2).map{|a| Record.new(src,des,a[0][1]+a[1][1])}
 	end
 end

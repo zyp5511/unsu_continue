@@ -2,23 +2,28 @@ require_relative 'record'
 require 'set'
 
 type = ARGV[0]
-src = ARGV[1]
-des = ARGV[2]
-report = ARGV[3]
+oper = ARGV[1]
+src = ARGV[2]
+des = ARGV[3]
+report = ARGV[4]
 
 records = Record::seperate_records(src,des,IO.foreach(report))
 puts "there are #{records.count} records"
 
 if type == "if"
-	clufn= ARGV[4]
+	clufn= ARGV[5]
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
 	records.each do|x|
 		goodset = x.rects.select{|r|head.include? r.type }
 		if goodset.count > 0
 			c+=1
-			goodset.each{|r|x.draw_rect r}
-			x.export
+			if oper == "draw"
+				goodset.each{|r|x.draw_rect r}
+				x.export
+			elsif oper == "crop"
+				goodset.each{|r|x.crop_rect r}
+			end
 		end
 	end
 	puts " #{c} images are selected"
