@@ -44,39 +44,39 @@ void Feature::detect(PatchDetector& hd){
 }
 
 float Feature::l2(Feature b) {
-    float sum = 0;
-    for (size_t i = 0; i<vec.size(); i++) {
-        sum+=(vec[i]-b.vec[i])*(vec[i]-b.vec[i]);
-    }
-    return sqrt(sum);
+	float sum = 0;
+	for (size_t i = 0; i<vec.size(); i++) {
+		sum+=(vec[i]-b.vec[i])*(vec[i]-b.vec[i]);
+	}
+	return sqrt(sum);
 }
 
 void Feature::toHeadless() {
-    if(vec.size()==4480){
-        cout<<"already headless patch"<<endl;
-    } else if(vec.size()!=5760){
-        cerr<<"error"<<endl;
-        return;
-    } else {
-        int i=0;
-        int j=0;
-        for (i=0; i<5760; i++) {
-            if(i%18 >=4){
-                vec[j]=vec[i];
-                j++;
-            }
-        }
-        vec.resize(j);
-        cout<<j<<endl;
-    }
+	if(vec.size()==4480){
+		cout<<"already headless patch"<<endl;
+	} else if(vec.size()!=5760){
+		cerr<<"error"<<endl;
+		return;
+	} else {
+		int i=0;
+		int j=0;
+		for (i=0; i<5760; i++) {
+			if(i%18 >=4){
+				vec[j]=vec[i];
+				j++;
+			}
+		}
+		vec.resize(j);
+		cout<<j<<endl;
+	}
 }
 
 
 vector<float> Feature::process(uchar *im, int& len, const int *dims, const int sbin) {
-    float uu[9] = {1.0000, 0.9397, 0.7660, 0.500,
-        0.1736, -0.1736, -0.5000, -0.7660, -0.9397};
-    float vv[9] = {0.0000, 0.3420, 0.6428, 0.8660, 0.9848,
-        0.9848, 0.8660, 0.6428, 0.3420};
+	float uu[9] = {1.0000, 0.9397, 0.7660, 0.500,
+		0.1736, -0.1736, -0.5000, -0.7660, -0.9397};
+	float vv[9] = {0.0000, 0.3420, 0.6428, 0.8660, 0.9848,
+		0.9848, 0.8660, 0.6428, 0.3420};
 
 	int blocks[2];
 	blocks[0] = (int)(((float)dims[0]/(float)sbin)+0.5f);

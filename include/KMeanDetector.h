@@ -15,7 +15,7 @@ class KMeanDetector :
 		KMeanDetector(void)=default;
 		KMeanDetector(string vecfname,string clusfname);
 		KMeanDetector(const Mat& featurevec,vector<int>& clusvec):feavec(featurevec),clus(clusvec){};
-		~KMeanDetector(void)noexcept{};
+		~KMeanDetector(void){};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 		void load(string fsfn,string clusfn) override;//load feature and indice list
 	protected:

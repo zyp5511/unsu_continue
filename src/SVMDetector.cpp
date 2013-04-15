@@ -29,7 +29,7 @@ SVMDetector::SVMDetector(const Mat& feavec, const vector<int>& label){
 	params.svm_type    = CvSVM::C_SVC;
 	params.kernel_type = CvSVM::LINEAR;
 	params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-	
+
 	Mat labelsMat(label);
 	// Train the SVM
 	SVM.train(feavec, labelsMat, Mat(), Mat(), params);

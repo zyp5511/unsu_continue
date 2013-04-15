@@ -1,17 +1,11 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include "PatchDetector.h"
+#include "Result.h"
 
 using namespace std;
 using namespace cv;
 
-struct Result {
-	Result(int c, float s){category=c;score=s;};
-	Result(){category = -1; score = 0;};
-	int category;
-	float score;
-	Rect rect;
-};
 
 class Feature
 {

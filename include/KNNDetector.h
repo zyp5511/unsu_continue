@@ -13,7 +13,7 @@ class KNNDetector :
 		KNNDetector(void)=default;
 		KNNDetector(string vecfname,string clusfname);
 		KNNDetector(const Mat& featurevec,vector<int>& clusvec):feavec(featurevec),clus(clusvec){};
-		~KNNDetector(void)noexcept{};
+		~KNNDetector(void){};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 		void load(string fsfn,string clusfn) override;//load feature and indice list
 	protected:

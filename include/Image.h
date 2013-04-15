@@ -14,6 +14,7 @@
 #include "PatchDetector.h"
 #include "ImageCropper.h"
 #include "Feature.h"
+#include "Transform.h"
 
 #ifndef SEQ_IMG 
 #include "tbb/tbb.h"
@@ -25,14 +26,15 @@ class ImageWrapper {
 	shared_ptr<PatchDetector> pd;
 	shared_ptr<ImageCropper> ic;
 	concurrent_vector<Result> results;
-	concurrent_vector<Result> good_results;
 	vector<vector<Result>> rtb; //reversal lookup table
+	vector<LCTransform> transforms;
 	Mat img;
 
 	public:
 	vector<int> histogram;
 	ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
 	~ImageWrapper(){};
+
 	/*
 	 * pre-processing
 	 */
@@ -47,10 +49,11 @@ class ImageWrapper {
 	void collectResult();
 	void collectResult(const PCA& pca);
 	void calcClusHist();
-	bool match(vector<bool>);//if certain pattern are matched by image's histogram
-	Rect matchArea(vector<bool>);//minRect cover all rects from certain clusters of kNN result 
-	vector<vector<Rect>> matchAreaDebug(vector<bool>);
-	vector<vector<Result>> getMatchedResults(vector<bool> gamecard);//all rects from certain clusters of kNN result
+	bool match(const vector<bool>&);//if certain pattern are matched by image's histogram
+	Rect matchArea(const vector<bool>&);//minRect cover all rects from certain clusters of kNN result
+	vector<vector<Result>> getMatchedResults(const vector<bool>& gamecard);//all rects from certain clusters of kNN result
+	vector<LCTransform> getLCTransforms(const vector<bool>& gc, const vector<bool>& core_gc);
+	vector<Result> getGoodResults();
 
 	/*
 	 * scanning latent variables
@@ -58,6 +61,5 @@ class ImageWrapper {
 	void scan(const PCA& pca);//best match for a given set of clusters
 	vector<Rect> scanDebug(int i);
 	vector<Result> getBestResults(int len);//rects of top i responce from certain clusters of scan result
-	vector<Result> getGoodResults();
 };
 #endif /* defined(__HumanPoseDetector__Image__) */

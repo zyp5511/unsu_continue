@@ -19,7 +19,7 @@ class PatchDetector
 {
 public:
 	PatchDetector(void)=default;
-	virtual ~PatchDetector(void) noexcept{};
+	virtual ~PatchDetector(void) {};
 	virtual void detect(const vector<float>& vec, int&c, float&score)=0;
 	virtual	void load(string fsfn,string clusfn){};//virtual fun for data loading 
 };

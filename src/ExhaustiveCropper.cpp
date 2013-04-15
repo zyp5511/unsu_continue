@@ -29,7 +29,7 @@ void ExhaustiveCropper::setUp(Mat img){
 	{
 		level_scale.push_back(scale);
 		if (cvRound(img.cols/scale) < patch_c ||
-			cvRound(img.rows/scale) < patch_r || scale0 <= 1)
+				cvRound(img.rows/scale) < patch_r || scale0 <= 1)
 			break;
 		scale *= scale0;
 	}

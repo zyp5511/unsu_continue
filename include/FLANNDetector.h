@@ -14,7 +14,7 @@ class FLANNDetector :
 		FLANNDetector(string vecfname,string indfname);
 		FLANNDetector(const Mat& featureVec,vector<int>& indvec);
 
-		~FLANNDetector(void)noexcept{};
+		~FLANNDetector(void){};
 		virtual void detect(const vector<float>& vec, int&c, float&score) override;
 
 		void save(string fsfn,string indfn);//save feature and indice list and kNN index to FileStorage;

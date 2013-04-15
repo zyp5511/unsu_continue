@@ -1,6 +1,6 @@
 #include "FeaturePCA.h"
 FeaturePCA::FeaturePCA(MatrixXf&fea, float retainedVar){
-	
+
 	int len = fea.cols();
 	int in_count = fea.rows();
 #ifdef DEBUG_PCA
@@ -71,7 +71,7 @@ FeaturePCA::FeaturePCA(MatrixXf&fea, float retainedVar){
 	cout<<"eigen vector:"<<endl;
 	cout<<ev<<endl;
 #endif
-	
+
 }
 void FeaturePCA::projectZeroMean(MatrixXf&ori, MatrixXf&shorten){
 	shorten = ori * ev;
