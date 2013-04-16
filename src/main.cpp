@@ -37,10 +37,10 @@ using namespace cv;
 using namespace Eigen;
 
 vector<string> loadFolder(string srcfolder);
+
 void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 		string srcfolder, string desfolder, int k, PCA& pca, string s,
-		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout) ;
-
+		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts=LCTransformSet()) ;
 vector<bool> buildGameCard(string gcfn, int k) {
 	auto res = vector<bool>(k, false);
 	ifstream fin(gcfn);
@@ -77,6 +77,8 @@ int main(int argc, const char * argv[]) {
 			string pcafn = argv[7];
 			string portn = argv[8];
 			string gcfn = argv[9];
+			string coregcfn = argv[10];
+			string transfn = argv[11];
 
 			//set up patch cropper
 			shared_ptr<PatchDetector> kd(new KNNDetector());
@@ -95,6 +97,8 @@ int main(int argc, const char * argv[]) {
 			cout << "start loading index" << endl;
 			kd->load(fsfn, indfn);
 			vector<bool> gc = buildGameCard(gcfn, k);
+			vector<bool> core_gc = buildGameCard(coregcfn, k);
+			LCTransformSet ts(k,transfn);
 
 			//set up socket
 			int sockfd, newsockfd, portno;
@@ -142,8 +146,8 @@ int main(int argc, const char * argv[]) {
 				printf("Here is the message: %s\n", buffer);
 				ostringstream ss;
 				try {
-					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,vector<bool>(),
-							ss);
+					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,core_gc,
+							ss,ts);
 				} catch (Exception& e) {
 					cerr << e.msg << endl;
 				}
@@ -443,7 +447,7 @@ int main(int argc, const char * argv[]) {
 
 void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 		string srcfolder, string desfolder, int k, PCA& pca, string s,
-		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout) {
+		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts) {
 	auto fname = srcfolder + s;
 	ImageWrapper iw(kd, ec);
 	Mat raw = imread(fname);
@@ -484,12 +488,13 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
 				Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
 	int count = 0;
-	if(!core_gc.empty()){
-		vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-		for(LCTransform& t :trans){
-			fout<<t.getString()<<endl;
-		}
-	}
+
+	//if(!core_gc.empty()){
+	//	vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+	//	for(LCTransform& t :trans){
+	//		fout<<t.getString()<<endl;
+	//	}
+	//}
 
 	if (iw.match(gc)) {
 		cout << fname << " matched!" << endl;
@@ -497,7 +502,12 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 		vector<vector<Result>> debugs = iw.getMatchedResults(gc);
 		for (auto&rs : debugs) {
 			for (auto&r : rs) {
-				rectangle(out, r.rect, colors[count]);
+				if (!core_gc[r.category])
+					rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
+					//rectangle(out, r.rect, colors[r.category % 15]);
+				else
+					rectangle(out, r.rect, colors[r.category % 15]);
+
 			}
 		}
 		imwrite(desfolder + s, out);
