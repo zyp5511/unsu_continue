@@ -368,16 +368,21 @@ int main(int argc, const char * argv[]) {
 				cout << "Please input image filename" << endl;
 			}
 			fout.close();
-		} else if (oper == "knncombo") {
+		} else if (oper == "knncombo" || oper == "kmeancombo") {
 			cout << "calucating vectors" << endl;
 			string pcafn = argv[7];
 			string vecoutfn = argv[8];
 			string gcfn = argv[9];
 			string coregcfn = argv[10];
+			string transfn = argv[11];
+
 			ofstream fout(vecoutfn);
 
 			string name;
-			shared_ptr<KNNDetector> kd(new KNNDetector());
+			shared_ptr<PatchDetector> kd(new KNNDetector());
+			if (oper == "kmeancombo"){
+				kd = make_shared<KMeanDetector>();
+			}
 			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 			ec->setSize(128, 96);
 
@@ -393,47 +398,16 @@ int main(int argc, const char * argv[]) {
 
 			vector<bool> gc = buildGameCard(gcfn, k);
 			vector<bool> coregc = buildGameCard(coregcfn, k);
+			LCTransformSet ts(k,transfn);
+
 
 			vector<string> files = loadFolder(srcfolder);
 
 			for (auto& s : files) {
-				classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout);
+				classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts);
 			}
-
 			fout.close();
-		} else if (oper == "kmeancombo") {
-			cout << "calucating vectors" << endl;
-			string pcafn = argv[7];
-			string vecoutfn = argv[8];
-			string gcfn = argv[9];
-			ofstream fout(vecoutfn);
-
-			string name;
-			shared_ptr<KMeanDetector> kd(new KMeanDetector());
-			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-			ec->setSize(128, 96);
-
-			FileStorage pcafs(pcafn, FileStorage::READ);
-			PCA pca;
-			pcafs["mean"] >> pca.mean;
-			pcafs["eigenvalues"] >> pca.eigenvalues;
-			pcafs["eigenvectors"] >> pca.eigenvectors;
-			cout << "PCA loaded" << endl;
-
-			cout << "start loading index" << endl;
-			kd->load(fsfn, indfn);
-
-			vector<bool> gc = buildGameCard(gcfn, k);
-
-			vector<string> files = loadFolder(srcfolder);
-
-			for (auto s : files) {
-				classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,vector<bool>(), fout);
-			}
-
-			fout.close();
-		}
-
+		} 
 	} else {
 		cerr << "Number of args must > 3!" << endl;
 	}
@@ -504,7 +478,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 			for (auto&r : rs) {
 				if (!core_gc[r.category])
 					rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
-					//rectangle(out, r.rect, colors[r.category % 15]);
+				//rectangle(out, r.rect, colors[r.category % 15]);
 				else
 					rectangle(out, r.rect, colors[r.category % 15]);
 
