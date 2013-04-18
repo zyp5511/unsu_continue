@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #endif
+#include <boost/program_options.hpp>
 #include "SVMDetector.h"
 #include "KNNDetector.h"
 #include "KMeanDetector.h"
@@ -41,6 +42,7 @@ vector<string> loadFolder(string srcfolder);
 void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 		string srcfolder, string desfolder, int k, PCA& pca, string s,
 		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts=LCTransformSet()) ;
+
 vector<bool> buildGameCard(string gcfn, int k) {
 	auto res = vector<bool>(k, false);
 	ifstream fin(gcfn);
@@ -57,49 +59,206 @@ vector<bool> buildGameCard(string gcfn, int k) {
 int main(int argc, const char * argv[]) {
 
 	//default value
-	string srcfolder = "/Users/lichao/data/122012/goodimages/training/";
-	string desfolder = "/Users/lichao/data/122012/clneg/";
-	string fsfn = "/Users/lichao/data/122012/kNNfea.yml";
-	string indfn = "/Users/lichao/data/122012/kNNind.txt";
+	string srcfolder ;
+	string desfolder ;
+	string fsfn ;
+	string indfn ;
+	string oper ;
+	string pcafn ;
+	string portn ;
+	string gcfn ;
+	string coregcfn ;
+	string transfn ;
+	string vecoutfn;
+	string auxfn;
+	int k;
+
+
+	namespace po = boost::program_options;
+	po::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "produce help message")
+		("cluster,C", po::value<int>(&k), "set Number of Clusters")
+		("operation,O", po::value<string>(&oper), "set operation")
+		("batch,B", po::value<string>(), "set operation")
+		("src,S", po::value<string>(&srcfolder), "set source folder")
+		("des,D", po::value<string>(&desfolder), "set destination folder")
+		("feature,F", po::value<string>(&fsfn), "set feature file")
+		("index,I", po::value<string>(&indfn), "set index file")
+		("result,R", po::value<string>(&vecoutfn), "set result file")
+		("aux-result,A", po::value<string>(&auxfn), "set aux result file")
+		("PCA,P", po::value<string>(&pcafn), "set PCA file")
+		("gamecard", po::value<string>(&gcfn), "set gamecard file")
+		("corecard", po::value<string>(&coregcfn), "set core gamecard file")
+		("transform", po::value<string>(&transfn), "set transform file")
+		("port", po::value<string>(&portn), "set port")
+		;
+
+	po::variables_map vm;
+
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+
+	po::notify(vm);    
+
+	if (vm.count("help")) {
+		cout << desc << "\n";
+		return 1;
+	}
+
 	clock_t overall_start = clock();
 
-	int k = 100;
-	if (argc > 3) {
+	if (oper == "clusteranalysis") {
+		auto fl = FeatureLoader();
+		auto feavec = fl.loadTab(fsfn);
+		ifstream fin(indfn);
+		int numvec = feavec.rows;
+		vector<int> ind(numvec);
+		for (int i = 0; i < numvec; i++) {
+			fin >> ind[i];
+		}
+		fin.close();
 
-		k = stoi(argv[2]);
-		srcfolder = argv[3];
-		desfolder = argv[4];
-		fsfn = argv[5];
-		indfn = argv[6];
+		vector<Cluster> clus = Cluster::makeClusters(feavec, ind, k);
+		ofstream fout(vecoutfn);
+		ofstream fout2(auxfn);
+		fout << "Min\tMax\tAvg" << endl;
+		for (int i = 0; i < k; i++) {
+			float mindis = clus[i].getMinDistance();
+			float maxdis = clus[i].getMaxDistance();
+			float avgdis = clus[i].getAvgDistance();
+			fout << mindis << "\t" << maxdis << "\t" << avgdis << endl;
+		}
+		fout.close();
+		for (size_t i = 0; i < k; i++) {
+			for (size_t j = 0; j < k - 1; j++) {
+				fout2 << clus[i].distance(clus[j]) << ",";
+			}
+			fout2 << clus[i].distance(clus[k - 1]) << endl;
+		}
+		fout2.close();
 
-		auto oper = string(argv[1]);
-		if (oper == "daemon" || oper == "kmeandaemon") {
-			string pcafn = argv[7];
-			string portn = argv[8];
-			string gcfn = argv[9];
-			string coregcfn = argv[10];
-			string transfn = argv[11];
+	} else if (oper == "kmean") {
 
-			//set up patch cropper
-			shared_ptr<PatchDetector> kd(new KNNDetector());
-			if (oper == "kmeandaemon")
-				kd = make_shared<KMeanDetector>();
-			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-			ec->setSize(128, 96);
+		auto fp = FeaturePartitioner();
+		auto fl = FeatureLoader();
+		auto fea = fl.loadTab(fsfn);
+		vector<int> category(fea.rows);
+		fp.kmean(fea, category, k);
 
-			FileStorage pcafs(pcafn, FileStorage::READ);
-			PCA pca;
-			pcafs["mean"] >> pca.mean;
-			pcafs["eigenvalues"] >> pca.eigenvalues;
-			pcafs["eigenvectors"] >> pca.eigenvectors;
-			cout << "PCA loaded" << endl;
+		ofstream fout(indfn);
+		for (auto i : category) {
+			fout << i << "\n";
+		}
+		fout.close(); //use indfn as the destination.
+	} else if (oper == "pca") {
+		auto fl = FeatureLoader();
+		MatrixXf fea;
+		fl.loadTab2Eigen(fsfn, fea);
+		auto pca = FeaturePCA(fea, 0.95);
+		cout << "there are " << pca.el.size() << " components in PCA"
+			<< endl;
+		auto a = pca.getCVPCA();
+		MatrixXf shortfea;
 
-			cout << "start loading index" << endl;
-			kd->load(fsfn, indfn);
-			vector<bool> gc = buildGameCard(gcfn, k);
-			vector<bool> core_gc = buildGameCard(coregcfn, k);
-			LCTransformSet ts(k,transfn);
+		pca.projectZeroMean(fea, shortfea);
+		FileStorage fs(pcafn, FileStorage::WRITE);
+		fs << "mean" << a.mean;
+		fs << "eigenvalues" << a.eigenvalues;
+		fs << "eigenvectors" << a.eigenvectors;
+		fs.release();
+		cout << "eigenvalue written in " << pcafn << endl;
+		auto fw = FeatureWriter();
+		fw.saveEigen2Tab(vecoutfn, shortfea);	
+	} else if (oper == "randomcrop") {
+		//set up patch cropper
+		string seperator_fn = vecoutfn;
+		auto nc = RandomCropper(k);
+		nc.setSize(128, 96);
+		nc.collectSrcDir(srcfolder);
+		cout << "Patches created!" << endl;
+		nc.exportFeatures(fsfn);
+		nc.exportPatches(desfolder);
+		nc.exportSeperators(seperator_fn);
+	} else if (oper == "latent") {
 
+		//set up patch cropper
+		shared_ptr<LatentDetector> kd;
+		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+		ec->setSize(128, 96);
+
+		FileStorage pcafs(pcafn, FileStorage::READ);
+		PCA pca;
+		pcafs["mean"] >> pca.mean;
+		pcafs["eigenvalues"] >> pca.eigenvalues;
+		pcafs["eigenvectors"] >> pca.eigenvectors;
+		cout << "PCA loaded" << endl;
+
+		vector<bool> gc = buildGameCard(gcfn, k);
+
+		cout << "start loading index" << endl;
+		kd = make_shared<LatentDetector>(fsfn, indfn, gc);
+
+		string name;
+		cout << "Please input image filename" << endl;
+
+		while (getline(cin, name)) {
+			try {
+				//Read Image
+				auto fname = srcfolder + name + ".jpg";
+				Mat mat = imread(fname);
+				cout << "loading file " << fname << endl;
+				ImageWrapper iw(kd, ec);
+
+				//Prepare Image Wrapper
+				iw.setImage(mat);
+				iw.setBins(k);
+
+				iw.collectPatches();    //cropping
+				iw.collectResult(pca);    //kNN matching
+
+				Scalar colors[] = { Scalar(255, 0, 0), Scalar(0, 255, 0),
+					Scalar(0, 0, 255), Scalar(0, 255, 255) };
+				Mat out = mat.clone();
+				vector<Result> debugs = iw.getBestResults(10);
+				int dsize = debugs.size();
+				rectangle(out, debugs[0].rect, colors[1]);
+				for (size_t i = 1; i < dsize; i++) {
+					rectangle(out, debugs[i].rect, colors[0]);
+				}
+				imwrite(desfolder + name + ".jpg", out);
+			} catch (Exception& e) {
+				cerr << e.msg << endl;
+			}
+			cout << "Please input image filename" << endl;
+		}
+	} else if (oper == "knn" || oper == "kmean") {
+		string name;
+		shared_ptr<PatchDetector> kd;
+		if (oper == "knn"){
+			kd = make_shared<KNNDetector>();
+		} else if (oper == "kmean"){
+			kd = make_shared<KMeanDetector>();
+		}
+		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
+		ec->setSize(128, 96);
+
+		FileStorage pcafs(pcafn, FileStorage::READ);
+		PCA pca;
+		pcafs["mean"] >> pca.mean;
+		pcafs["eigenvalues"] >> pca.eigenvalues;
+		pcafs["eigenvectors"] >> pca.eigenvectors;
+		cout << "PCA loaded" << endl;
+
+		cout << "start loading index" << endl;
+		kd->load(fsfn, indfn);
+
+		vector<bool> gc = buildGameCard(gcfn, k);
+		vector<bool> coregc = buildGameCard(coregcfn, k);
+
+		LCTransformSet ts(k,transfn);
+
+
+		if (vm.count("daemon")){
 			//set up socket
 			int sockfd, newsockfd, portno;
 			socklen_t clilen;
@@ -116,11 +275,11 @@ int main(int argc, const char * argv[]) {
 			serv_addr.sin_family = AF_INET;
 			serv_addr.sin_addr.s_addr = htonl(INADDR_ANY );
 			serv_addr.sin_port = htons(portno);
-			if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr))
-					< 0) {
-				fprintf(stderr, "ERROR on binding");
-				exit(1);
-			}
+			bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+			//if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr))<0) {
+			//	fprintf(stderr, "ERROR on binding");
+			//	exit(1);
+			//}
 			listen(sockfd, 1024);
 			clilen = sizeof(cli_addr);
 
@@ -146,7 +305,7 @@ int main(int argc, const char * argv[]) {
 				printf("Here is the message: %s\n", buffer);
 				ostringstream ss;
 				try {
-					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,core_gc,
+					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
 							ss,ts);
 				} catch (Exception& e) {
 					cerr << e.msg << endl;
@@ -167,250 +326,30 @@ int main(int argc, const char * argv[]) {
 				bzero(buffer, 256);
 				n = read(newsockfd, buffer, 255);
 			}
-
 			close(sockfd);
-			return 0;
-		} else if (oper == "clusteranalysis") {
-			auto fl = FeatureLoader();
-			auto feavec = fl.loadTab(fsfn);
-			ifstream fin(indfn);
-			int numvec = feavec.rows;
-			vector<int> ind(numvec);
-			for (int i = 0; i < numvec; i++) {
-				fin >> ind[i];
-			}
-			fin.close();
+		} else {
+			ofstream fout(vecoutfn);
+			if (vm.count("batch")){
+				vector<string> files = loadFolder(srcfolder);
 
-			//Mat feavec;
-			//vector<int> ind(k);
-			//FileStorage fs(fsfn,FileStorage::READ);
-			//fs["feature"]>>feavec;
-			//fs["index"]>>ind;
-			//fs.release();
-			//cout<<"Feature Loaded"<<endl;
-
-			vector<Cluster> clus = Cluster::makeClusters(feavec, ind, k);
-			string resfn = argv[7];
-			string resfn2 = argv[8];
-			ofstream fout(resfn);
-			ofstream fout2(resfn2);
-			fout << "Min\tMax\tAvg" << endl;
-			for (int i = 0; i < k; i++) {
-				float mindis = clus[i].getMinDistance();
-				float maxdis = clus[i].getMaxDistance();
-				float avgdis = clus[i].getAvgDistance();
-				fout << mindis << "\t" << maxdis << "\t" << avgdis << endl;
-			}
-			fout.close();
-			for (size_t i = 0; i < k; i++) {
-				for (size_t j = 0; j < k - 1; j++) {
-					fout2 << clus[i].distance(clus[j]) << ",";
+				for (auto& s : files) {
+					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts);
 				}
-				fout2 << clus[i].distance(clus[k - 1]) << endl;
-			}
-			fout2.close();
-
-		} else if (oper == "kmean") {
-
-			auto fp = FeaturePartitioner();
-			auto fl = FeatureLoader();
-			auto fea = fl.loadTab(fsfn);
-			vector<int> category(fea.rows);
-			fp.kmean(fea, category, k);
-
-			ofstream fout(indfn);
-			for (auto i : category) {
-				fout << i << "\n";
-			}
-			fout.close(); //use indfn as the destination.
-		} else if (oper == "pca") {
-#ifndef OLD_PCA
-			string evfn = argv[7];
-			auto fl = FeatureLoader();
-
-			MatrixXf fea;
-			fl.loadTab2Eigen(fsfn, fea);
-			auto pca = FeaturePCA(fea, 0.95);
-			cout << "there are " << pca.el.size() << " components in PCA"
-				<< endl;
-			auto a = pca.getCVPCA();
-			MatrixXf shortfea;
-#ifdef DEBUG_PCA
-			cout<<"fea:"<<endl<<fea<<endl;
-#endif
-			pca.projectZeroMean(fea, shortfea);
-			FileStorage fs(evfn, FileStorage::WRITE);
-			fs << "mean" << a.mean;
-			fs << "eigenvalues" << a.eigenvalues;
-			fs << "eigenvectors" << a.eigenvectors;
-			fs.release();
-			cout << "eigenvalue written in " << evfn << endl;
-			auto fw = FeatureWriter();
-			fw.saveEigen2Tab(indfn, shortfea);	//use indfn as the destination.
-#else
-			string evfn = argv[7];
-			auto fl = FeatureLoader();
-
-			auto fea = fl.loadTab(fsfn);
-
-			PCA a(fea, noArray(), CV_PCA_DATA_AS_ROW, 0.95);
-			cout << "there are " << a.eigenvalues.size() << " components in PCA"
-				<< endl;
-			auto shortfea = a.project(fea);
-			FileStorage fs(evfn, FileStorage::WRITE);
-			fs << "mean" << a.mean;
-			fs << "eigenvalues" << a.eigenvalues;
-			fs << "eigenvectors" << a.eigenvectors;
-			fs.release();
-			cout << "eigenvalue written in " << evfn << endl;
-			auto fw = FeatureWriter();
-			fw.saveTab(indfn, shortfea); //use indfn as the destination.
-#endif
-		} else if (oper == "randomcrop") {
-			//set up patch cropper
-			string seperator_fn = argv[7];
-			auto nc = RandomCropper(k);
-			nc.setSize(128, 96);
-			nc.collectSrcDir(srcfolder);
-			cout << "Patches created!" << endl;
-			nc.exportFeatures(fsfn);
-			nc.exportPatches(desfolder);
-			nc.exportSeperators(seperator_fn);
-		} else if (oper == "latent") {
-			string pcafn = argv[7];
-			string gcfn = argv[8];
-
-			//set up patch cropper
-			shared_ptr<LatentDetector> kd;
-			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-			ec->setSize(128, 96);
-
-			FileStorage pcafs(pcafn, FileStorage::READ);
-			PCA pca;
-			pcafs["mean"] >> pca.mean;
-			pcafs["eigenvalues"] >> pca.eigenvalues;
-			pcafs["eigenvectors"] >> pca.eigenvectors;
-			cout << "PCA loaded" << endl;
-
-			vector<bool> gc = buildGameCard(gcfn, k);
-
-			cout << "start loading index" << endl;
-			kd = make_shared<LatentDetector>(fsfn, indfn, gc);
-
-			string name;
-			cout << "Please input image filename" << endl;
-
-			//gc[14] = gc[15] = gc[19] = true;
-
-			while (getline(cin, name)) {
-				try {
-					//Read Image
-					auto fname = srcfolder + name + ".jpg";
-					Mat mat = imread(fname);
-					cout << "loading file " << fname << endl;
-					ImageWrapper iw(kd, ec);
-
-					//Prepare Image Wrapper
-					iw.setImage(mat);
-					iw.setBins(k);
-
-					iw.collectPatches();    //cropping
-					iw.collectResult(pca);    //kNN matching
-
-					Scalar colors[] = { Scalar(255, 0, 0), Scalar(0, 255, 0),
-						Scalar(0, 0, 255), Scalar(0, 255, 255) };
-					Mat out = mat.clone();
-					vector<Result> debugs = iw.getBestResults(10);
-					int dsize = debugs.size();
-					rectangle(out, debugs[0].rect, colors[1]);
-					for (size_t i = 1; i < dsize; i++) {
-						rectangle(out, debugs[i].rect, colors[0]);
+			} else  {
+				cout << "Please input image filename" << endl;
+				while (getline(cin, name)) {
+					try {
+						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,vector<bool>(),
+								fout);
+					} catch (Exception& e) {
+						cerr << e.msg << endl;
 					}
-					imwrite(desfolder + name + ".jpg", out);
-				} catch (Exception& e) {
-					cerr << e.msg << endl;
+					cout << "Please input image filename" << endl;
 				}
-				cout << "Please input image filename" << endl;
 			}
-		} else if (oper == "knnclassify") {
-			string pcafn = argv[7];
-			string vecoutfn = argv[8];
-			string gcfn = argv[9];
-			ofstream fout(vecoutfn);
-
-			//set up patch cropper
-			shared_ptr<KNNDetector> kd(new KNNDetector());
-			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-			ec->setSize(128, 96);
-
-			FileStorage pcafs(pcafn, FileStorage::READ);
-			PCA pca;
-			pcafs["mean"] >> pca.mean;
-			pcafs["eigenvalues"] >> pca.eigenvalues;
-			pcafs["eigenvectors"] >> pca.eigenvectors;
-			cout << "PCA loaded" << endl;
-
-			cout << "start loading index" << endl;
-			kd->load(fsfn, indfn);
-
-			string name;
-			cout << "Please input image filename" << endl;
-
-			vector<bool> gc = buildGameCard(gcfn, k);
-
-			while (getline(cin, name)) {
-				try {
-					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,vector<bool>(),
-							fout);
-				} catch (Exception& e) {
-					cerr << e.msg << endl;
-				}
-				cout << "Please input image filename" << endl;
-			}
-			fout.close();
-		} else if (oper == "knncombo" || oper == "kmeancombo") {
-			cout << "calucating vectors" << endl;
-			string pcafn = argv[7];
-			string vecoutfn = argv[8];
-			string gcfn = argv[9];
-			string coregcfn = argv[10];
-			string transfn = argv[11];
-
-			ofstream fout(vecoutfn);
-
-			string name;
-			shared_ptr<PatchDetector> kd(new KNNDetector());
-			if (oper == "kmeancombo"){
-				kd = make_shared<KMeanDetector>();
-			}
-			shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-			ec->setSize(128, 96);
-
-			FileStorage pcafs(pcafn, FileStorage::READ);
-			PCA pca;
-			pcafs["mean"] >> pca.mean;
-			pcafs["eigenvalues"] >> pca.eigenvalues;
-			pcafs["eigenvectors"] >> pca.eigenvectors;
-			cout << "PCA loaded" << endl;
-
-			cout << "start loading index" << endl;
-			kd->load(fsfn, indfn);
-
-			vector<bool> gc = buildGameCard(gcfn, k);
-			vector<bool> coregc = buildGameCard(coregcfn, k);
-			LCTransformSet ts(k,transfn);
-
-
-			vector<string> files = loadFolder(srcfolder);
-
-			for (auto& s : files) {
-				classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts);
-			}
-			fout.close();
-		} 
-	} else {
-		cerr << "Number of args must > 3!" << endl;
-	}
+		fout.close();
+		}
+	} 
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "FINISHED!  " << overall_diff << " seconds used." << endl;
 #if defined (_WIN32)
