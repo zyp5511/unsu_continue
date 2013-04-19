@@ -80,7 +80,7 @@ int main(int argc, const char * argv[]) {
 		("help", "produce help message")
 		("cluster,C", po::value<int>(&k), "set Number of Clusters")
 		("operation,O", po::value<string>(&oper), "set operation")
-		("batch,B", po::value<string>(), "set operation")
+		("batch,B", "set operation")
 		("src,S", po::value<string>(&srcfolder), "set source folder")
 		("des,D", po::value<string>(&desfolder), "set destination folder")
 		("feature,F", po::value<string>(&fsfn), "set feature file")
