@@ -1,4 +1,5 @@
 require 'RMagick'
+require 'FileUtils'
 
 class Rect
 	attr_accessor :type, :dis, :x,:y,:w,:h
@@ -25,7 +26,7 @@ class Record
 	def initialize(src,des,lines)
 		@filename = lines[0];
 		@vectors = lines[1]
-		@rects = lines.drop(2).map{|l| Rect.makeRect(l)}
+		@rects = lines.drop(2).take_while{|x| !x.include?("=>")}.map{|l| Rect.makeRect(l)}
 		@dest = des
 		@ori = Magick::Image.read(File.join(src,@filename).to_s).first
 	end
@@ -45,7 +46,12 @@ class Record
 
 	def crop_rect(rect)
 		temp = @ori.crop(rect.x,rect.y,rect.w,rect.h,true)
-		temp.write("#{File.join(@dest,File.basename(@filename, File.extname(@filename))).to_s}_#{rect.x}:#{rect.y}:#{rect.w}:#{rect.h}_#{@type}#{File.extname(@filename)}")
+		type = rect.type
+		subdir = "#{@dest}/#{type}".chomp
+		if !File.directory?(subdir)
+			FileUtils.mkdir(subdir)
+		end
+		temp.write("#{File.join(subdir,File.basename(@filename, File.extname(@filename))).to_s}_#{rect.x}:#{rect.y}:#{rect.w}:#{rect.h}_#{type}.#{File.extname(@filename)}")
 	end
 
 	def self.seperate_records(src,des,lines)

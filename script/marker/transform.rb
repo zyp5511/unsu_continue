@@ -8,10 +8,12 @@ class LCTransform
 		@yr = yr;
 		@r = r;
 	end
+
 	def self.load (str)
 		from_str,to_str,xr_str,yr_str,r_str = str.split(/=>|:|\s/).map(&:chomp)
 		LCTransform.new(from_str.to_i,to_str.to_i,xr_str.to_f,yr_str.to_f,r_str.to_f)
 	end
+
 	def to_s
 		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}"
 	end
