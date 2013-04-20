@@ -1,3 +1,4 @@
+
 class LCTransform
 	include Comparable
 	attr_accessor :from, :to, :xr, :yr, :r
@@ -38,9 +39,17 @@ class LCTransformSet
 		@transforms = transforms
 	end
 	def self.loadAll(fname)
-		trans = Array.new
+    trans = Array.new;
+    IO.foreach(fname) do |line|
+      trans << LCTransform.load(line)
+    end
+    LCTransformSet.new(trans)
+  end
+	def self.loadMap(fname,n)
+		trans = Array.new(n);
 		IO.foreach(fname) do |line|
-			trans<<LCTransform.load(line)
+			t = LCTransform.load(line)
+			trans[t.from] = t;
 		end
 		LCTransformSet.new(trans)
 	end

@@ -72,16 +72,19 @@ int main(int argc, const char * argv[]) {
 	string transfn ;
 	string vecoutfn;
 	string auxfn;
+	string config;
 	int k;
 
 
 	namespace po = boost::program_options;
 	po::options_description desc("Allowed options");
+	po::options_description fdesc("Allowed options");
 	desc.add_options()
 		("help", "produce help message")
+		("configuration,K", po::value<string>(&config), "configuration file")
 		("cluster,C", po::value<int>(&k), "set Number of Clusters")
 		("operation,O", po::value<string>(&oper), "set operation")
-		("batch,B", "set operation")
+		("batch,B", "set batch/single")
 		("src,S", po::value<string>(&srcfolder), "set source folder")
 		("des,D", po::value<string>(&desfolder), "set destination folder")
 		("feature,F", po::value<string>(&fsfn), "set feature file")
@@ -95,15 +98,23 @@ int main(int argc, const char * argv[]) {
 		("port", po::value<string>(&portn), "set port")
 		;
 
+
 	po::variables_map vm;
 
 	po::store(po::parse_command_line(argc, argv, desc), vm);
+
 
 	po::notify(vm);    
 
 	if (vm.count("help")) {
 		cout << desc << "\n";
 		return 1;
+	} else if (vm.count("configuration")){
+		cout<<config<<endl;
+		ifstream fconf(config);
+		po::store(po::parse_config_file(fconf,desc),vm);
+		po::notify(vm);
+		fconf.close();
 	}
 
 	clock_t overall_start = clock();
