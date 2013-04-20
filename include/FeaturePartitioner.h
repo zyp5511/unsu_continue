@@ -13,9 +13,9 @@
 using namespace std;
 using namespace cv;
 class FeaturePartitioner {
-    
+
 public:
-    void exportPatches(vector<int> category, string srcdir, string desdir);
-    void kmean(Mat& feavec, vector<int>& category, int k);
+	void exportPatches(vector<int> category, string srcdir, string desdir);
+	void kmean(Mat& feavec, vector<int>& category, int k);
 };
 #endif /* defined(__HumanPoseDetector__FeaturePartitioner__) */

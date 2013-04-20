@@ -47,11 +47,11 @@ void RandomCropper::collectSrcDir(string fname){
 #endif
 
 	for_each(files.rbegin(), itend, [this,fname](string s){
-			Mat img = imread(fname+s);
-			cout<<fname+s<<endl;
-			this->setUp(img);
+		Mat img = imread(fname+s);
+		cout<<fname+s<<endl;
+		this->setUp(img);
 
-			});
+	});
 	auto it = all_mats.begin();
 	Feature f(*it);
 	int numcol= static_cast<int>(f.vec.size());
@@ -107,8 +107,8 @@ void RandomCropper::exportFeatures(string fname){
 void RandomCropper::exportSeperators(string fname){
 	ofstream fout(fname);
 	for_each(seperators.begin(), seperators.end(),[&fout](int i){
-			fout<<i<<endl;
-			});
+		fout<<i<<endl;
+	});
 	fout.close();
 }
 void RandomCropper::exportPatches(string fname){
@@ -134,7 +134,7 @@ void RandomCropper::setUp(Mat img){
 	{
 		level_scale.push_back(scale);
 		if (cvRound(img.cols/scale) < patch_c ||
-				cvRound(img.rows/scale) < patch_r || scale0 <= 1)
+			cvRound(img.rows/scale) < patch_r || scale0 <= 1)
 			break;
 		scale *= scale0;
 	}

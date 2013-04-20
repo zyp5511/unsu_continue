@@ -8,14 +8,14 @@ using namespace std;
 using namespace cv;
 
 class FeaturePCA {
-	public:
-		RowVectorXf mean;
-		VectorXf el;
-		MatrixXf ev;
+public:
+	RowVectorXf mean;
+	VectorXf el;
+	MatrixXf ev;
 
-		FeaturePCA(MatrixXf&fea, float retainedVar);
-		void projectZeroMean(MatrixXf&ori, MatrixXf&shorten);
-		void project(MatrixXf&ori, MatrixXf&shorten);
-		void backProject(MatrixXf&shorten, MatrixXf&ori);
-		PCA getCVPCA();
+	FeaturePCA(MatrixXf&fea, float retainedVar);
+	void projectZeroMean(MatrixXf&ori, MatrixXf&shorten);
+	void project(MatrixXf&ori, MatrixXf&shorten);
+	void backProject(MatrixXf&shorten, MatrixXf&ori);
+	PCA getCVPCA();
 };

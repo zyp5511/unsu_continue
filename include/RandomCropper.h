@@ -17,26 +17,26 @@ using namespace std;
 using namespace cv;
 
 class RandomCropper:public ImageCropper {
-	protected:
-		int patchesPerImage;
-		Mat feavec;
-		vector<int> seperators;
+protected:
+	int patchesPerImage;
+	Mat feavec;
+	vector<int> seperators;
 
-	public:
-		vector<int> category;
-		RandomCropper(){patchesPerImage = 50;};
-		RandomCropper(int k){patchesPerImage = k;};
-		~RandomCropper(){};
-		void collectSrcDir(string fname);
+public:
+	vector<int> category;
+	RandomCropper(){patchesPerImage = 50;};
+	RandomCropper(int k){patchesPerImage = k;};
+	~RandomCropper(){};
+	void collectSrcDir(string fname);
 
-		void kmean();
-		void kmean(int k);
-		void pca();
-		void exportPatches(string fname);
-		void exportFeatures(string fname);
-		void exportSeperators(string fname);
+	void kmean();
+	void kmean(int k);
+	void pca();
+	void exportPatches(string fname);
+	void exportFeatures(string fname);
+	void exportSeperators(string fname);
 
-		virtual void setUp(Mat img) override;
+	virtual void setUp(Mat img) override;
 };
 
 

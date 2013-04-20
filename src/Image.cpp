@@ -9,8 +9,7 @@
 #include "Image.h"
 
 using namespace std;
-ImageWrapper::ImageWrapper(shared_ptr<PatchDetector> detector,
-		shared_ptr<ImageCropper> cropper) {
+ImageWrapper::ImageWrapper(shared_ptr<PatchDetector> detector, shared_ptr<ImageCropper> cropper) {
 	pd = detector;
 	ic = cropper;
 }
@@ -32,13 +31,13 @@ void ImageWrapper::collectResult(const PCA& pca) {
 	auto mat_count = ic->all_mats.size();
 	results = concurrent_vector<Result>(mat_count);
 	parallel_for(size_t(0), mat_count, [&](size_t i) {
-			Mat temp = ic->all_mats[i].clone();
-			Feature fea(temp,pca);
-			fea.detect(*pd);
-			Result tempres = fea.getResult();
-			tempres.rect = ic->all_rects[i];
-			results[i]=(tempres);
-			});
+		Mat temp = ic->all_mats[i].clone();
+		Feature fea(temp,pca);
+		fea.detect(*pd);
+		Result tempres = fea.getResult();
+		tempres.rect = ic->all_rects[i];
+		results[i]=(tempres);
+	});
 #else
 	auto it_mats = ic->getMats();
 	auto end_mats = ic->getMatsEnd();
@@ -100,24 +99,24 @@ Rect ImageWrapper::matchArea(const vector<bool>& gamecard) {
 	for (int i = 0; i < len; i++) {
 		if (gamecard[i]) {
 			for_each(rtb[i].begin(), rtb[i].end(), [&points](Result r) {
-					points.push_back(r.rect.tl());
-					points.push_back(r.rect.br());
-					});
+				points.push_back(r.rect.tl());
+				points.push_back(r.rect.br());
+			});
 		}
 	}
 	return boundingRect(points);
 }
 
 vector<vector<Result>> ImageWrapper::getMatchedResults(
-		const vector<bool>& gamecard) {
-	auto res = vector<vector<Result>>();
-	size_t len = histogram.size();
-	for (int i = 0; i < len; i++) {
-		if (gamecard[i]) {
-			res.push_back(rtb[i]);
+	const vector<bool>& gamecard) {
+		auto res = vector<vector<Result>>();
+		size_t len = histogram.size();
+		for (int i = 0; i < len; i++) {
+			if (gamecard[i]) {
+				res.push_back(rtb[i]);
+			}
 		}
-	}
-	return res;
+		return res;
 }
 
 vector<Result> ImageWrapper::getBestResults(int len) {
@@ -127,8 +126,8 @@ vector<Result> ImageWrapper::getBestResults(int len) {
 		a[i] = i;
 	}
 	sort(a.begin(), a.end(), [&](int x, int y) {
-			return results[x].score<results[y].score;
-			});
+		return results[x].score<results[y].score;
+	});
 	auto res = vector<Result>();
 	int reslen = len > mat_count ? mat_count : len;
 	for (int i = 0; i < len; i++) {
@@ -137,35 +136,35 @@ vector<Result> ImageWrapper::getBestResults(int len) {
 	return res;
 }
 vector<LCTransform> ImageWrapper::getLCTransforms(const vector<bool>& gc,
-		const vector<bool>& core_gc) {
-	if (transforms.empty() && match(gc) && match(core_gc)) {
-		vector<Result> froms;
-		vector<Result> tos;
-		size_t len = histogram.size();
-		for (int i = 0; i < len; i++) {
-			if (core_gc[i]) {
-				tos.insert(tos.end(), rtb[i].begin(), rtb[i].end());
-			} else if (gc[i]) {
-				froms.insert(froms.end(), rtb[i].begin(), rtb[i].end());
-			}
-		}
-		if (tos.size() > 0 && froms.size() > 0) {
-			int len_to = tos.size();
-			int len_from = froms.size();
-			cout << "there are " << len_to << " true patches"<<endl;
-			cout << "there are " << len_from << " anchor patches"<<endl;
-			int c = 0;
-			for (int i = 0; i < len_to; i++)
-				for (int j = 0; j < len_from; j++) {
-					if (tos[i].overlapped(froms[j])) {
-						transforms.push_back(froms[j].getLCTransform(tos[i]));
-						c++;
-					}
-				}
-			cout<<"find "<<c<<" transforms"<<endl;
-		}
-	}
-	return transforms;
+												  const vector<bool>& core_gc) {
+													  if (transforms.empty() && match(gc) && match(core_gc)) {
+														  vector<Result> froms;
+														  vector<Result> tos;
+														  size_t len = histogram.size();
+														  for (int i = 0; i < len; i++) {
+															  if (core_gc[i]) {
+																  tos.insert(tos.end(), rtb[i].begin(), rtb[i].end());
+															  } else if (gc[i]) {
+																  froms.insert(froms.end(), rtb[i].begin(), rtb[i].end());
+															  }
+														  }
+														  if (tos.size() > 0 && froms.size() > 0) {
+															  int len_to = tos.size();
+															  int len_from = froms.size();
+															  cout << "there are " << len_to << " true patches"<<endl;
+															  cout << "there are " << len_from << " anchor patches"<<endl;
+															  int c = 0;
+															  for (int i = 0; i < len_to; i++)
+																  for (int j = 0; j < len_from; j++) {
+																	  if (tos[i].overlapped(froms[j])) {
+																		  transforms.push_back(froms[j].getLCTransform(tos[i]));
+																		  c++;
+																	  }
+																  }
+																  cout<<"find "<<c<<" transforms"<<endl;
+														  }
+													  }
+													  return transforms;
 }
 vector<Result> ImageWrapper::getGoodResults() {
 	auto mat_count = ic->all_mats.size();

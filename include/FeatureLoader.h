@@ -11,14 +11,14 @@ using namespace Eigen;
 
 class FeatureLoader
 {
-	public:
-		FeatureLoader(void);
-		~FeatureLoader(void);
+public:
+	FeatureLoader(void);
+	~FeatureLoader(void);
 
-		Mat loadYAML(string fsfn);//load feature vecs from YAML, small
-		Mat loadBigYAML(string fsfn);//load feature vecs from YAML, big
-		Mat loadTab(string fn);
-		void loadTab2Eigen(string fn, MatrixXf&feavec);
+	Mat loadYAML(string fsfn);//load feature vecs from YAML, small
+	Mat loadBigYAML(string fsfn);//load feature vecs from YAML, big
+	Mat loadTab(string fn);
+	void loadTab2Eigen(string fn, MatrixXf&feavec);
 
 
 };

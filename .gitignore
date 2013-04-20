@@ -12,3 +12,11 @@ HumanPoseDetector.*
 .ycm_extra_conf.pyc
 .DS_Store
 script/cl_res_drawer_test/des/
+*.sln
+*.sdf
+*.opensdf
+*.aps
+*.rc
+*vcxproj*
+resource.h
+

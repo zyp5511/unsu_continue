@@ -39,9 +39,10 @@ using namespace Eigen;
 
 vector<string> loadFolder(string srcfolder);
 
-void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
-		string srcfolder, string desfolder, int k, PCA& pca, string s,
-		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts=LCTransformSet()) ;
+void classify(
+	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
+	string srcfolder, string desfolder, int k, PCA& pca, string s,
+	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts=LCTransformSet()) ;
 
 vector<bool> buildGameCard(string gcfn, int k) {
 	auto res = vector<bool>(k, false);
@@ -259,6 +260,7 @@ int main(int argc, const char * argv[]) {
 
 
 		if (vm.count("daemon")){
+#ifndef _WIN32
 			//set up socket
 			int sockfd, newsockfd, portno;
 			socklen_t clilen;
@@ -306,7 +308,7 @@ int main(int argc, const char * argv[]) {
 				ostringstream ss;
 				try {
 					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
-							ss,ts);
+						ss,ts);
 				} catch (Exception& e) {
 					cerr << e.msg << endl;
 				}
@@ -318,7 +320,7 @@ int main(int argc, const char * argv[]) {
 				close(newsockfd);
 				cout << "Please input image filename" << endl;
 				newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr,
-						&clilen);
+					&clilen);
 				if (newsockfd < 0) {
 					cerr << ("ERROR on accept") << endl;
 					return -1;
@@ -327,6 +329,7 @@ int main(int argc, const char * argv[]) {
 				n = read(newsockfd, buffer, 255);
 			}
 			close(sockfd);
+#endif
 		} else {
 			ofstream fout(vecoutfn);
 			if (vm.count("batch")){
@@ -340,14 +343,14 @@ int main(int argc, const char * argv[]) {
 				while (getline(cin, name)) {
 					try {
 						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,vector<bool>(),
-								fout);
+							fout);
 					} catch (Exception& e) {
 						cerr << e.msg << endl;
 					}
 					cout << "Please input image filename" << endl;
 				}
 			}
-		fout.close();
+			fout.close();
 		}
 	} 
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
@@ -358,73 +361,74 @@ int main(int argc, const char * argv[]) {
 	return 0;
 }
 
-void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
-		string srcfolder, string desfolder, int k, PCA& pca, string s,
-		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts) {
-	auto fname = srcfolder + s;
-	ImageWrapper iw(kd, ec);
-	Mat raw = imread(fname);
-	Mat mat;
-	cout << fname << "\t" << raw.size() << endl;
-	if (raw.rows > 800) {
-		float ratio = 800. / raw.rows;
-		resize(raw, mat, Size(), ratio, ratio);
-		cout << "resized to \t" << mat.size() << endl;
-	} else {
-		mat = raw;
-	}
-
-	iw.setImage(mat);
-	iw.setBins(k);
-	iw.collectPatches();
-	iw.collectResult(pca);
-	iw.calcClusHist();
-	vector<int> vec = iw.histogram;
-
-	fout << s << endl;
-	fout << "vector:\t";
-	for (int i = 0; i < k - 1; i++) {
-		fout << vec[i] << ",";
-	}
-	fout << vec[k - 1] << endl;
-
-	auto goodRes = iw.getGoodResults();
-	for (const Result& r : goodRes) {
-		fout << r.category << "\t" << r.score << "\t";
-		fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
-			<< r.rect.height << endl;
-	}
-
-	Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
-		Scalar(255, 0, 0), Scalar(0, 255, 0), Scalar(0, 0, 255), Scalar(0,
-				255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
-					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
-				Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
-	int count = 0;
-
-	//if(!core_gc.empty()){
-	//	vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-	//	for(LCTransform& t :trans){
-	//		fout<<t.getString()<<endl;
-	//	}
-	//}
-
-	if (iw.match(gc)) {
-		cout << fname << " matched!" << endl;
-		Mat out = mat.clone();
-		vector<vector<Result>> debugs = iw.getMatchedResults(gc);
-		for (auto&rs : debugs) {
-			for (auto&r : rs) {
-				if (!core_gc[r.category])
-					rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
-				//rectangle(out, r.rect, colors[r.category % 15]);
-				else
-					rectangle(out, r.rect, colors[r.category % 15]);
-
-			}
+void classify(
+	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
+	string srcfolder, string desfolder, int k, PCA& pca, string s,
+	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts) {
+		auto fname = srcfolder + s;
+		ImageWrapper iw(kd, ec);
+		Mat raw = imread(fname);
+		Mat mat;
+		cout << fname << "\t" << raw.size() << endl;
+		if (raw.rows > 800) {
+			float ratio = 800. / raw.rows;
+			resize(raw, mat, Size(), ratio, ratio);
+			cout << "resized to \t" << mat.size() << endl;
+		} else {
+			mat = raw;
 		}
-		imwrite(desfolder + s, out);
-	}
+
+		iw.setImage(mat);
+		iw.setBins(k);
+		iw.collectPatches();
+		iw.collectResult(pca);
+		iw.calcClusHist();
+		vector<int> vec = iw.histogram;
+
+		fout << s << endl;
+		fout << "vector:\t";
+		for (int i = 0; i < k - 1; i++) {
+			fout << vec[i] << ",";
+		}
+		fout << vec[k - 1] << endl;
+
+		auto goodRes = iw.getGoodResults();
+		for (const Result& r : goodRes) {
+			fout << r.category << "\t" << r.score << "\t";
+			fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
+				<< r.rect.height << endl;
+		}
+
+		Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
+			Scalar(255, 0, 0), Scalar(0, 255, 0), Scalar(0, 0, 255), Scalar(0,
+			255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
+			0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
+			Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
+		int count = 0;
+
+		//if(!core_gc.empty()){
+		//	vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+		//	for(LCTransform& t :trans){
+		//		fout<<t.getString()<<endl;
+		//	}
+		//}
+
+		if (iw.match(gc)) {
+			cout << fname << " matched!" << endl;
+			Mat out = mat.clone();
+			vector<vector<Result>> debugs = iw.getMatchedResults(gc);
+			for (auto&rs : debugs) {
+				for (auto&r : rs) {
+					if (!core_gc[r.category])
+						rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
+					//rectangle(out, r.rect, colors[r.category % 15]);
+					else
+						rectangle(out, r.rect, colors[r.category % 15]);
+
+				}
+			}
+			imwrite(desfolder + s, out);
+		}
 }
 
 vector<string> loadFolder(string srcfolder) {
@@ -436,15 +440,15 @@ vector<string> loadFolder(string srcfolder) {
 	struct dirent *fp;
 	while ((fp = readdir(dp)) != NULL) {
 		if (((string(fp->d_name)).find(".png")) != string::npos
-				|| ((string(fp->d_name)).find(".jpg")) != string::npos) {
-			files.push_back(string(fp->d_name));
+			|| ((string(fp->d_name)).find(".jpg")) != string::npos) {
+				files.push_back(string(fp->d_name));
 		}
 	}
 	closedir(dp);
 #else
 
 	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = FindFirstFile(srcfolder.c_str(), &FindFileData);
+	HANDLE hFind = FindFirstFile((srcfolder+"/*").c_str(), &FindFileData);
 
 	files.push_back(FindFileData.cFileName);
 

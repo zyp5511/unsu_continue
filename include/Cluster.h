@@ -1,9 +1,9 @@
 /*
- * Cluster.h
- *
- *  Created on: Feb 25, 2013
- *      Author: lichao
- */
+* Cluster.h
+*
+*  Created on: Feb 25, 2013
+*      Author: lichao
+*/
 
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
@@ -28,9 +28,9 @@ public:
 
 private:
 	void init();
-	float avgDistance = -1;
-	float maxDistance = -1;
-	float minDistance = -1;
+	float avgDistance;
+	float maxDistance;
+	float minDistance;
 	Mat feamean;
 	Mat feavec;
 

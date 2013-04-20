@@ -30,22 +30,22 @@ class ImageWrapper {
 	vector<LCTransform> transforms;
 	Mat img;
 
-	public:
+public:
 	vector<int> histogram;
 	ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
 	~ImageWrapper(){};
 
 	/*
-	 * pre-processing
-	 */
+	* pre-processing
+	*/
 	void setImage(Mat image);
 	void setImage(string imgFilename);
 	void collectPatches();
 	void setBins(int n);
 
 	/*
-	 * batch KNN matching, observation vector generating, pattern matching
-	 */
+	* batch KNN matching, observation vector generating, pattern matching
+	*/
 	void collectResult();
 	void collectResult(const PCA& pca);
 	void calcClusHist();
@@ -56,8 +56,8 @@ class ImageWrapper {
 	vector<Result> getGoodResults();
 
 	/*
-	 * scanning latent variables
-	 */
+	* scanning latent variables
+	*/
 	void scan(const PCA& pca);//best match for a given set of clusters
 	vector<Rect> scanDebug(int i);
 	vector<Result> getBestResults(int len);//rects of top i responce from certain clusters of scan result

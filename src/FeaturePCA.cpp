@@ -31,8 +31,8 @@ FeaturePCA::FeaturePCA(MatrixXf&fea, float retainedVar){
 	for(int i=0;i<len;i++)
 		position[i]=i;
 	sort(position.begin(),position.end(),[&tempval](int i, int j)->bool{
-			return tempval(i) >tempval(j);
-			});
+		return tempval(i) >tempval(j);
+	});
 	for(size_t i=0;i<len;i++){
 		el(i)=tempval(position[i]);
 		ev.col(i)=es.eigenvectors().col(position[i]);

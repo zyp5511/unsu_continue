@@ -40,16 +40,25 @@ void FeatureLoader::loadTab2Eigen(string fn, MatrixXf& feavec){
 Mat FeatureLoader::loadTab(string fn){
 	clock_t overall_start = clock(); 
 	int mr,mc;
-	ifstream fin(fn);
-	fin>>mr;
-	fin>>mc;
+	FILE* fp;
+	fp = fopen(fn.c_str(),"r");
+	//ifstream fin(fn);
+	//fin>>mr;
+	//fin>>mc;
+	fscanf(fp, " %d ", &mr);
+	fscanf(fp, " %d ", &mc);
+
 	Mat feavec(mr, mc, CV_32F);
 	for(size_t i=0;i<mr;i++){
 		for(size_t j=0;j<mc;j++){
-			fin>>feavec.at<float>(i,j);
+			//fin>>feavec.at<float>(i,j);
+			float temp;
+			fscanf(fp, " %f ", &temp);
+			feavec.at<float>(i,j) = temp;
 		}
 	}
-	fin.close();
+	fclose(fp);
+	//fin.close();
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "we use " << overall_diff << " seconds to load file!" << endl;
 	return feavec;
