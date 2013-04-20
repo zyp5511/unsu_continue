@@ -16,12 +16,9 @@ target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
 
 get_cmake_property(_variableNames VARIABLES)
 
+
 #foreach (_variableName ${_variableNames})
 #	message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
 
-set(CMAKE_CXX_FLAGS "-g -O2 -std=c++11 ${CMAKE_CXX_FLAGS}")
 
-if(APPLE)
-	set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
-endif(APPLE)
