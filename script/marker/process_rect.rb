@@ -14,6 +14,10 @@ if type == "if"
 	clufn= ARGV[5]
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
+	if oper.end_with? "inferred"
+				transfn = ARGV[6]
+				table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+	end
 	records.each do|x|
 		goodset = x.rects.select{|r|head.include? r.type }
 		if goodset.count > 0
@@ -23,6 +27,11 @@ if type == "if"
 				x.export
 			elsif oper == "crop"
 				goodset.each{|r|x.crop_rect r}
+			elsif oper == "draw_inferred"
+				goodset.each{|r|x.draw_rect (table.transform r)}
+				x.export
+			elsif oper == "crop_inferred"
+				goodset.each{|r|x.crop_rect (table.transform r)}
 			end
 		end
 	end

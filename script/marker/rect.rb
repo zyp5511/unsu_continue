@@ -15,4 +15,5 @@ class Rect
 		x,y,w,h = eles[2].split(':').map{|x|x.to_i};
 		Rect.new(type,dis,x,y,w,h)
 	end
+	
 end

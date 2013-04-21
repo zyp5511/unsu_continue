@@ -1,3 +1,4 @@
+require_relative 'rect'
 
 class LCTransform
 	include Comparable
@@ -13,6 +14,13 @@ class LCTransform
 	def self.load (str)
 		from_str,to_str,xr_str,yr_str,r_str = str.split(/=>|:|\s/).map(&:chomp)
 		LCTransform.new(from_str.to_i,to_str.to_i,xr_str.to_f,yr_str.to_f,r_str.to_f)
+	end
+	def transform rect 
+		x = rect.x + xr * rect.w
+		y = rect.y + yr * rect.h
+		w = rect.w * r
+		h = rect.h * r
+		Rect.new(rect.type,rect.dis,x.to_i,y.to_i,w.to_i,h.to_i)
 	end
 
 	def to_s
@@ -39,17 +47,9 @@ class LCTransformSet
 		@transforms = transforms
 	end
 	def self.loadAll(fname)
-    trans = Array.new;
-    IO.foreach(fname) do |line|
-      trans << LCTransform.load(line)
-    end
-    LCTransformSet.new(trans)
-  end
-	def self.loadMap(fname,n)
-		trans = Array.new(n);
+		trans = Array.new
 		IO.foreach(fname) do |line|
-			t = LCTransform.load(line)
-			trans[t.from] = t;
+			trans << LCTransform.load(line)
 		end
 		LCTransformSet.new(trans)
 	end
@@ -62,6 +62,26 @@ class LCTransformSet
 	end
 end
 
-src = ARGV[0]
-tc = LCTransformSet.loadAll(src)
-tc.simplify.each{|x| puts x}
+class LCTransformTable < LCTransformSet
+	def transform rect
+		t = @transforms[rect.type]
+		if t!=nil
+			t.transform rect
+		else
+			rect
+		end
+	end	
+	def self.loadMap(fname,n)
+		trans = Array.new(n);
+		IO.foreach(fname) do |line|
+			t = LCTransform.load(line)
+			trans[t.from] = t;
+		end
+		LCTransformTable.new(trans)
+	end
+end
+
+
+#src = ARGV[0]
+#tc = LCTransformSet.loadAll(src)
+#tc.simplify.each{|x| puts x}
