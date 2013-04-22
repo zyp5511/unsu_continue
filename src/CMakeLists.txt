@@ -3,7 +3,7 @@ include_directories(${Unsu_SOURCE_DIR}/include)
 
 find_package( TBB REQUIRED )
 find_package( OpenCV REQUIRED)
-FIND_PACKAGE( Boost COMPONENTS program_options REQUIRED)
+FIND_PACKAGE( Boost COMPONENTS program_options filesystem system REQUIRED)
 
 set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp KMeanDetector.cpp)
 

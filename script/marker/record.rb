@@ -1,5 +1,6 @@
-require 'mini_magick'
-require 'FileUtils'
+require 'RMagick'
+require 'fileutils'
+
 require_relative 'rect'
 require_relative 'transform'
 
@@ -11,7 +12,7 @@ class Record
 		@vectors = lines[1]
 		@rects = lines.drop(2).take_while{|x| !x.include?("=>")}.map{|l| Rect.makeRect(l)}
 		@dest = des
-		@ori = MiniMagick::Image.open(File.join(src,@filename).to_s)
+		@ori = Magick::Image.read(File.join(src,@filename).to_s).first
 	end
 
 	def export
@@ -19,23 +20,17 @@ class Record
 	end
 
 	def draw_rect(rect)
-		@ori.combine_options do |c|
-
-			c.draw("text #{rect.x},#{rect.y+10} \"#{rect.type.to_s}\"")
-
-			c.stroke(@@colors[rect.type])
-			c.stroke_width(0.5)
-			c.fill("transparent")
-			c.draw("rectangle #{rect.x},#{rect.y},#{rect.x+rect.w-1},#{rect.y+rect.h-1}")
-		end
+		rdraw = Magick::Draw.new
+		rdraw.text(rect.x,rect.y+10,rect.type.to_s)
+		rdraw.stroke(@@colors[rect.type]).stroke_width(0.5)
+		rdraw.fill("transparent")
+		rdraw.rectangle(rect.x,rect.y,rect.x+rect.w-1,rect.y+rect.h-1)
+		rdraw.draw(@ori)
 	end
 
 	def crop_rect(rect)
-		temp = @ori.clone
-		cropargs="#{rect.w}x#{rect.h}+#{rect.x}+#{rect.y}"
-		puts cropargs
-		temp.crop(cropargs)
-		
+		temp = @ori.crop(rect.x,rect.y,rect.w,rect.h,true)
+
 		type = rect.type
 		subdir = "#{@dest}/#{type}".chomp
 		if !File.directory?(subdir)
