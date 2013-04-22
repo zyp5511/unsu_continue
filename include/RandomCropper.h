@@ -21,17 +21,19 @@ protected:
 	int patchesPerImage;
 	Mat feavec;
 	vector<int> seperators;
+	bool toprymaid;
 
 public:
 	vector<int> category;
-	RandomCropper(){patchesPerImage = 50;};
-	RandomCropper(int k){patchesPerImage = k;};
+	RandomCropper(){toprymaid=true;patchesPerImage = 50;};
+	RandomCropper(int k){toprymaid=true;patchesPerImage = k;};
 	~RandomCropper(){};
 	void collectSrcDir(string fname);
 
 	void kmean();
 	void kmean(int k);
 	void pca();
+	void setPrymaid(bool p){toprymaid=p;};
 	void exportPatches(string fname);
 	void exportFeatures(string fname);
 	void exportSeperators(string fname);

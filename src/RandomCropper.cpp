@@ -8,36 +8,25 @@
 
 #include "RandomCropper.h"
 #include<fstream>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp> 
 
-#if defined (_WIN32)
-#include <windows.h>
-#else
-#include <dirent.h>
-#endif
+namespace fs = boost::filesystem;
+namespace al = boost::algorithm;
+
+
 void RandomCropper::collectSrcDir(string fname){
 
 	vector<string> files;
-#if defined (_WIN32)
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = FindFirstFile(fname.c_str(), &FindFileData);
+	vector<fs::directory_entry> entries;
 
-	files.push_back(FindFileData.cFileName);
-
-	while (FindNextFile(hFind, &FindFileData))
-		if((string(FindFileData.cFileName).find(".jpg"))!=string::npos){
-			files.push_back(string(FindFileData.cFileName));
-		}
-
-#else
-	auto dp = opendir(fname.c_str());
-	struct dirent *fp;
-	while ((fp = readdir(dp)) != NULL) {
-		if(((string(fp->d_name)).find(".jpg"))!=string::npos){
-			files.push_back(string(fp->d_name));
-		}
-	}
-	closedir(dp);
-#endif
+	copy_if(fs::directory_iterator(fname),
+		fs::directory_iterator(), back_inserter(entries),
+		[](const fs::directory_entry& e)->bool { 
+			string ext = al::to_lower_copy(e.path().extension().string());
+			return  (ext == ".png" || ext == ".jpg");
+	});
+	transform(entries.begin(),entries.end(),back_inserter(files),[](const fs::directory_entry& e){return e.path().filename().string();});
 	sort(files.begin(), files.end());
 	auto itend = files.rend();
 
@@ -130,7 +119,11 @@ void RandomCropper::setUp(Mat img){
 	double scale = 1.;
 	double scale0 = 1.2;
 	int levels = 0;
-	for (levels = 0; levels < 40; levels++)
+	int maxl = 40;
+	if (!toprymaid){
+		maxl = 1;
+	}
+	for (levels = 0; levels < maxl; levels++)
 	{
 		level_scale.push_back(scale);
 		if (cvRound(img.cols/scale) < patch_c ||

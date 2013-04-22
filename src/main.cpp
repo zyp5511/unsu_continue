@@ -10,14 +10,18 @@
 #include <ctime>
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
+
+
 #ifdef _WIN32
-#include <windows.h>
 #else
-#include <dirent.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #endif
+
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp> 
+
 #include "SVMDetector.h"
 #include "KNNDetector.h"
 #include "KMeanDetector.h"
@@ -36,6 +40,13 @@
 using namespace std;
 using namespace cv;
 using namespace Eigen;
+
+
+namespace fs = boost::filesystem;
+namespace po = boost::program_options;
+namespace al = boost::algorithm;
+
+using std::cout;
 
 vector<string> loadFolder(string srcfolder);
 
@@ -76,9 +87,9 @@ int main(int argc, const char * argv[]) {
 	int k;
 
 
-	namespace po = boost::program_options;
+
 	po::options_description desc("Allowed options");
-	po::options_description fdesc("Allowed options");
+	po::options_description cropdesc("Patch cropping options");
 	desc.add_options()
 		("help", "produce help message")
 		("configuration,K", po::value<string>(&config), "configuration file")
@@ -97,6 +108,13 @@ int main(int argc, const char * argv[]) {
 		("transform", po::value<string>(&transfn), "set transform file")
 		("port", po::value<string>(&portn), "set port")
 		;
+	cropdesc.add_options()
+		("height", po::value<int>()->default_value(128), "set patch height")
+		("width", po::value<int>()->default_value(96), "set patch width")
+		("patch-per-image", po::value<int>()->default_value(10), "set cropping density")
+		("onelevel", "set prymaid or not")
+		;
+	desc.add(cropdesc);
 
 
 	po::variables_map vm;
@@ -184,15 +202,24 @@ int main(int argc, const char * argv[]) {
 	} else if (oper == "randomcrop") {
 		//set up patch cropper
 		string seperator_fn = vecoutfn;
-		auto nc = RandomCropper(k);
-		nc.setSize(128, 96);
+		int h = vm["height"].as<int>();
+		int w = vm["width"].as<int>();
+		int ppi = vm["patch-per-image"].as<int>();
+		cout<< "we are cropping "<<ppi<<" patches per image"<<endl;
+		cout<< "the height is "<<h<<"\t the width is "<<w<<endl;
+		auto nc = RandomCropper(ppi);
+		if (vm.count("onelevel")){
+			nc.setPrymaid(false);
+		}else{
+			nc.setPrymaid(true);
+		}
+		nc.setSize(h, w);
 		nc.collectSrcDir(srcfolder);
 		cout << "Patches created!" << endl;
 		nc.exportFeatures(fsfn);
 		nc.exportPatches(desfolder);
 		nc.exportSeperators(seperator_fn);
 	} else if (oper == "latent") {
-
 		//set up patch cropper
 		shared_ptr<LatentDetector> kd;
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
@@ -443,40 +470,17 @@ void classify(
 }
 
 vector<string> loadFolder(string srcfolder) {
+
 	vector<string> files;
-#ifndef _WIN32
+	vector<fs::directory_entry> entries;
 
-	auto dp = opendir(srcfolder.c_str());
-
-	struct dirent *fp;
-	while ((fp = readdir(dp)) != NULL) {
-		if (((string(fp->d_name)).find(".png")) != string::npos
-			|| ((string(fp->d_name)).find(".jpg")) != string::npos) {
-				files.push_back(string(fp->d_name));
-		}
-	}
-	closedir(dp);
-#else
-
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = FindFirstFile((srcfolder+"/*").c_str(), &FindFileData);
-
-	files.push_back(FindFileData.cFileName);
-
-	while (FindNextFile(hFind, &FindFileData)) {
-		if((string(FindFileData.cFileName).find(".jpg"))!=string::npos) {
-			files.push_back(string(FindFileData.cFileName));
-		}
-	}
-
-#endif
-
+	copy_if(fs::directory_iterator(srcfolder),
+		fs::directory_iterator(), back_inserter(entries),
+		[](const fs::directory_entry& e)->bool { 
+			string ext = al::to_lower_copy(e.path().extension().string());
+			return  (ext == ".png" || ext == ".jpg");
+	});
+	transform(entries.begin(),entries.end(),back_inserter(files),[](const fs::directory_entry& e){return e.path().filename().string();});
 	sort(files.begin(), files.end());
-	auto itend = files.rend();
-	cout << "there are " << files.size() << " images" << endl;
-
-#ifdef DEBUG
-	itend = files.rbegin()+50;
-#endif
 	return files;
 }
