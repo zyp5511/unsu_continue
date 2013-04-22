@@ -209,6 +209,7 @@ int main(int argc, const char * argv[]) {
 		cout<< "the height is "<<h<<"\t the width is "<<w<<endl;
 		auto nc = RandomCropper(ppi);
 		if (vm.count("onelevel")){
+			cout<<" we are using one-level cropping approach"<<endl;
 			nc.setPrymaid(false);
 		}else{
 			nc.setPrymaid(true);

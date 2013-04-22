@@ -19,4 +19,5 @@ script/cl_res_drawer_test/des/
 *.rc
 *vcxproj*
 resource.h
+*.swp
 
