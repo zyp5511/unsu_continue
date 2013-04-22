@@ -394,9 +394,6 @@ int main(int argc, const char * argv[]) {
 	} 
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "FINISHED!  " << overall_diff << " seconds used." << endl;
-#if defined (_WIN32)
-	system("pause");
-#endif
 	return 0;
 }
 
