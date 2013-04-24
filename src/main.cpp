@@ -48,7 +48,7 @@ namespace al = boost::algorithm;
 
 using std::cout;
 
-vector<string> loadFolder(string srcfolder);
+vector<string> loadFolder(string srcfolder,string prefix);
 
 void classify(
 	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
@@ -84,28 +84,23 @@ int main(int argc, const char * argv[]) {
 	string vecoutfn;
 	string auxfn;
 	string config;
+	string prefix;
 	int k;
 
 
 
-	po::options_description desc("Allowed options");
+	po::options_description desc("General options");
 	po::options_description cropdesc("Patch cropping options");
+	po::options_description detectdesc("Detection options");
+	po::options_description transdesc("Transform options");
 	desc.add_options()
 		("help", "produce help message")
 		("configuration,K", po::value<string>(&config), "configuration file")
 		("cluster,C", po::value<int>(&k), "set Number of Clusters")
 		("operation,O", po::value<string>(&oper), "set operation")
 		("batch,B", "set batch/single")
-		("src,S", po::value<string>(&srcfolder), "set source folder")
-		("des,D", po::value<string>(&desfolder), "set destination folder")
-		("feature,F", po::value<string>(&fsfn), "set feature file")
-		("index,I", po::value<string>(&indfn), "set index file")
-		("result,R", po::value<string>(&vecoutfn), "set result file")
 		("aux-result,A", po::value<string>(&auxfn), "set aux result file")
 		("PCA,P", po::value<string>(&pcafn), "set PCA file")
-		("gamecard", po::value<string>(&gcfn), "set gamecard file")
-		("corecard", po::value<string>(&coregcfn), "set core gamecard file")
-		("transform", po::value<string>(&transfn), "set transform file")
 		("port", po::value<string>(&portn), "set port")
 		;
 	cropdesc.add_options()
@@ -114,7 +109,22 @@ int main(int argc, const char * argv[]) {
 		("patch-per-image", po::value<int>()->default_value(10), "set cropping density")
 		("onelevel", "set prymaid or not")
 		;
-	desc.add(cropdesc);
+	detectdesc.add_options()
+		("src,S", po::value<string>(&srcfolder), "set source folder")
+		("des,D", po::value<string>(&desfolder), "set destination folder")
+		("feature,F", po::value<string>(&fsfn), "set feature file")
+		("index,I", po::value<string>(&indfn), "set index file")
+		("result,R", po::value<string>(&vecoutfn), "set result file")
+		("gamecard", po::value<string>(&gcfn), "set gamecard file")
+		("prefix",po::value<string>(), "set filename prefix for task distribution")
+		;
+	transdesc.add_options()
+		("corecard", po::value<string>(&coregcfn), "set core gamecard file")
+		("transform", po::value<string>(&transfn), "set transform file")
+		;
+
+		
+	desc.add(cropdesc).add(detectdesc).add(transdesc);
 
 
 	po::variables_map vm;
@@ -133,6 +143,13 @@ int main(int argc, const char * argv[]) {
 		po::store(po::parse_config_file(fconf,desc),vm);
 		po::notify(vm);
 		fconf.close();
+	}
+
+	if (vm.count("prefix")){
+		cout<<"The filename prefix is "<<vm["prefix"].as<string>()<<endl;
+		prefix = vm["prefix"].as<string>();
+	} else {
+		prefix = "";
 	}
 
 	clock_t overall_start = clock();
@@ -372,7 +389,7 @@ int main(int argc, const char * argv[]) {
 		} else {
 			ofstream fout(vecoutfn);
 			if (vm.count("batch")){
-				vector<string> files = loadFolder(srcfolder);
+				vector<string> files = loadFolder(srcfolder,prefix);
 
 				for (auto& s : files) {
 					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts);
@@ -467,16 +484,21 @@ void classify(
 		}
 }
 
-vector<string> loadFolder(string srcfolder) {
+vector<string> loadFolder(string srcfolder, string prefix) {
 
 	vector<string> files;
 	vector<fs::directory_entry> entries;
 
 	copy_if(fs::directory_iterator(srcfolder),
 		fs::directory_iterator(), back_inserter(entries),
-		[](const fs::directory_entry& e)->bool { 
+		[&prefix](const fs::directory_entry& e)->bool { 
 			string ext = al::to_lower_copy(e.path().extension().string());
-			return  (ext == ".png" || ext == ".jpg");
+			string fn = al::to_lower_copy(e.path().filename().string());
+			bool condition = (ext == ".png" || ext == ".jpg");
+			if(prefix !=""){
+				condition = condition && al::starts_with(fn,prefix);
+			}
+			return condition;
 	});
 	transform(entries.begin(),entries.end(),back_inserter(files),[](const fs::directory_entry& e){return e.path().filename().string();});
 	sort(files.begin(), files.end());

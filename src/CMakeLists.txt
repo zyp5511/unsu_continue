@@ -1,9 +1,12 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Unsu_SOURCE_DIR}/cmake)
+
 include_directories(${Unsu_SOURCE_DIR}/include)
 
 find_package( TBB REQUIRED )
 find_package( OpenCV REQUIRED)
 FIND_PACKAGE( Boost COMPONENTS program_options filesystem system REQUIRED)
+
+SET(Boost_NO_BOOST_CMAKE ON)
 
 set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp KMeanDetector.cpp)
 
@@ -14,7 +17,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 
 target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
 
-get_cmake_property(_variableNames VARIABLES)
+#get_cmake_property(_variableNames VARIABLES)
 
 
 #foreach (_variableName ${_variableNames})
