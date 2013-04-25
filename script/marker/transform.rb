@@ -55,7 +55,7 @@ class LCTransformSet
 	end
 	def simplify
 		@transforms.group_by{|t| t.from }.flat_map do |kf,fg|
-			fg.group_by{|tt| tt.to}.select{|k,v| k==594}.map do |kt,tg| 
+			fg.group_by{|tt| tt.to}.select{|k,v| k==20}.map do |kt,tg| 
 				tg[tg.size/2]#median for now, maybe use avg later
 			end
 		end
@@ -82,6 +82,3 @@ class LCTransformTable < LCTransformSet
 end
 
 
-#src = ARGV[0]
-#tc = LCTransformSet.loadAll(src)
-#tc.simplify.each{|x| puts x}
