@@ -175,3 +175,6 @@ vector<Result> ImageWrapper::getGoodResults() {
 	}
 	return res;
 }
+vector<Result> getocvresult(string fname){
+	return vector<Result>();
+}

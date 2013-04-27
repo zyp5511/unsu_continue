@@ -54,6 +54,13 @@ public:
 	vector<vector<Result>> getMatchedResults(const vector<bool>& gamecard);//all rects from certain clusters of kNN result
 	vector<LCTransform> getLCTransforms(const vector<bool>& gc, const vector<bool>& core_gc);
 	vector<Result> getGoodResults();
+	
+	/*
+	 * OpenCV haar detector
+	 */
+	
+	vector<Result> getocvresult(string fname);
+	 
 
 	/*
 	* scanning latent variables
