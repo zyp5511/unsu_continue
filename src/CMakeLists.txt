@@ -2,7 +2,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Unsu_SOURCE_DIR}/cmake)
 
 include_directories(${Unsu_SOURCE_DIR}/include)
 
-#SET(Boost_NO_BOOST_CMAKE ON)
+SET(Boost_NO_BOOST_CMAKE ON)
 
 find_package( TBB REQUIRED )
 find_package( OpenCV REQUIRED)
