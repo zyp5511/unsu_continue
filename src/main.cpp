@@ -53,7 +53,8 @@ vector<string> loadFolder(string srcfolder,string prefix);
 void classify(
 	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	string srcfolder, string desfolder, int k, PCA& pca, string s,
-	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts=LCTransformSet()) ;
+	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, 
+	const LCTransformSet& ts, const po::variables_map& vm) ;
 
 vector<bool> buildGameCard(string gcfn, int k) {
 	auto res = vector<bool>(k, false);
@@ -100,6 +101,7 @@ int main(int argc, const char * argv[]) {
 		("cluster,C", po::value<int>(&k), "set Number of Clusters")
 		("operation,O", po::value<string>(&oper), "set operation")
 		("batch,B", "set batch/single")
+		("co-occurrence", "set co-occurrence rule detection")
 		("aux-result,A", po::value<string>(&auxfn), "set aux result file")
 		("PCA,P", po::value<string>(&pcafn), "set PCA file")
 		("port", po::value<string>(&portn), "set port")
@@ -298,30 +300,30 @@ int main(int argc, const char * argv[]) {
 		iw.loadCVModel(modelname);
 		for (auto& s : files) {
 			try{
-			auto fname = srcfolder + s;
-			Mat raw = imread(fname);
-			Mat mat;
-			cout << fname << "\t" << raw.size() << endl;
-			if (raw.rows > 800) {
-				float ratio = 800. / raw.rows;
-				resize(raw, mat, Size(), ratio, ratio);
-				cout << "resized to \t" << mat.size() << endl;
-			} else {
-				mat = raw;
-			}
-			iw.setImage(mat);
-			auto result = iw.getocvresult();
-
-			if (result.size()>0){
-				cout << fname << " matched!" << endl;
-				fout << s << endl;
-				Mat out = mat.clone();
-				for (const Rect& r : result) {
-					fout << r.x << ":" << r.y << ":" << r.width << ":"<< r.height << endl;
-					rectangle(out, r, Scalar(255, 0, 0));
+				auto fname = srcfolder + s;
+				Mat raw = imread(fname);
+				Mat mat;
+				cout << fname << "\t" << raw.size() << endl;
+				if (raw.rows > 800) {
+					float ratio = 800. / raw.rows;
+					resize(raw, mat, Size(), ratio, ratio);
+					cout << "resized to \t" << mat.size() << endl;
+				} else {
+					mat = raw;
 				}
-				imwrite(desfolder + s, out);
-			}
+				iw.setImage(mat);
+				auto result = iw.getocvresult();
+
+				if (result.size()>0){
+					cout << fname << " matched!" << endl;
+					fout << s << endl;
+					Mat out = mat.clone();
+					for (const Rect& r : result) {
+						fout << r.x << ":" << r.y << ":" << r.width << ":"<< r.height << endl;
+						rectangle(out, r, Scalar(255, 0, 0));
+					}
+					imwrite(desfolder + s, out);
+				}
 			} catch (Exception& e){
 				cerr<<e.msg<<endl;
 			}
@@ -431,14 +433,14 @@ int main(int argc, const char * argv[]) {
 				vector<string> files = loadFolder(srcfolder,prefix);
 
 				for (auto& s : files) {
-					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts);
+					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts,vm);
 				}
 			} else  {
 				cout << "Please input image filename" << endl;
 				while (getline(cin, name)) {
 					try {
-						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,vector<bool>(),
-							fout);
+						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
+							fout,ts,vm);
 					} catch (Exception& e) {
 						cerr << e.msg << endl;
 					}
@@ -456,7 +458,8 @@ int main(int argc, const char * argv[]) {
 void classify(
 	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	string srcfolder, string desfolder, int k, PCA& pca, string s,
-	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, const LCTransformSet& ts) {
+	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout,
+	const LCTransformSet& ts, const po::variables_map& vm) {
 		auto fname = srcfolder + s;
 		ImageWrapper iw(kd, ec);
 		Mat raw = imread(fname);
@@ -497,13 +500,14 @@ void classify(
 			0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
 			Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
 		int count = 0;
-
-		//if(!core_gc.empty()){
-		//	vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-		//	for(LCTransform& t :trans){
-		//		fout<<t.getString()<<endl;
-		//	}
-		//}
+		if (vm.count("co-occurrence")){
+			if(!core_gc.empty()){
+				vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+				for(LCTransform& t :trans){
+					fout<<t.getString()<<endl;
+				}
+			}
+		}
 
 		if (iw.match(gc)) {
 			cout << fname << " matched!" << endl;
