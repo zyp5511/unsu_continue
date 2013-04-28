@@ -405,7 +405,7 @@ int main(int argc, const char * argv[]) {
 				ostringstream ss;
 				try {
 					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
-						ss,ts);
+						ss,ts,vm);
 				} catch (Exception& e) {
 					cerr << e.msg << endl;
 				}
