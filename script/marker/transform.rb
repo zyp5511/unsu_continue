@@ -42,9 +42,24 @@ class LCTransform
 	end
 end
 
+
+
+
+
+
 class LCTransformSet
 	def initialize(transforms)
 		@transforms = transforms
+		@simplify_approaches ={
+			median: ->(rules){rules[rules.size/2]},
+			avg:->(rules)do
+				if rules.size<3
+					return rules[0]
+				else 
+					rules[1...-1].inject(:+)/(rules.size-2)
+				end
+			end
+		}
 	end
 	def self.loadAll(fname)
 		trans = Array.new
@@ -53,10 +68,11 @@ class LCTransformSet
 		end
 		LCTransformSet.new(trans)
 	end
-	def simplify
+	def simplify (appr,id=594)
 		@transforms.group_by{|t| t.from }.flat_map do |kf,fg|
-			fg.group_by{|tt| tt.to}.select{|k,v| k==20}.map do |kt,tg| 
-				tg[tg.size/2]#median for now, maybe use avg later
+			fg.group_by{|tt| tt.to}.select{|k,v| k==id}.map do |kt,tg| 
+				sorted_tg = tg.sort
+				@simplify_approaches[appr].call(sorted_tg)
 			end
 		end
 	end
