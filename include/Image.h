@@ -28,10 +28,13 @@ class ImageWrapper {
 	concurrent_vector<Result> results;
 	vector<vector<Result>> rtb; //reversal lookup table
 	vector<LCTransform> transforms;
+	CascadeClassifier face_cascade;
 	Mat img;
 
 public:
 	vector<int> histogram;
+
+	ImageWrapper(){};
 	ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
 	~ImageWrapper(){};
 
@@ -54,13 +57,13 @@ public:
 	vector<vector<Result>> getMatchedResults(const vector<bool>& gamecard);//all rects from certain clusters of kNN result
 	vector<LCTransform> getLCTransforms(const vector<bool>& gc, const vector<bool>& core_gc);
 	vector<Result> getGoodResults();
-	
+
 	/*
-	 * OpenCV haar detector
-	 */
-	
-	vector<Result> getocvresult(string fname);
-	 
+	* OpenCV haar detector
+	*/
+	void loadCVModel(string modelfn);
+	vector<Rect> getocvresult(void);
+
 
 	/*
 	* scanning latent variables

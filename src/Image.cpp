@@ -135,36 +135,37 @@ vector<Result> ImageWrapper::getBestResults(int len) {
 	}
 	return res;
 }
-vector<LCTransform> ImageWrapper::getLCTransforms(const vector<bool>& gc,
-												  const vector<bool>& core_gc) {
-													  if (transforms.empty() && match(gc) && match(core_gc)) {
-														  vector<Result> froms;
-														  vector<Result> tos;
-														  size_t len = histogram.size();
-														  for (int i = 0; i < len; i++) {
-															  if (core_gc[i]) {
-																  tos.insert(tos.end(), rtb[i].begin(), rtb[i].end());
-															  } else if (gc[i]) {
-																  froms.insert(froms.end(), rtb[i].begin(), rtb[i].end());
-															  }
-														  }
-														  if (tos.size() > 0 && froms.size() > 0) {
-															  int len_to = tos.size();
-															  int len_from = froms.size();
-															  cout << "there are " << len_to << " true patches"<<endl;
-															  cout << "there are " << len_from << " anchor patches"<<endl;
-															  int c = 0;
-															  for (int i = 0; i < len_to; i++)
-																  for (int j = 0; j < len_from; j++) {
-																	  if (tos[i].overlapped(froms[j])) {
-																		  transforms.push_back(froms[j].getLCTransform(tos[i]));
-																		  c++;
-																	  }
-																  }
-																  cout<<"find "<<c<<" transforms"<<endl;
-														  }
-													  }
-													  return transforms;
+vector<LCTransform> ImageWrapper::getLCTransforms(
+	const vector<bool>& gc,
+	const vector<bool>& core_gc) {
+		if (transforms.empty() && match(gc) && match(core_gc)) {
+			vector<Result> froms;
+			vector<Result> tos;
+			size_t len = histogram.size();
+			for (int i = 0; i < len; i++) {
+				if (core_gc[i]) {
+					tos.insert(tos.end(), rtb[i].begin(), rtb[i].end());
+				} else if (gc[i]) {
+					froms.insert(froms.end(), rtb[i].begin(), rtb[i].end());
+				}
+			}
+			if (tos.size() > 0 && froms.size() > 0) {
+				int len_to = tos.size();
+				int len_from = froms.size();
+				cout << "there are " << len_to << " true patches"<<endl;
+				cout << "there are " << len_from << " anchor patches"<<endl;
+				int c = 0;
+				for (int i = 0; i < len_to; i++)
+					for (int j = 0; j < len_from; j++) {
+						if (tos[i].overlapped(froms[j])) {
+							transforms.push_back(froms[j].getLCTransform(tos[i]));
+							c++;
+						}
+					}
+					cout<<"find "<<c<<" transforms"<<endl;
+			}
+		}
+		return transforms;
 }
 vector<Result> ImageWrapper::getGoodResults() {
 	auto mat_count = ic->all_mats.size();
@@ -175,6 +176,23 @@ vector<Result> ImageWrapper::getGoodResults() {
 	}
 	return res;
 }
-vector<Result> getocvresult(string fname){
-	return vector<Result>();
+
+void ImageWrapper::loadCVModel(string modelfn){
+	if( !face_cascade.load( modelfn ) ){ 
+		printf("--(!)Error loading\n");
+	};
+}
+
+vector<Rect> ImageWrapper::getocvresult(void){
+
+	std::vector<Rect> faces;
+	Mat frame_gray;
+
+	cvtColor( img, frame_gray, CV_BGR2GRAY );
+	equalizeHist( frame_gray, frame_gray );
+
+
+	//-- Detect faces
+	face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+	return faces;
 }

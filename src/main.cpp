@@ -93,6 +93,7 @@ int main(int argc, const char * argv[]) {
 	po::options_description cropdesc("Patch cropping options");
 	po::options_description detectdesc("Detection options");
 	po::options_description transdesc("Transform options");
+	po::options_description cvdesc("OpenCV stock classifier options");
 	desc.add_options()
 		("help", "produce help message")
 		("configuration,K", po::value<string>(&config), "configuration file")
@@ -122,9 +123,10 @@ int main(int argc, const char * argv[]) {
 		("corecard", po::value<string>(&coregcfn), "set core gamecard file")
 		("transform", po::value<string>(&transfn), "set transform file")
 		;
-
-		
-	desc.add(cropdesc).add(detectdesc).add(transdesc);
+	cvdesc.add_options()
+		("model-file", po::value<string>(), "set CV classifier model")
+		;
+	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc);
 
 
 	po::variables_map vm;
@@ -288,6 +290,43 @@ int main(int argc, const char * argv[]) {
 			}
 			cout << "Please input image filename" << endl;
 		}
+	} else if ( oper == "opencv" ){
+		string modelname = vm["model-file"].as<string>();
+		ofstream fout(vecoutfn);
+		ImageWrapper iw;
+		vector<string> files = loadFolder(srcfolder,prefix);
+		iw.loadCVModel(modelname);
+		for (auto& s : files) {
+			try{
+			auto fname = srcfolder + s;
+			Mat raw = imread(fname);
+			Mat mat;
+			cout << fname << "\t" << raw.size() << endl;
+			if (raw.rows > 800) {
+				float ratio = 800. / raw.rows;
+				resize(raw, mat, Size(), ratio, ratio);
+				cout << "resized to \t" << mat.size() << endl;
+			} else {
+				mat = raw;
+			}
+			iw.setImage(mat);
+			auto result = iw.getocvresult();
+
+			if (result.size()>0){
+				cout << fname << " matched!" << endl;
+				fout << s << endl;
+				Mat out = mat.clone();
+				for (const Rect& r : result) {
+					fout << r.x << ":" << r.y << ":" << r.width << ":"<< r.height << endl;
+					rectangle(out, r, Scalar(255, 0, 0));
+				}
+				imwrite(desfolder + s, out);
+			}
+			} catch (Exception& e){
+				cerr<<e.msg<<endl;
+			}
+		}
+		fout.close();
 	} else if (oper == "knn" || oper == "kmean") {
 		string name;
 		shared_ptr<PatchDetector> kd;
