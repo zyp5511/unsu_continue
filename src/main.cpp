@@ -351,7 +351,10 @@ int main(int argc, const char * argv[]) {
 		kd->load(fsfn, indfn);
 
 		vector<bool> gc = buildGameCard(gcfn, k);
-		vector<bool> coregc = buildGameCard(coregcfn, k);
+		vector<bool> coregc = vector<bool>();
+		if (vm.count("corecard")){
+			coregc = buildGameCard(coregcfn, k);
+		}
 
 		LCTransformSet ts(k,transfn);
 
@@ -515,7 +518,7 @@ void classify(
 			vector<vector<Result>> debugs = iw.getMatchedResults(gc);
 			for (auto&rs : debugs) {
 				for (auto&r : rs) {
-					if (!core_gc[r.category])
+					if (!core_gc.empty()&& !core_gc[r.category])
 						rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
 					//rectangle(out, r.rect, colors[r.category % 15]);
 					else
