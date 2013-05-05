@@ -37,6 +37,7 @@ void FeatureWriter::saveEigen2Tab(string fname, const MatrixXf& feavec){
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "we use " << overall_diff << " seconds to write file!" << endl;
 }
+
 void FeatureWriter::saveTab(string fname, const Mat& feavec){
 	clock_t overall_start = clock(); 
 	ofstream fout(fname);
