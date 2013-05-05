@@ -356,7 +356,10 @@ int main(int argc, const char * argv[]) {
 			coregc = buildGameCard(coregcfn, k);
 		}
 
-		LCTransformSet ts(k,transfn);
+		LCTransformSet ts;
+		if (vm.count("transform")){
+			ts = LCTransformSet(k,transfn);
+		}
 
 
 		if (vm.count("daemon")){
