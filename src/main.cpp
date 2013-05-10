@@ -518,18 +518,21 @@ void classify(
 		if (iw.match(gc)) {
 			cout << fname << " matched!" << endl;
 			Mat out = mat.clone();
+			Mat inferred_out;
+			if (!core_gc.empty()){
+				inferred_out =mat.clone();
+			}
 			vector<vector<Result>> debugs = iw.getMatchedResults(gc);
 			for (auto&rs : debugs) {
 				for (auto&r : rs) {
+					rectangle(out, r.rect, colors[r.category % 15]);
 					if (!core_gc.empty()&& !core_gc[r.category])
-						rectangle(out, ts.apply(r.category,r.rect), colors[r.category % 15]);
-					//rectangle(out, r.rect, colors[r.category % 15]);
-					else
-						rectangle(out, r.rect, colors[r.category % 15]);
+						rectangle(inferred_out, ts.apply(r.category,r.rect), colors[r.category % 15]);
 
 				}
 			}
-			imwrite(desfolder + s, out);
+			imwrite(desfolder +"detected_"+ s, out);
+			imwrite(desfolder +"inferred_"+ s, inferred_out);
 		}
 }
 
