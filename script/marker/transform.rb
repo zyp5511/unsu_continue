@@ -64,7 +64,7 @@ class LCTransformSet
 	def self.loadAll(fname)
 		trans = Array.new
 		IO.foreach(fname) do |line|
-			trans << LCTransform.load(line)
+			trans << LCTransform.load(line) if line =~ /=>/
 		end
 		LCTransformSet.new(trans)
 	end
