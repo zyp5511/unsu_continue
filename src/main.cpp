@@ -386,11 +386,12 @@ int main(int argc, const char * argv[]) {
 			//	fprintf(stderr, "ERROR on binding");
 			//	exit(1);
 			//}
+			cout << "socket server created at "<<portno<<endl;
 			listen(sockfd, 1024);
 			clilen = sizeof(cli_addr);
 
 			string name;
-			cout << "Please input image filename" << endl;
+			cout << "Waiting for detection request" << endl;
 
 			newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 			if (newsockfd < 0) {
@@ -422,7 +423,7 @@ int main(int argc, const char * argv[]) {
 					return -1;
 				}
 				close(newsockfd);
-				cout << "Please input image filename" << endl;
+				cout << "Waiting for detection request" << endl;
 				newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr,
 					&clilen);
 				if (newsockfd < 0) {
