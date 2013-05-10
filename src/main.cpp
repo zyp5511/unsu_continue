@@ -101,6 +101,7 @@ int main(int argc, const char * argv[]) {
 		("cluster,C", po::value<int>(&k), "set Number of Clusters")
 		("operation,O", po::value<string>(&oper), "set operation")
 		("batch,B", "set batch/single")
+		("daemon", "set daemon")
 		("co-occurrence", "set co-occurrence rule detection")
 		("aux-result,A", po::value<string>(&auxfn), "set aux result file")
 		("PCA,P", po::value<string>(&pcafn), "set PCA file")
@@ -329,12 +330,12 @@ int main(int argc, const char * argv[]) {
 			}
 		}
 		fout.close();
-	} else if (oper == "knn" || oper == "kmean") {
+	} else if (oper == "knn" || oper == "voronoi") {
 		string name;
 		shared_ptr<PatchDetector> kd;
 		if (oper == "knn"){
 			kd = make_shared<KNNDetector>();
-		} else if (oper == "kmean"){
+		} else if (oper == "voronoi"){
 			kd = make_shared<KMeanDetector>();
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
