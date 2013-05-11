@@ -1,7 +1,7 @@
 require 'socket'      # Sockets are in standard library
 
 host= 'localhost'
-port = 2000
+port = 7456
 
 s = TCPSocket.open(host, port)
 

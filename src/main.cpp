@@ -528,9 +528,12 @@ void classify(
 			for (auto&rs : debugs) {
 				for (auto&r : rs) {
 					rectangle(out, r.rect, colors[r.category % 15]);
-					if (!core_gc.empty()&& !core_gc[r.category])
-						rectangle(inferred_out, ts.apply(r.category,r.rect), colors[r.category % 15]);
-
+					if (!core_gc.empty()){
+						if(!core_gc[r.category])
+							rectangle(inferred_out, ts.apply(r.category,r.rect), colors[r.category % 15]);
+						else
+							rectangle(inferred_out, r.rect, colors[r.category % 15]);
+					}
 				}
 			}
 			imwrite(desfolder +"detected_"+ s, out);
