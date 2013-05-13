@@ -15,14 +15,16 @@ if type == "if"
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
 	if oper.end_with? "inferred"
-				transfn = ARGV[6]
-				table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+		transfn = ARGV[6]
+		table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
 	end
 	records.each do|x|
 		goodset = x.rects.select{|r|head.include? r.type }
 		if goodset.count > 0
 			c+=1
-			if oper == "draw"
+			if oper == "list"
+				puts x.filename;
+			elsif oper == "draw"
 				goodset.each{|r|x.draw_rect r}
 				x.export
 			elsif oper == "crop"

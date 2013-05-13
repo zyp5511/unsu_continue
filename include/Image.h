@@ -41,6 +41,7 @@ public:
 	/*
 	* pre-processing
 	*/
+
 	void setImage(Mat image);
 	void setImage(string imgFilename);
 	void collectPatches();

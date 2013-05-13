@@ -15,7 +15,7 @@ public:
 	FLANNDetector(const Mat& featureVec,vector<int>& indvec);
 
 	~FLANNDetector(void){};
-	virtual void detect(const vector<float>& vec, int&c, float&score) override;
+	virtual void detect(const vector<float>& vec, int&c, float&score, bool&accepted) override;
 
 	void save(string fsfn,string indfn);//save feature and indice list and kNN index to FileStorage;
 	void load(string fsfn,string indfn) override;//load feature and indice list and kNN index from FileStorage

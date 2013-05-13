@@ -11,7 +11,7 @@ public:
 	SVMDetector(string fname);
 	~SVMDetector(void){};
 	SVMDetector(const Mat& feavec, const vector<int>& label);
-	virtual void detect(const vector<float>& vec, int&c, float&score) override;
+	virtual void detect(const vector<float>& vec, int&c, float&score, bool&accepted) override;
 private:
 	CvSVM SVM;
 	bool load(string fname);

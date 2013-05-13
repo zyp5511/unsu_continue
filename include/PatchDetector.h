@@ -20,7 +20,7 @@ class PatchDetector
 public:
 	PatchDetector(void){};
 	virtual ~PatchDetector(void) {};
-	virtual void detect(const vector<float>& vec, int&c, float&score)=0;
+	virtual void detect(const vector<float>& vec, int&c, float&score, bool& accepted )=0;
 	virtual	void load(string fsfn,string clusfn){};//virtual fun for data loading 
 };
 #endif /* defined(__HumanPoseDetector__PatchDetector__) */

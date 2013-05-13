@@ -36,7 +36,8 @@ SVMDetector::SVMDetector(const Mat& feavec, const vector<int>& label){
 
 }
 
-void SVMDetector::detect(const vector<float>& vec, int& cat, float&score){
+void SVMDetector::detect(const vector<float>& vec, int& cat, float&score, bool& accepted){
 	score = SVM.predict(Mat(vec).t(),true);
 	cat = score>0?1:-1;
+	accepted = score>0?true:false;
 }

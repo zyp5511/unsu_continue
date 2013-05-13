@@ -22,7 +22,7 @@ LatentDetector::LatentDetector(string vecfname,string clusfname,const vector<boo
 }
 
 
-void LatentDetector::detect(const vector<float>& vec,int&c, float&score){
+void LatentDetector::detect(const vector<float>& vec,int&c, float&score, bool&accepted){
 	float min = FLT_MAX;
 	size_t ind = -1;
 	auto len = feavec.rows;

@@ -11,7 +11,6 @@
 #include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Dense>
 
-
 #ifdef _WIN32
 #else
 #include <sys/socket.h>
@@ -22,12 +21,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp> 
 
-#include "SVMDetector.h"
-#include "KNNDetector.h"
-#include "KMeanDetector.h"
-#include "LatentDetector.h"
 #include "RandomCropper.h"
 #include "ExhaustiveCropper.h"
+
 #include "Feature.h"
 #include "Image.h"
 #include "FeatureLoader.h"
@@ -37,10 +33,14 @@
 #include "Cluster.h"
 #include "Transform.h"
 
+#include "LatentDetector.h"
+#include "KNNDetector.h"
+#include "VoronoiDetector.h"
+#include "TwoStageDetector.h"
+
 using namespace std;
 using namespace cv;
 using namespace Eigen;
-
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
@@ -48,13 +48,12 @@ namespace al = boost::algorithm;
 
 using std::cout;
 
-vector<string> loadFolder(string srcfolder,string prefix);
+vector<string> loadFolder(string srcfolder, string prefix);
 
-void classify(
-	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
-	string srcfolder, string desfolder, int k, PCA& pca, string s,
-	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout, 
-	const LCTransformSet& ts, const po::variables_map& vm) ;
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
+		string srcfolder, string desfolder, int k, PCA& pca, string s,
+		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout,
+		const LCTransformSet& ts, const po::variables_map& vm);
 
 vector<bool> buildGameCard(string gcfn, int k) {
 	auto res = vector<bool>(k, false);
@@ -72,86 +71,85 @@ vector<bool> buildGameCard(string gcfn, int k) {
 int main(int argc, const char * argv[]) {
 
 	//default value
-	string srcfolder ;
-	string desfolder ;
-	string fsfn ;
-	string indfn ;
-	string oper ;
-	string pcafn ;
-	string portn ;
-	string gcfn ;
-	string coregcfn ;
-	string transfn ;
+	string srcfolder;
+	string desfolder;
+	string fsfn;
+	string indfn;
+	string oper;
+	string pcafn;
+	string portn;
+	string gcfn;
+	string coregcfn;
+	string transfn;
 	string vecoutfn;
 	string auxfn;
 	string config;
 	string prefix;
 	int k;
 
-
-
 	po::options_description desc("General options");
 	po::options_description cropdesc("Patch cropping options");
 	po::options_description detectdesc("Detection options");
 	po::options_description transdesc("Transform options");
 	po::options_description cvdesc("OpenCV stock classifier options");
-	desc.add_options()
-		("help", "produce help message")
-		("configuration,K", po::value<string>(&config), "configuration file")
-		("cluster,C", po::value<int>(&k), "set Number of Clusters")
-		("operation,O", po::value<string>(&oper), "set operation")
-		("batch,B", "set batch/single")
-		("daemon", "set daemon")
-		("co-occurrence", "set co-occurrence rule detection")
-		("aux-result,A", po::value<string>(&auxfn), "set aux result file")
-		("PCA,P", po::value<string>(&pcafn), "set PCA file")
-		("port", po::value<string>(&portn), "set port")
-		;
-	cropdesc.add_options()
-		("height", po::value<int>()->default_value(128), "set patch height")
-		("width", po::value<int>()->default_value(96), "set patch width")
-		("patch-per-image", po::value<int>()->default_value(10), "set cropping density")
-		("onelevel", "set prymaid or not")
-		;
-	detectdesc.add_options()
-		("src,S", po::value<string>(&srcfolder), "set source folder")
-		("des,D", po::value<string>(&desfolder), "set destination folder")
-		("feature,F", po::value<string>(&fsfn), "set feature file")
-		("index,I", po::value<string>(&indfn), "set index file")
-		("result,R", po::value<string>(&vecoutfn), "set result file")
-		("gamecard", po::value<string>(&gcfn), "set gamecard file")
-		("prefix",po::value<string>(), "set filename prefix for task distribution")
-		;
-	transdesc.add_options()
-		("corecard", po::value<string>(&coregcfn), "set core gamecard file")
-		("transform", po::value<string>(&transfn), "set transform file")
-		;
-	cvdesc.add_options()
-		("model-file", po::value<string>(), "set CV classifier model")
-		;
-	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc);
+	po::options_description casdesc("Cascading classifier options");
 
+	desc.add_options()
+			("help", "produce help message")
+			("configuration,K",po::value<string>(&config), "configuration file")
+			("cluster,C",po::value<int>(&k), "set Number of Clusters")
+			("operation,O",po::value<string>(&oper), "set operation")
+			("batch,B","set batch/single")
+			("daemon", "set daemon")
+			("co-occurrence","set co-occurrence rule detection")
+			("aux-result,A",po::value<string>(&auxfn), "set aux result file")
+			("PCA,P",po::value<string>(&pcafn), "set PCA file")
+			("port",po::value<string>(&portn), "set port");
+
+	cropdesc.add_options()
+			("height", po::value<int>()->default_value(128),"set patch height")
+			("width", po::value<int>()->default_value(96),"set patch width")
+			("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
+			("onelevel", "set prymaid or not");
+	detectdesc.add_options()
+			("src,S", po::value<string>(&srcfolder),"set source folder")
+			("des,D", po::value<string>(&desfolder),"set destination folder")
+			("feature,F", po::value<string>(&fsfn),"set feature file")
+			("index,I", po::value<string>(&indfn),"set index file")
+			("result,R", po::value<string>(&vecoutfn),"set result file")
+			("gamecard", po::value<string>(&gcfn),"set gamecard file")
+			("prefix", po::value<string>(),"set filename prefix for task distribution");
+	transdesc.add_options()
+			("corecard", po::value<string>(&coregcfn),"set core gamecard file")
+			("transform", po::value<string>(&transfn),"set transform file");
+	cvdesc.add_options()
+			("model-file", po::value<string>(),"set CV classifier model");
+	casdesc.add_options()
+			("2ndfeature", po::value<string>(),"set feature file")
+			("2ndindex", po::value<string>(),"set index file")
+			("2ndgamecard", po::value<string>(),"set gamecard file");
+
+	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
 
 	po::variables_map vm;
 
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 
-
-	po::notify(vm);    
+	po::notify(vm);
 
 	if (vm.count("help")) {
 		cout << desc << "\n";
 		return 1;
-	} else if (vm.count("configuration")){
-		cout<<config<<endl;
+	} else if (vm.count("configuration")) {
+		cout << config << endl;
 		ifstream fconf(config);
-		po::store(po::parse_config_file(fconf,desc),vm);
+		po::store(po::parse_config_file(fconf, desc), vm);
 		po::notify(vm);
 		fconf.close();
 	}
 
-	if (vm.count("prefix")){
-		cout<<"The filename prefix is "<<vm["prefix"].as<string>()<<endl;
+	if (vm.count("prefix")) {
+		cout << "The filename prefix is " << vm["prefix"].as<string>() << endl;
 		prefix = vm["prefix"].as<string>();
 	} else {
 		prefix = "";
@@ -207,8 +205,7 @@ int main(int argc, const char * argv[]) {
 		MatrixXf fea;
 		fl.loadTab2Eigen(fsfn, fea);
 		auto pca = FeaturePCA(fea, 0.95);
-		cout << "there are " << pca.el.size() << " components in PCA"
-			<< endl;
+		cout << "there are " << pca.el.size() << " components in PCA\n";
 		auto a = pca.getCVPCA();
 		MatrixXf shortfea;
 
@@ -220,20 +217,20 @@ int main(int argc, const char * argv[]) {
 		fs.release();
 		cout << "eigenvalue written in " << pcafn << endl;
 		auto fw = FeatureWriter();
-		fw.saveEigen2Tab(vecoutfn, shortfea);	
+		fw.saveEigen2Tab(vecoutfn, shortfea);
 	} else if (oper == "randomcrop") {
 		//set up patch cropper
 		string seperator_fn = vecoutfn;
 		int h = vm["height"].as<int>();
 		int w = vm["width"].as<int>();
 		int ppi = vm["patch-per-image"].as<int>();
-		cout<< "we are cropping "<<ppi<<" patches per image"<<endl;
-		cout<< "the height is "<<h<<"\t the width is "<<w<<endl;
+		cout << "we are cropping " << ppi << " patches per image" << endl;
+		cout << "the height is " << h << "\t the width is " << w << endl;
 		auto nc = RandomCropper(ppi);
-		if (vm.count("onelevel")){
-			cout<<" we are using one-level cropping approach"<<endl;
+		if (vm.count("onelevel")) {
+			cout << " we are using one-level cropping approach" << endl;
 			nc.setPrymaid(false);
-		}else{
+		} else {
 			nc.setPrymaid(true);
 		}
 		nc.setSize(h, w);
@@ -279,7 +276,7 @@ int main(int argc, const char * argv[]) {
 				iw.collectResult(pca);    //kNN matching
 
 				Scalar colors[] = { Scalar(255, 0, 0), Scalar(0, 255, 0),
-					Scalar(0, 0, 255), Scalar(0, 255, 255) };
+						Scalar(0, 0, 255), Scalar(0, 255, 255) };
 				Mat out = mat.clone();
 				vector<Result> debugs = iw.getBestResults(10);
 				int dsize = debugs.size();
@@ -293,14 +290,14 @@ int main(int argc, const char * argv[]) {
 			}
 			cout << "Please input image filename" << endl;
 		}
-	} else if ( oper == "opencv" ){
+	} else if (oper == "opencv") {
 		string modelname = vm["model-file"].as<string>();
 		ofstream fout(vecoutfn);
 		ImageWrapper iw;
-		vector<string> files = loadFolder(srcfolder,prefix);
+		vector<string> files = loadFolder(srcfolder, prefix);
 		iw.loadCVModel(modelname);
 		for (auto& s : files) {
-			try{
+			try {
 				auto fname = srcfolder + s;
 				Mat raw = imread(fname);
 				Mat mat;
@@ -315,28 +312,41 @@ int main(int argc, const char * argv[]) {
 				iw.setImage(mat);
 				auto result = iw.getocvresult();
 
-				if (result.size()>0){
+				if (result.size() > 0) {
 					cout << fname << " matched!" << endl;
 					fout << s << endl;
 					Mat out = mat.clone();
 					for (const Rect& r : result) {
-						fout << r.x << ":" << r.y << ":" << r.width << ":"<< r.height << endl;
+						fout << r.x << ":" << r.y << ":" << r.width << ":"
+								<< r.height << endl;
 						rectangle(out, r, Scalar(255, 0, 0));
 					}
 					imwrite(desfolder + s, out);
 				}
-			} catch (Exception& e){
-				cerr<<e.msg<<endl;
+			} catch (Exception& e) {
+				cerr << e.msg << endl;
 			}
 		}
 		fout.close();
-	} else if (oper == "knn" || oper == "voronoi") {
+	} else if (oper == "knn" || oper == "voronoi" || oper == "cascading") {
 		string name;
 		shared_ptr<PatchDetector> kd;
-		if (oper == "knn"){
-			kd = make_shared<KNNDetector>();
-		} else if (oper == "voronoi"){
-			kd = make_shared<KMeanDetector>();
+
+		vector<bool> gc = buildGameCard(gcfn, k);
+
+
+		if (oper == "knn") {
+			kd = make_shared<KNNDetector>(gc);
+			kd->load(fsfn, indfn);
+		} else if (oper == "voronoi") {
+			kd = make_shared<VoronoiDetector>(gc);
+			kd->load(fsfn, indfn);
+		} else if (oper == "cascading") {
+			shared_ptr<PatchDetector> kdfirst = make_shared<VoronoiDetector>(gc);
+			shared_ptr<PatchDetector> kdsecond = make_shared<KNNDetector>(gc);
+			kdfirst->load(fsfn, indfn);
+			kdsecond->load(fsfn, indfn);
+			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond);
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
@@ -349,21 +359,19 @@ int main(int argc, const char * argv[]) {
 		cout << "PCA loaded" << endl;
 
 		cout << "start loading index" << endl;
-		kd->load(fsfn, indfn);
 
-		vector<bool> gc = buildGameCard(gcfn, k);
+
 		vector<bool> coregc = vector<bool>();
-		if (vm.count("corecard")){
+		if (vm.count("corecard")) {
 			coregc = buildGameCard(coregcfn, k);
 		}
 
 		LCTransformSet ts;
-		if (vm.count("transform")){
-			ts = LCTransformSet(k,transfn);
+		if (vm.count("transform")) {
+			ts = LCTransformSet(k, transfn);
 		}
 
-
-		if (vm.count("daemon")){
+		if (vm.count("daemon")) {
 #ifndef _WIN32
 			//set up socket
 			int sockfd, newsockfd, portno;
@@ -386,7 +394,7 @@ int main(int argc, const char * argv[]) {
 			//	fprintf(stderr, "ERROR on binding");
 			//	exit(1);
 			//}
-			cout << "socket server created at "<<portno<<endl;
+			cout << "socket server created at " << portno << endl;
 			listen(sockfd, 1024);
 			clilen = sizeof(cli_addr);
 
@@ -412,8 +420,8 @@ int main(int argc, const char * argv[]) {
 				printf("Here is the message: %s\n", buffer);
 				ostringstream ss;
 				try {
-					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
-						ss,ts,vm);
+					classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,
+							coregc, ss, ts, vm);
 				} catch (Exception& e) {
 					cerr << e.msg << endl;
 				}
@@ -425,7 +433,7 @@ int main(int argc, const char * argv[]) {
 				close(newsockfd);
 				cout << "Waiting for detection request" << endl;
 				newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr,
-					&clilen);
+						&clilen);
 				if (newsockfd < 0) {
 					cerr << ("ERROR on accept") << endl;
 					return -1;
@@ -437,18 +445,19 @@ int main(int argc, const char * argv[]) {
 #endif
 		} else {
 			ofstream fout(vecoutfn);
-			if (vm.count("batch")){
-				vector<string> files = loadFolder(srcfolder,prefix);
+			if (vm.count("batch")) {
+				vector<string> files = loadFolder(srcfolder, prefix);
 
 				for (auto& s : files) {
-					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,coregc, fout,ts,vm);
+					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,
+							coregc, fout, ts, vm);
 				}
-			} else  {
+			} else {
 				cout << "Please input image filename" << endl;
 				while (getline(cin, name)) {
 					try {
-						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,coregc,
-							fout,ts,vm);
+						classify(kd, ec, srcfolder, desfolder, k, pca, name, gc,
+								coregc, fout, ts, vm);
 					} catch (Exception& e) {
 						cerr << e.msg << endl;
 					}
@@ -457,88 +466,89 @@ int main(int argc, const char * argv[]) {
 			}
 			fout.close();
 		}
-	} 
+	}
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "FINISHED!  " << overall_diff << " seconds used." << endl;
 	return 0;
 }
 
-void classify(
-	shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
-	string srcfolder, string desfolder, int k, PCA& pca, string s,
-	const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout,
-	const LCTransformSet& ts, const po::variables_map& vm) {
-		auto fname = srcfolder + s;
-		ImageWrapper iw(kd, ec);
-		Mat raw = imread(fname);
-		Mat mat;
-		cout << fname << "\t" << raw.size() << endl;
-		if (raw.rows > 800) {
-			float ratio = 800. / raw.rows;
-			resize(raw, mat, Size(), ratio, ratio);
-			cout << "resized to \t" << mat.size() << endl;
-		} else {
-			mat = raw;
-		}
+void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
+		string srcfolder, string desfolder, int k, PCA& pca, string s,
+		const vector<bool>& gc, const vector<bool>&core_gc, ostream& fout,
+		const LCTransformSet& ts, const po::variables_map& vm) {
+	auto fname = srcfolder + s;
+	ImageWrapper iw(kd, ec);
+	Mat raw = imread(fname);
+	Mat mat;
+	cout << fname << "\t" << raw.size() << endl;
+	if (raw.rows > 800) {
+		float ratio = 800. / raw.rows;
+		resize(raw, mat, Size(), ratio, ratio);
+		cout << "resized to \t" << mat.size() << endl;
+	} else {
+		mat = raw;
+	}
 
-		iw.setImage(mat);
-		iw.setBins(k);
-		iw.collectPatches();
-		iw.collectResult(pca);
-		iw.calcClusHist();
-		vector<int> vec = iw.histogram;
+	iw.setImage(mat);
+	iw.setBins(k);
+	iw.collectPatches();
+	iw.collectResult(pca);
+	iw.calcClusHist();
+	vector<int> vec = iw.histogram;
 
-		fout << s << endl;
-		fout << "vector:\t";
-		for (int i = 0; i < k - 1; i++) {
-			fout << vec[i] << ",";
-		}
-		fout << vec[k - 1] << endl;
+	fout << s << endl;
+	fout << "vector:\t";
+	for (int i = 0; i < k - 1; i++) {
+		fout << vec[i] << ",";
+	}
+	fout << vec[k - 1] << endl;
 
-		auto goodRes = iw.getGoodResults();
-		for (const Result& r : goodRes) {
-			fout << r.category << "\t" << r.score << "\t";
-			fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
+	auto goodRes = iw.getGoodResults();
+	for (const Result& r : goodRes) {
+		fout << r.category << "\t" << r.score << "\t";
+		fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
 				<< r.rect.height << endl;
-		}
+	}
 
-		Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
+	Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
 			Scalar(255, 0, 0), Scalar(0, 255, 0), Scalar(0, 0, 255), Scalar(0,
-			255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
-			0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
+					255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
+					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
 			Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
-		int count = 0;
-		if (vm.count("co-occurrence")){
-			if(!core_gc.empty()){
-				vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-				for(LCTransform& t :trans){
-					fout<<t.getString()<<endl;
-				}
+	int count = 0;
+	if (vm.count("co-occurrence")) {
+		if (!core_gc.empty()) {
+			vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+			for (LCTransform& t : trans) {
+				fout << t.getString() << endl;
 			}
 		}
+	}
 
-		if (iw.match(gc)) {
-			cout << fname << " matched!" << endl;
-			Mat out = mat.clone();
-			Mat inferred_out;
-			if (!core_gc.empty()){
-				inferred_out =mat.clone();
-			}
-			vector<vector<Result>> debugs = iw.getMatchedResults(gc);
-			for (auto&rs : debugs) {
-				for (auto&r : rs) {
-					rectangle(out, r.rect, colors[r.category % 15]);
-					if (!core_gc.empty()){
-						if(!core_gc[r.category])
-							rectangle(inferred_out, ts.apply(r.category,r.rect), colors[r.category % 15]);
-						else
-							rectangle(inferred_out, r.rect, colors[r.category % 15]);
-					}
+	if (iw.match(gc)) {
+		cout << fname << " matched!" << endl;
+		Mat out = mat.clone();
+		Mat inferred_out;
+		if (!core_gc.empty()) {
+			inferred_out = mat.clone();
+		}
+		vector<vector<Result>> debugs = iw.getMatchedResults(gc);
+		for (auto&rs : debugs) {
+			for (auto&r : rs) {
+				rectangle(out, r.rect, colors[r.category % 15]);
+				if (!core_gc.empty()) {
+					if (!core_gc[r.category])
+						rectangle(inferred_out, ts.apply(r.category, r.rect),
+								colors[r.category % 15]);
+					else
+						rectangle(inferred_out, r.rect,
+								colors[r.category % 15]);
 				}
 			}
-			imwrite(desfolder +"detected_"+ s, out);
-			imwrite(desfolder +"inferred_"+ s, inferred_out);
 		}
+		imwrite(desfolder + "detected_" + s, out);
+		imwrite(desfolder + "inferred_" + s, inferred_out);
+	}
 }
 
 vector<string> loadFolder(string srcfolder, string prefix) {
@@ -546,18 +556,19 @@ vector<string> loadFolder(string srcfolder, string prefix) {
 	vector<string> files;
 	vector<fs::directory_entry> entries;
 
-	copy_if(fs::directory_iterator(srcfolder),
-		fs::directory_iterator(), back_inserter(entries),
-		[&prefix](const fs::directory_entry& e)->bool { 
-			string ext = al::to_lower_copy(e.path().extension().string());
-			string fn = al::to_lower_copy(e.path().filename().string());
-			bool condition = (ext == ".png" || ext == ".jpg");
-			if(prefix !=""){
-				condition = condition && al::starts_with(fn,prefix);
-			}
-			return condition;
-	});
-	transform(entries.begin(),entries.end(),back_inserter(files),[](const fs::directory_entry& e){return e.path().filename().string();});
+	copy_if(fs::directory_iterator(srcfolder), fs::directory_iterator(),
+			back_inserter(entries),
+			[&prefix](const fs::directory_entry& e)->bool {
+				string ext = al::to_lower_copy(e.path().extension().string());
+				string fn = al::to_lower_copy(e.path().filename().string());
+				bool condition = (ext == ".png" || ext == ".jpg");
+				if(prefix !="") {
+					condition = condition && al::starts_with(fn,prefix);
+				}
+				return condition;
+			});
+	transform(entries.begin(), entries.end(), back_inserter(files),
+			[](const fs::directory_entry& e) {return e.path().filename().string();});
 	sort(files.begin(), files.end());
 	return files;
 }

@@ -13,6 +13,6 @@ public:
 	LatentDetector(void){};
 	LatentDetector(string vecfname,string clusfname,const vector<bool>& gamecard);
 	~LatentDetector(void){};
-	virtual void detect(const vector<float>& vec, int&c, float&score) override;
+	virtual void detect(const vector<float>& vec, int&c, float&score, bool&accepted) override;
 };
 

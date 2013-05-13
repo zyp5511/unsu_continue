@@ -9,9 +9,11 @@ find_package( OpenCV REQUIRED)
 FIND_PACKAGE( Boost COMPONENTS program_options filesystem system REQUIRED)
 
 
-set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp main.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp KMeanDetector.cpp)
+set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp PatchClassDetector.cpp TwoStageDetector.cpp VoronoiDetector.cpp)
 
-add_executable(unsu ${SRCS})
+set (MAIN main.cpp)
+
+add_executable(unsu ${MAIN} ${SRCS})
 
 include_directories(${TBB_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})

@@ -40,7 +40,7 @@ Feature::~Feature(void)
 }
 
 void Feature::detect(PatchDetector& hd){
-	hd.detect(vec,res.category, res.score);
+	hd.detect(vec,res.category, res.score, res.accepted);
 }
 
 float Feature::l2(Feature b) {
