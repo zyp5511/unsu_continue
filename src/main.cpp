@@ -336,16 +336,24 @@ int main(int argc, const char * argv[]) {
 
 
 		if (oper == "knn") {
-			kd = make_shared<KNNDetector>(gc);
-			kd->load(fsfn, indfn);
+			auto temp = make_shared<KNNDetector>();
+			temp->load(fsfn, indfn);
+			temp->loadGC(gc);
+			kd = temp;
 		} else if (oper == "voronoi") {
-			kd = make_shared<VoronoiDetector>(gc);
-			kd->load(fsfn, indfn);
+			auto temp = make_shared<VoronoiDetector>();
+			temp->load(fsfn, indfn);
+			temp->loadGC(gc);
+			kd = temp;
+			
 		} else if (oper == "cascading") {
-			shared_ptr<PatchDetector> kdfirst = make_shared<VoronoiDetector>(gc);
-			shared_ptr<PatchDetector> kdsecond = make_shared<KNNDetector>(gc);
+			shared_ptr<PatchClassDetector> kdfirst = make_shared<VoronoiDetector>();
+			shared_ptr<PatchClassDetector> kdsecond = make_shared<KNNDetector>();
 			kdfirst->load(fsfn, indfn);
+			kdfirst->loadGC(gc);
 			kdsecond->load(fsfn, indfn);
+			kdsecond->loadGC(gc);
+
 			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond);
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());

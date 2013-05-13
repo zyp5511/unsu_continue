@@ -13,9 +13,6 @@
 class PatchClassDetector: public PatchDetector {
 public:
 	PatchClassDetector();
-	PatchClassDetector(const vector<bool>& agc) :
-			gamecard(agc) {
-	}
 	virtual ~PatchClassDetector();
 	virtual void detect(const vector<float>& vec, int&c, float&score,
 			bool& accepted) override;
