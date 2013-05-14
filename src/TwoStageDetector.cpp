@@ -22,6 +22,14 @@ void TwoStageDetector::detect(const vector<float>& vec, int& c, float& score,
 	first->detect(vec, c, score, accepted);
 	if (accepted) {
 		second->detect(vec, c, score, accepted);
+		if(accepted)
+		{
+			return;
+		} else {
+			cout<<"caution, entering rescue mode"<<endl;
+			
+			
+		}
 	}
 }
 
