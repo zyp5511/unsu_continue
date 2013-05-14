@@ -27,4 +27,3 @@ protected:
 	vector<int> clus; //cluster tag
 	Mat feavec; //feature index, hold memory
 };
-

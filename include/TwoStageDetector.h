@@ -16,11 +16,14 @@ public:
 	TwoStageDetector();
 	TwoStageDetector(shared_ptr<PatchDetector> aFirst,
 			shared_ptr<PatchDetector> aSecond);
+	TwoStageDetector(shared_ptr<PatchDetector> aFirst,
+			shared_ptr<PatchDetector> aSecond,
+			shared_ptr<PatchDetector> aThird);
 	virtual void detect(const vector<float>& vec, int&c, float&score,
 			bool& accepted) override;
 	virtual ~TwoStageDetector();
 private:
-	shared_ptr<PatchDetector> first, second;
+	shared_ptr<PatchDetector> first, second, third;
 };
 
 #endif /* TWOSTAGEDETECTOR_H_ */

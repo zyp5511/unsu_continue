@@ -9,7 +9,7 @@ find_package( OpenCV REQUIRED)
 FIND_PACKAGE( Boost COMPONENTS program_options filesystem system REQUIRED)
 
 
-set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp PatchClassDetector.cpp TwoStageDetector.cpp VoronoiDetector.cpp)
+set(SRCS Transform.cpp Cluster.cpp Feature.cpp FeaturePCA.cpp Image.cpp FeatureLoader.cpp FeatureWriter.cpp ImageCropper.cpp PatchDetector.cpp SVMDetector.cpp ExhaustiveCropper.cpp FeaturePartitioner.cpp FLANNDetector.cpp KNNDetector.cpp RandomCropper.cpp LatentDetector.cpp PatchClassDetector.cpp TwoStageDetector.cpp VoronoiDetector.cpp HoGAlignmentDetector.cpp )
 
 set (MAIN main.cpp)
 

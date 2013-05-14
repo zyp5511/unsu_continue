@@ -31,12 +31,12 @@ void HoGAlignmentDetector::detect(const vector<float>& vec, int&c, float&score,
 		for(int y=0;y<ph-h+1;y++){
 			//subvector extraction
 			for(int j=0;j<32;j++){
-				subvec[j*4+0]=vec[j*seg+x*ph+y]
-				subvec[j*4+1]=vec[j*seg+x*ph+y+1]
-				subvec[j*4+2]=vec[j*seg+(x+1)*ph+y]
-				subvec[j*4+3]=vec[j*seg+(x+1)x*ph+y+1]
+				subvec[j*4+0]=vec[j*seg+x*ph+y];
+				subvec[j*4+1]=vec[j*seg+x*ph+y+1];
+				subvec[j*4+2]=vec[j*seg+(x+1)*ph+y];
+				subvec[j*4+3]=vec[j*seg+(x+1)*ph+y+1];
 			}
-			int csub
+			int csub;
 			float ssub;
 			bool asub;
 			referenceFinder->detect(subvec,csub,ssub,asub);

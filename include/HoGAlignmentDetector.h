@@ -5,8 +5,6 @@
  *      Author: lichao
  */
 
-#ifndef PATCHCLASSDETECTOR_H_
-#define PATCHCLASSDETECTOR_H_
 
 #include "KNNDetector.h"
 #include "VoronoiDetector.h"
@@ -27,4 +25,3 @@ private:
 	shared_ptr<KNNDetector> referenceFinder;
 };
 
-#endif /* PATCHCLASSDETECTOR_H_ */

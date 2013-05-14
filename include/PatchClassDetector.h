@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * PatchClassDetector.h
  *
@@ -5,8 +7,6 @@
  *      Author: lichao
  */
 
-#ifndef PATCHCLASSDETECTOR_H_
-#define PATCHCLASSDETECTOR_H_
 
 #include "PatchDetector.h"
 
@@ -22,5 +22,3 @@ public:
 private:
 	vector<bool> gamecard;
 };
-
-#endif /* PATCHCLASSDETECTOR_H_ */

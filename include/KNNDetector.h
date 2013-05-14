@@ -1,4 +1,5 @@
 #pragma once
+
 #include "PatchClassDetector.h"
 #include "FeatureLoader.h"
 #include <fstream>

@@ -22,15 +22,18 @@ void TwoStageDetector::detect(const vector<float>& vec, int& c, float& score,
 	first->detect(vec, c, score, accepted);
 	if (accepted) {
 		second->detect(vec, c, score, accepted);
-		if(accepted)
-		{
+		if (accepted) {
 			return;
 		} else {
-			cout<<"caution, entering rescue mode"<<endl;
-			
-			
+			cout << "caution, entering rescue mode" << endl;
+			third->detect(vec, c, score, accepted);
 		}
 	}
+}
+
+TwoStageDetector::TwoStageDetector(shared_ptr<PatchDetector> aFirst,
+		shared_ptr<PatchDetector> aSecond, shared_ptr<PatchDetector> aThird) :
+		first(aFirst), second(aSecond), third(aThird) {
 }
 
 TwoStageDetector::~TwoStageDetector() {
