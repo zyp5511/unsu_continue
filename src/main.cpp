@@ -36,6 +36,7 @@
 #include "LatentDetector.h"
 #include "KNNDetector.h"
 #include "VoronoiDetector.h"
+#include "HoGAlignmentDetector.h"
 #include "TwoStageDetector.h"
 
 using namespace std;
@@ -125,9 +126,10 @@ int main(int argc, const char * argv[]) {
 	cvdesc.add_options()
 			("model-file", po::value<string>(),"set CV classifier model");
 	casdesc.add_options()
-			("2ndfeature", po::value<string>(),"set feature file")
-			("2ndindex", po::value<string>(),"set index file")
-			("2ndgamecard", po::value<string>(),"set gamecard file");
+			("2ndfeature", po::value<string>(),"set 2nd feature file")
+			("2ndindex", po::value<string>(),"set 2nd index file")
+			("2ndgamecard", po::value<string>(),"set 2nd gamecard file")
+			("2ndcluster", po::value<int>(),"set 2nd number of clusters");
 
 	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
 
@@ -349,12 +351,20 @@ int main(int argc, const char * argv[]) {
 		} else if (oper == "cascading") {
 			shared_ptr<PatchClassDetector> kdfirst = make_shared<VoronoiDetector>();
 			shared_ptr<PatchClassDetector> kdsecond = make_shared<KNNDetector>();
+			shared_ptr<HoGAlignmentDetector> kdthird = make_shared<HoGAlignmentDetector>();
 			kdfirst->load(fsfn, indfn);
 			kdfirst->loadGC(gc);
 			kdsecond->load(fsfn, indfn);
 			kdsecond->loadGC(gc);
 
-			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond);
+			shared_ptr<KNNDetector> rf = make_shared<KNNDetector>();
+			rf->load(vm["2ndfeature"].as<string>(), 
+					vm["2ndindex"].as<string>());
+			vector<bool> thirdgc = buildGameCard(vm["2ndgamecard"].as<string>(), 
+					vm["2ndcluster"].as<int>());
+			rf->loadGC(thirdgc);
+			kdthird->setFinder(rf);
+			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond,kdthird);
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
