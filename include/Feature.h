@@ -1,6 +1,5 @@
 #pragma once
 #include <opencv2/opencv.hpp>
-#include "PatchDetector.h"
 #include "Result.h"
 
 using namespace std;
@@ -11,22 +10,29 @@ class Feature
 {
 public:
 	Feature(void);
-	~Feature(void);
 	Feature(const vector<float>& aVec){vec=aVec;};
 	Feature(Mat& patch);
 	Feature(Mat& patch, const PCA& pca);
-	void detect(PatchDetector& hd);
+
+	~Feature(void);
 	int getCategory(){return res.category;};
 	float getScore(){return res.score;};
 	Result getResult(){return res;}
-	//Result getResult(Mat& mat);
 	float l2(Feature b);
 	void toHeadless();
+	
+	/*
+	 * For performance issue, the following members
+	 * are kept public.
+	 *
+	 */
 	vector<float> vec;//should be private
+	vector<float> orivec;//should be private
+	Result res;
+	Mat img;
 
 private:
 
-	Result res;
 	//    int category=-1;
 	//    float score=0;;
 	vector<float> process(uchar *im, int& len, const int *dims, const int sbin);

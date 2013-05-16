@@ -17,17 +17,22 @@ TwoStageDetector::TwoStageDetector(shared_ptr<PatchDetector> aFirst,
 		first(aFirst), second(aSecond) {
 }
 
-void TwoStageDetector::detect(const vector<float>& vec, int& c, float& score,
-		bool& accepted) {
-	first->detect(vec, c, score, accepted);
-	if (accepted) {
-		second->detect(vec, c, score, accepted);
-		if (accepted) {
-			accepted = false;//for debug. 
+void TwoStageDetector::detect(Feature& feature) {
+	first->detect(feature);
+	Result orires = feature.res;
+	if (orires.accepted) {
+		second->detect(feature);
+		if (feature.res.accepted) {
 			return;
 		} else {
 			cout << "caution, entering rescue mode" << endl;
-			third->detect(vec, c, score, accepted);
+			third->detect(feature);
+			if(!feature.res.accepted) {
+				feature.res.category=-1;
+				feature.res.score=0;
+			} else {
+				feature.res = orires;
+			}
 		}
 	}
 }

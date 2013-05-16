@@ -104,7 +104,6 @@ int main(int argc, const char * argv[]) {
 			("daemon", "set daemon")
 			("co-occurrence","set co-occurrence rule detection")
 			("aux-result,A",po::value<string>(&auxfn), "set aux result file")
-			("PCA,P",po::value<string>(&pcafn), "set PCA file")
 			("port",po::value<string>(&portn), "set port");
 
 	cropdesc.add_options()
@@ -119,17 +118,24 @@ int main(int argc, const char * argv[]) {
 			("index,I", po::value<string>(&indfn),"set index file")
 			("result,R", po::value<string>(&vecoutfn),"set result file")
 			("gamecard", po::value<string>(&gcfn),"set gamecard file")
-			("prefix", po::value<string>(),"set filename prefix for task distribution");
+			("prefix", po::value<string>(),"set filename prefix for task distribution")
+			("PCA,P",po::value<string>(&pcafn), "set PCA file")
+			;
+
 	transdesc.add_options()
 			("corecard", po::value<string>(&coregcfn),"set core gamecard file")
-			("transform", po::value<string>(&transfn),"set transform file");
+			("transform", po::value<string>(&transfn),"set transform file")
+			;
 	cvdesc.add_options()
-			("model-file", po::value<string>(),"set CV classifier model");
+			("model-file", po::value<string>(),"set CV classifier model")
+			;
 	casdesc.add_options()
 			("2ndfeature", po::value<string>(),"set 2nd feature file")
 			("2ndindex", po::value<string>(),"set 2nd index file")
 			("2ndgamecard", po::value<string>(),"set 2nd gamecard file")
-			("2ndcluster", po::value<int>(),"set 2nd number of clusters");
+			("2ndcluster", po::value<int>(),"set 2nd number of clusters")
+			("2ndPCA",po::value<string>(), "set 2nd PCA file")
+			;
 
 	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
 
@@ -364,6 +370,12 @@ int main(int argc, const char * argv[]) {
 					vm["2ndcluster"].as<int>());
 			rf->loadGC(thirdgc);
 			kdthird->setFinder(rf);
+			FileStorage pcafs(vm["2ndPCA"].as<string>(), FileStorage::READ);
+			PCA thirdpca;
+			pcafs["mean"] >> thirdpca.mean;
+			pcafs["eigenvalues"] >> thirdpca.eigenvalues;
+			pcafs["eigenvectors"] >> thirdpca.eigenvectors;
+			kdthird->setPCA(thirdpca);
 			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond,kdthird);
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());

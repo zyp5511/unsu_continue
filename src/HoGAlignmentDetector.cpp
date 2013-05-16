@@ -15,9 +15,8 @@ HoGAlignmentDetector::HoGAlignmentDetector(){
 HoGAlignmentDetector::~HoGAlignmentDetector(){
 }
 
-void HoGAlignmentDetector::detect(const vector<float>& vec, int&c, float&score,
-		bool& accepted){
-	accepted = false;
+void HoGAlignmentDetector::detect(Feature& feature){
+	feature.res.accepted = false;
 	int w=2;
 	int h=2;
 	int step=1;
@@ -31,19 +30,21 @@ void HoGAlignmentDetector::detect(const vector<float>& vec, int&c, float&score,
 		for(int y=0;y<ph-h+1;y++){
 			//subvector extraction
 			for(int j=0;j<32;j++){
-				subvec[j*4+0]=vec[j*seg+x*ph+y];
-				subvec[j*4+1]=vec[j*seg+x*ph+y+1];
-				subvec[j*4+2]=vec[j*seg+(x+1)*ph+y];
-				subvec[j*4+3]=vec[j*seg+(x+1)*ph+y+1];
+				subvec[j*4+0]=feature.orivec[j*seg+x*ph+y];
+				subvec[j*4+1]=feature.orivec[j*seg+x*ph+y+1];
+				subvec[j*4+2]=feature.orivec[j*seg+(x+1)*ph+y];
+				subvec[j*4+3]=feature.orivec[j*seg+(x+1)*ph+y+1];
 			}
 			int csub;
 			float ssub;
 			bool asub;
-			referenceFinder->detect(subvec,csub,ssub,asub);
+			Mat temp= pca.project(subvec);
+			auto finalvec = vector<float>(temp.begin<float>(),temp.end<float>());
+			referenceFinder->detect(finalvec,csub,ssub,asub);
 			if (asub){
-				c = csub;
-				score = ssub;
-				accepted = true;
+				feature.res.category = csub;
+				feature.res.score = ssub;
+				feature.res.accepted = true;
 				tlx = x*8;
 				tly = y*8;
 				return;
@@ -52,6 +53,9 @@ void HoGAlignmentDetector::detect(const vector<float>& vec, int&c, float&score,
 	}
 }
 
+void HoGAlignmentDetector::setPCA(PCA& aPCA){
+	pca = aPCA;
+}
 void HoGAlignmentDetector::setFinder(shared_ptr<KNNDetector> rf){
 	referenceFinder = rf;
 }

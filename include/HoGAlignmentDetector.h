@@ -5,23 +5,27 @@
  *      Author: lichao
  */
 
+#pragma once
 
 #include "KNNDetector.h"
 #include "VoronoiDetector.h"
 
 #include <memory>
 
+
 class HoGAlignmentDetector: public PatchDetector {
 public:
 	HoGAlignmentDetector();
 	virtual ~HoGAlignmentDetector();
-	virtual void detect(const vector<float>& vec, int&c, float&score,
-			bool& accepted) override;
+	virtual void detect(Feature& feature) override;
 	void setFinder(shared_ptr<KNNDetector> rf);
+	void setPCA(PCA& aPCA);
 
 	int tlx;
 	int tly;
 private:
 	shared_ptr<KNNDetector> referenceFinder;
+	PCA pca;
+	
 };
 

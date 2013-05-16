@@ -1,10 +1,10 @@
 /*
-* Cluster.cpp
-*
-*  Created on: Feb 25, 2013
-*      Author: lichao
-*  For cluster analysis
-*/
+ * Cluster.cpp
+ *
+ *  Created on: Feb 25, 2013
+ *      Author: lichao
+ *  For cluster analysis
+ */
 
 #include "Cluster.h"
 
@@ -45,36 +45,35 @@ float Cluster::getMinDistance() {
 	return minDistance;
 }
 
-
 vector<Cluster> Cluster::makeClusters(const Mat& feavecs,
-									  const vector<int>& ind, int k) {
-										  vector<Cluster> clus(k);
-										  vector<Mat> feas(k);
-										  vector<bool> inited(k, false);
-										  size_t nr = feavecs.rows;
-										  for (size_t i = 0; i < nr; i++) {
-											  int cid = ind[i];
-											  if (inited[cid]) {
-												  feas[cid].push_back(feavecs.row(i));
-											  } else {
-												  inited[cid] = true;
-												  feas[cid] = feavecs.row(i).clone();
-											  }
-										  }
-										  for (size_t i=0;i<k;i++){
-											  clus[i]=Cluster(feas[i]);
-										  }
-										  return clus;
+		const vector<int>& ind, int k) {
+	vector<Cluster> clus(k);
+	vector<Mat> feas(k);
+	vector<bool> inited(k, false);
+	size_t nr = feavecs.rows;
+	for (size_t i = 0; i < nr; i++) {
+		int cid = ind[i];
+		if (inited[cid]) {
+			feas[cid].push_back(feavecs.row(i));
+		} else {
+			inited[cid] = true;
+			feas[cid] = feavecs.row(i).clone();
+		}
+	}
+	for (size_t i = 0; i < k; i++) {
+		clus[i] = Cluster(feas[i]);
+	}
+	return clus;
 }
 
 void Cluster::init() {
 	size_t numvec = feavec.rows;
 	double sum = 0;
 	feamean = feavec.row(0).clone();
-	for(size_t i=1;i<numvec;i++){
-		feamean +=feavec.row(i);
+	for (size_t i = 1; i < numvec; i++) {
+		feamean += feavec.row(i);
 	}
-	feamean /=numvec;
+	feamean /= numvec;
 	minDistance = norm(feavec.row(0), feavec.row(1));
 	double dis;
 	for (size_t i = 0; i < numvec - 1; i++)
@@ -88,5 +87,5 @@ void Cluster::init() {
 			}
 			sum += dis;
 		}
-		avgDistance = sum * 2 / (numvec - 1) / numvec;
+	avgDistance = sum * 2 / (numvec - 1) / numvec;
 }

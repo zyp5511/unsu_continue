@@ -8,4 +8,6 @@
 
 #include "PatchDetector.h"
 
-
+void PatchDetector::detect(Feature& feature) {
+	detect(feature.vec,feature.res.category, feature.res.score, feature.res.accepted);
+}

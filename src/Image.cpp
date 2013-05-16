@@ -34,7 +34,7 @@ void ImageWrapper::collectResult(const PCA& pca) {
 	parallel_for(size_t(0), mat_count, [&](size_t i) {
 		Mat temp = ic->all_mats[i].clone();
 		Feature fea(temp,pca);
-		fea.detect(*pd);
+		pd->detect(fea);
 		Result tempres = fea.getResult();
 		tempres.rect = ic->all_rects[i];
 		results[i]=(tempres);
@@ -59,7 +59,7 @@ void ImageWrapper::collectResult() {
 	for (; it_mats != end_mats; it_mats++) {
 		Mat temp = it_mats->clone();
 		Feature fea(temp);
-		fea.detect(*pd);
+		pd->detect(fea);
 		results.push_back(fea.getResult());
 		c++;
 	}
@@ -114,6 +114,7 @@ vector<vector<Result>> ImageWrapper::getMatchedResults(
 	size_t len = histogram.size();
 	for (int i = 0; i < len; i++) {
 		if (gamecard[i]) {
+			
 			res.push_back(rtb[i]);
 		}
 	}

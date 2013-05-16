@@ -22,7 +22,7 @@ Feature::Feature(Mat& patch, const PCA& pca){
 	uchar *data = patchcl.data;
 	int dims[2] = {patch.rows,patch.cols};
 	int len;
-	vec =(process(data, len, dims, 8));
+	orivec =(process(data, len, dims, 8));
 	Mat temp= pca.project(vec);
 	vec = vector<float>(temp.begin<float>(),temp.end<float>());
 }
@@ -39,9 +39,6 @@ Feature::~Feature(void)
 {
 }
 
-void Feature::detect(PatchDetector& hd){
-	hd.detect(vec,res.category, res.score, res.accepted);
-}
 
 float Feature::l2(Feature b) {
 	float sum = 0;

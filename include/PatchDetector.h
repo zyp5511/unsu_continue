@@ -6,12 +6,13 @@
 //  Copyright (c) 2013 Lichao Chen. All rights reserved.
 //
 
-#ifndef __HumanPoseDetector__PatchDetector__
-#define __HumanPoseDetector__PatchDetector__
+#pragma once
 
 #include <iostream>
 #include <vector>
 #include <opencv2/opencv.hpp>
+
+#include "Feature.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ public:
 	PatchDetector(void){};
 	virtual ~PatchDetector(void) {};
 	virtual void detect(const vector<float>& vec, int&c, float&score, bool& accepted )=0;
+	virtual void detect(Feature& feature);
 	virtual	void load(string fsfn,string clusfn){};//virtual fun for data loading 
 };
-#endif /* defined(__HumanPoseDetector__PatchDetector__) */
+
