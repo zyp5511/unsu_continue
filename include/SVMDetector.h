@@ -9,7 +9,7 @@ class SVMDetector: public
 {
 public:
 	SVMDetector(string fname);
-	~SVMDetector(void){};
+	virtual ~SVMDetector(void){};
 	SVMDetector(const Mat& feavec, const vector<int>& label);
 	virtual void detect(const vector<float>& vec, int&c, float&score, bool&accepted) override;
 private:

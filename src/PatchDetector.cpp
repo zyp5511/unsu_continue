@@ -11,3 +11,6 @@
 void PatchDetector::detect(Feature& feature) {
 	detect(feature.vec,feature.res.category, feature.res.score, feature.res.accepted);
 }
+void PatchDetector::detect(const vector<float>& vec, int&c, float&score, bool& accepted ){
+	cerr<<"Not implemented."<<endl;
+}
