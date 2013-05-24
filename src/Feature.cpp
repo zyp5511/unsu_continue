@@ -23,7 +23,7 @@ Feature::Feature(Mat& patch, const PCA& pca){
 	int dims[2] = {patch.rows,patch.cols};
 	int len;
 	orivec =(process(data, len, dims, 8));
-	Mat temp= pca.project(vec);
+	Mat temp= pca.project(orivec);
 	vec = vector<float>(temp.begin<float>(),temp.end<float>());
 }
 Feature::Feature(Mat&patch){
