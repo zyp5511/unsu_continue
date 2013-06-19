@@ -1,5 +1,5 @@
 class Rect
-	attr_accessor :type, :dis, :x,:y,:w,:h
+	attr_accessor :type, :dis, :x,:y,:w,:h,:matched
 	def initialize(type,dis,x,y,w,h)
 		@type = type
 		@dis = dis
@@ -7,6 +7,7 @@ class Rect
 		@y = y
 		@w = w
 		@h = h
+		@matched = false
 	end
 	def self.makeRect(desc)
 		eles = desc.split

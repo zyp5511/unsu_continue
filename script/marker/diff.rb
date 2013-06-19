@@ -24,22 +24,30 @@ end
 cvrecords = Hash[parse_cv_data cvdat]
 lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
 
-c=0
-lcrecords.each do |k,v|
+cso=0
+osc=0
+inter=0
 
+lcrecords.each do |k,v|
 	ori = Magick::Image.read(File.join(src,k).to_s).first
+	oscimg =  ori.clone
 	if cvrecords[k]!=nil
+		vv = v.map{|orir|table.transform orir};
 		found = false
 		cvrecords[k].each do |cvr|
-			vid = v.find{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
-			if vid ==nil
-				c+=1
+			vid = v.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
+			vid += vv.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
+			if vid.size==0
+				cso+=1
 				found = true;
 				rdraw = Magick::Draw.new
 				rdraw.stroke('yellow').stroke_width(0.5)
 				rdraw.fill("transparent")
 				rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
 				rdraw.draw(ori)
+			else
+				vid.each{|x|x.matched=true};
+				inter+=1
 			end
 		end
 		if found
@@ -48,5 +56,18 @@ lcrecords.each do |k,v|
 	else 
 		puts "CV records not found for #{k}"
 	end
+	found = false;
+	v.select{|x|!x.matched}.map{|orir|table.transform orir}.each do |vvr|
+		found = true;
+		vrdraw = Magick::Draw.new
+		vrdraw.stroke('red').stroke_width(0.5)
+		vrdraw.fill("transparent")
+		vrdraw.rectangle(vvr.x,vvr.y,vvr.x+vvr.w-1,vvr.y+vvr.h-1)
+		vrdraw.draw(oscimg)
+	end
+	osc+= v.size-v.select{|x|x.matched}.size;
+	oscimg.write(File.join(des,"win",k).to_s) if found
 end
-puts c
+puts "Intersection(cv,ours) records: #{inter}"
+puts "cv-ours records: #{cso}"
+puts "ours-cv records: #{osc}"
