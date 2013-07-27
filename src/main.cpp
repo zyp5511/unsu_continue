@@ -94,6 +94,7 @@ int main(int argc, const char * argv[]) {
 	po::options_description transdesc("Transform options");
 	po::options_description cvdesc("OpenCV stock classifier options");
 	po::options_description casdesc("Cascading classifier options");
+	po::options_description distdesc("Distributed Computing options");
 
 	desc.add_options()
 			("help", "produce help message")
@@ -106,11 +107,17 @@ int main(int argc, const char * argv[]) {
 			("aux-result,A",po::value<string>(&auxfn), "set aux result file")
 			("port",po::value<string>(&portn), "set port");
 
+	distdesc.add_options()
+			("paroffset", po::value<int>()->default_value(0),"set parallel offset")
+			("parstride", po::value<int>()->default_value(0),"set parallel stride")
+			("parallel", "set parallel or not");
+
 	cropdesc.add_options()
 			("height", po::value<int>()->default_value(128),"set patch height")
 			("width", po::value<int>()->default_value(96),"set patch width")
 			("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
 			("onelevel", "set prymaid or not");
+
 	detectdesc.add_options()
 			("src,S", po::value<string>(&srcfolder),"set source folder")
 			("des,D", po::value<string>(&desfolder),"set destination folder")
@@ -137,7 +144,7 @@ int main(int argc, const char * argv[]) {
 			("2ndPCA",po::value<string>(), "set 2nd PCA file")
 			;
 
-	desc.add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
+	desc.add(distdesc).add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
 
 	po::variables_map vm;
 
@@ -195,6 +202,27 @@ int main(int argc, const char * argv[]) {
 		}
 		fout2.close();
 
+	} else if (oper == "network") { 
+		// construct a network by evaluating l2 btw all pair
+		auto fp = FeaturePartitioner();
+		auto fl = FeatureLoader();
+		auto fea = fl.loadTab(fsfn);
+		vector<int> category(fea.rows);
+
+		int start = 0;
+		int end = fea.rows;
+		if(vm.count["parallel"]){
+			cout<<"
+		}else{
+		}
+
+		fp.kmean(fea, category, k);
+
+		ofstream fout(indfn);
+		for (auto i : category) {
+			fout << i << "\n";
+		}
+		fout.close(); //use indfn as the destination.
 	} else if (oper == "kmean") {
 
 		auto fp = FeaturePartitioner();
