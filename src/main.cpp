@@ -97,52 +97,52 @@ int main(int argc, const char * argv[]) {
 	po::options_description distdesc("Distributed Computing options");
 
 	desc.add_options()
-			("help", "produce help message")
-			("configuration,K",po::value<string>(&config), "configuration file")
-			("cluster,C",po::value<int>(&k), "set Number of Clusters")
-			("operation,O",po::value<string>(&oper), "set operation")
-			("batch,B","set batch/single")
-			("daemon", "set daemon")
-			("co-occurrence","set co-occurrence rule detection")
-			("aux-result,A",po::value<string>(&auxfn), "set aux result file")
-			("port",po::value<string>(&portn), "set port");
+		("help", "produce help message")
+		("configuration,K",po::value<string>(&config), "configuration file")
+		("cluster,C",po::value<int>(&k), "set Number of Clusters")
+		("operation,O",po::value<string>(&oper), "set operation")
+		("batch,B","set batch/single")
+		("daemon", "set daemon")
+		("co-occurrence","set co-occurrence rule detection")
+		("aux-result,A",po::value<string>(&auxfn), "set aux result file")
+		("port",po::value<string>(&portn), "set port");
 
 	distdesc.add_options()
-			("paroffset", po::value<int>()->default_value(0),"set parallel offset")
-			("parstride", po::value<int>()->default_value(0),"set parallel stride")
-			("parallel", "set parallel or not");
+		("paroffset", po::value<int>()->default_value(0),"set parallel offset")
+		("parstride", po::value<int>()->default_value(0),"set parallel stride")
+		("parallel", "set parallel or not");
 
 	cropdesc.add_options()
-			("height", po::value<int>()->default_value(128),"set patch height")
-			("width", po::value<int>()->default_value(96),"set patch width")
-			("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
-			("onelevel", "set prymaid or not");
+		("height", po::value<int>()->default_value(128),"set patch height")
+		("width", po::value<int>()->default_value(96),"set patch width")
+		("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
+		("onelevel", "set prymaid or not");
 
 	detectdesc.add_options()
-			("src,S", po::value<string>(&srcfolder),"set source folder")
-			("des,D", po::value<string>(&desfolder),"set destination folder")
-			("feature,F", po::value<string>(&fsfn),"set feature file")
-			("index,I", po::value<string>(&indfn),"set index file")
-			("result,R", po::value<string>(&vecoutfn),"set result file")
-			("gamecard", po::value<string>(&gcfn),"set gamecard file")
-			("prefix", po::value<string>(),"set filename prefix for task distribution")
-			("PCA,P",po::value<string>(&pcafn), "set PCA file")
-			;
+		("src,S", po::value<string>(&srcfolder),"set source folder")
+		("des,D", po::value<string>(&desfolder),"set destination folder")
+		("feature,F", po::value<string>(&fsfn),"set feature file")
+		("index,I", po::value<string>(&indfn),"set index file")
+		("result,R", po::value<string>(&vecoutfn),"set result file")
+		("gamecard", po::value<string>(&gcfn),"set gamecard file")
+		("prefix", po::value<string>(),"set filename prefix for task distribution")
+		("PCA,P",po::value<string>(&pcafn), "set PCA file")
+		;
 
 	transdesc.add_options()
-			("corecard", po::value<string>(&coregcfn),"set core gamecard file")
-			("transform", po::value<string>(&transfn),"set transform file")
-			;
+		("corecard", po::value<string>(&coregcfn),"set core gamecard file")
+		("transform", po::value<string>(&transfn),"set transform file")
+		;
 	cvdesc.add_options()
-			("model-file", po::value<string>(),"set CV classifier model")
-			;
+		("model-file", po::value<string>(),"set CV classifier model")
+		;
 	casdesc.add_options()
-			("2ndfeature", po::value<string>(),"set 2nd feature file")
-			("2ndindex", po::value<string>(),"set 2nd index file")
-			("2ndgamecard", po::value<string>(),"set 2nd gamecard file")
-			("2ndcluster", po::value<int>(),"set 2nd number of clusters")
-			("2ndPCA",po::value<string>(), "set 2nd PCA file")
-			;
+		("2ndfeature", po::value<string>(),"set 2nd feature file")
+		("2ndindex", po::value<string>(),"set 2nd index file")
+		("2ndgamecard", po::value<string>(),"set 2nd gamecard file")
+		("2ndcluster", po::value<int>(),"set 2nd number of clusters")
+		("2ndPCA",po::value<string>(), "set 2nd PCA file")
+		;
 
 	desc.add(distdesc).add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
 
@@ -204,25 +204,33 @@ int main(int argc, const char * argv[]) {
 
 	} else if (oper == "network") { 
 		// construct a network by evaluating l2 btw all pair
-		auto fp = FeaturePartitioner();
 		auto fl = FeatureLoader();
-		auto fea = fl.loadTab(fsfn);
-		vector<int> category(fea.rows);
+		MatrixXf fea;
+		fl.loadTab2Eigen(fsfn, fea);
+		fea.transposeInPlace();
 
 		int start = 0;
-		int end = fea.rows;
-		if(vm.count["parallel"]){
-			cout<<"
+		int end = fea.cols();
+		int stride = 0;
+		int overallEnd = fea.cols();
+		cout<<"there are "<<fea.rows()<<" rows"<<endl;
+		cout<<"there are "<<fea.cols()<<" cols"<<endl;
+		if(vm.count("parallel")){
+			cout<<"Parallel mode started:"<<endl;
+			start = vm["paroffset"].as<int>();
+			stride = vm["parstride"].as<int>();
+			end = (start+stride)>fea.cols()?fea.cols():(start+stride);
 		}else{
+			cout<<"Test Mode started:"<<endl;
 		}
+		cout<<"start calculating from "<<start<<" to "<<end<<endl;
+		ofstream fout(vecoutfn);
 
-		fp.kmean(fea, category, k);
-
-		ofstream fout(indfn);
-		for (auto i : category) {
-			fout << i << "\n";
+		for(int i=start;i<end;i++){
+				auto temp = (fea.block(0,i,fea.rows(),overallEnd-i).colwise() - fea.col(i)).colwise().squaredNorm();
+				fout<<temp<<endl;
 		}
-		fout.close(); //use indfn as the destination.
+		fout.close(); //use vecoutfn as the destination.
 	} else if (oper == "kmean") {
 
 		auto fp = FeaturePartitioner();
@@ -312,7 +320,7 @@ int main(int argc, const char * argv[]) {
 				iw.collectResult(pca);    //kNN matching
 
 				Scalar colors[] = { Scalar(255, 0, 0), Scalar(0, 255, 0),
-						Scalar(0, 0, 255), Scalar(0, 255, 255) };
+					Scalar(0, 0, 255), Scalar(0, 255, 255) };
 				Mat out = mat.clone();
 				vector<Result> debugs = iw.getBestResults(10);
 				int dsize = debugs.size();
@@ -354,7 +362,7 @@ int main(int argc, const char * argv[]) {
 					Mat out = mat.clone();
 					for (const Rect& r : result) {
 						fout << r.x << ":" << r.y << ":" << r.width << ":"
-								<< r.height << endl;
+							<< r.height << endl;
 						rectangle(out, r, Scalar(255, 0, 0));
 					}
 					imwrite(desfolder + s, out);
@@ -381,7 +389,7 @@ int main(int argc, const char * argv[]) {
 			temp->load(fsfn, indfn);
 			temp->loadGC(gc);
 			kd = temp;
-			
+
 		} else if (oper == "cascading") {
 			shared_ptr<PatchClassDetector> kdfirst = make_shared<VoronoiDetector>();
 			shared_ptr<PatchClassDetector> kdsecond = make_shared<KNNDetector>();
@@ -565,14 +573,14 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	for (const Result& r : goodRes) {
 		fout << r.category << "\t" << r.score << "\t";
 		fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
-				<< r.rect.height << endl;
+			<< r.rect.height << endl;
 	}
 
 	Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
-			Scalar(255, 0, 0), Scalar(0, 255, 0), Scalar(0, 0, 255), Scalar(0,
-					255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
+		Scalar(255, 0, 0), Scalar(0, 255, 0), Scalar(0, 0, 255), Scalar(0,
+				255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
 					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
-			Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
+				Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
 	int count = 0;
 	if (vm.count("co-occurrence")) {
 		if (!core_gc.empty()) {
@@ -617,13 +625,13 @@ vector<string> loadFolder(string srcfolder, string prefix) {
 	copy_if(fs::directory_iterator(srcfolder), fs::directory_iterator(),
 			back_inserter(entries),
 			[&prefix](const fs::directory_entry& e)->bool {
-				string ext = al::to_lower_copy(e.path().extension().string());
-				string fn = al::to_lower_copy(e.path().filename().string());
-				bool condition = (ext == ".png" || ext == ".jpg");
-				if(prefix !="") {
-					condition = condition && al::starts_with(fn,prefix);
-				}
-				return condition;
+			string ext = al::to_lower_copy(e.path().extension().string());
+			string fn = al::to_lower_copy(e.path().filename().string());
+			bool condition = (ext == ".png" || ext == ".jpg");
+			if(prefix !="") {
+			condition = condition && al::starts_with(fn,prefix);
+			}
+			return condition;
 			});
 	transform(entries.begin(), entries.end(), back_inserter(files),
 			[](const fs::directory_entry& e) {return e.path().filename().string();});
