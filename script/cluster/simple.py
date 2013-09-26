@@ -11,11 +11,11 @@ import os
 
 
 ## define data dir
-root = os.path.join("D:\\","network");
+root = os.path.join("/mnt","vault","allnet");
 
 
 ## Read from file
-g = ig.Graph.Read_Edgelist(os.path.join(root,"network_noweight.txt"),directed=False)
+g = ig.Graph.Read_Edgelist(os.path.join(root,"network2m_noweight.txt"),directed=False)
 ##ig.plot(g,vertex_label=g.vs.indices)
 
 

@@ -6,10 +6,16 @@ clulist = ARGV[2]
 puts "Collecting imgs from #{ srcfolder } to #{ desfolder } acording to #{clulist} ..."
 set = Set.new
 IO.foreach(clulist).with_index do|c,i|
-		subdir = "#{desfolder}/#{c}".chomp
-	if !set.include?(c)
-		FileUtils.mkdir(subdir)
-		set<<c;
+	ci = c.to_i;
+	subdir = "#{desfolder}/#{ci}".chomp
+	if !set.include?(ci)
+		begin
+			FileUtils.mkdir(subdir)
+		rescue => e
+			print e.message
+			print e.backtrace.join("\n")
+		end
+		set<<ci;
 	end;
 	FileUtils.mv "#{srcfolder}/#{i+1}.jpg", subdir
 end
