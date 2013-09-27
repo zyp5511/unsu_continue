@@ -433,7 +433,7 @@ int main(int argc, const char * argv[]) {
 		}
 
 		LCTransformSet ts;
-		if (vm.count("transform")) {
+		if (vm.count("transform")) {//geometric transfrom
 			ts = LCTransformSet(k, transfn);
 		}
 
