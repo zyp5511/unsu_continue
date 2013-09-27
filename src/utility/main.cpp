@@ -202,6 +202,38 @@ int main(int argc, const char * argv[]) {
 		}
 		fout2.close();
 
+	} else if (oper == "cos-network") { 
+		// construct a network by evaluating l2 btw all pair
+		auto fl = FeatureLoader();
+		MatrixXf fea;
+		fl.loadTab2Eigen(fsfn, fea);
+		fea.transposeInPlace();
+
+		int start = 0;
+		int end = fea.cols();
+		int stride = 0;
+		int overallEnd = fea.cols();
+		cout<<"there are "<<fea.rows()<<" rows"<<endl;
+		cout<<"there are "<<fea.cols()<<" cols"<<endl;
+		if(vm.count("parallel")){
+			cout<<"Parallel mode started:"<<endl;
+			start = vm["paroffset"].as<int>();
+			stride = vm["parstride"].as<int>();
+			end = (start+stride)>fea.cols()?fea.cols():(start+stride);
+		}else{
+			cout<<"Test Mode started:"<<endl;
+		}
+		cout<<"start calculating from "<<start<<" to "<<end<<endl;
+		ofstream fout(vecoutfn);
+
+		for(int i=start;i<end;i++){
+				auto inorm = fea.col(i).norm();
+				auto nume= fea.col(i).transpose()*fea.block(0,i,fea.rows(),overallEnd-i);
+				auto deno= fea.block(0,i,fea.rows(),overallEnd-i).colwise().norm()*inorm;
+				auto temp = nume.cwiseQuotient(deno);
+				fout<<temp<<endl;
+		}
+		fout.close(); //use vecoutfn as the destination.
 	} else if (oper == "network") { 
 		// construct a network by evaluating l2 btw all pair
 		auto fl = FeatureLoader();
@@ -227,7 +259,7 @@ int main(int argc, const char * argv[]) {
 		ofstream fout(vecoutfn);
 
 		for(int i=start;i<end;i++){
-				auto temp = (fea.block(0,i,fea.rows(),overallEnd-i).colwise() - fea.col(i)).colwise().squaredNorm();
+				auto temp = (fea.block(0,i,fea.rows(),overallEnd-i).colwise() - fea.col(i)).colwise().norm();
 				fout<<temp<<endl;
 		}
 		fout.close(); //use vecoutfn as the destination.
