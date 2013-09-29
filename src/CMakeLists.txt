@@ -9,14 +9,17 @@ find_package( OpenCV REQUIRED)
 FIND_PACKAGE( Boost COMPONENTS program_options filesystem system REQUIRED)
 
 
-FILE (GLOB_RECURSE SRCS "*.cpp")
+FILE (GLOB SRCS "*.cpp")
+#FILE (GLOB_RECURSE SRCS "*.cpp")
 
-add_executable(unsu ${SRCS})
+add_executable(unsu "utility/main.cpp" ${SRCS})
+add_executable(distance "utility/distance.cpp" ${SRCS})
 
 include_directories(${TBB_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 
 target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries( distance ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
 
 #get_cmake_property(_variableNames VARIABLES)
 

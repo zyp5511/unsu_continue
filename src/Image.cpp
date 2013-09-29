@@ -32,13 +32,13 @@ void ImageWrapper::collectResult(const PCA& pca) {
 	auto mat_count = ic->all_mats.size();
 	results = concurrent_vector<Result>(mat_count);
 	parallel_for(size_t(0), mat_count, [&](size_t i) {
-		Mat temp = ic->all_mats[i].clone();
-		Feature fea(temp,pca);
-		pd->detect(fea);
-		Result tempres = fea.getResult();
-		tempres.rect = ic->all_rects[i];
-		results[i]=(tempres);
-	});
+			Mat temp = ic->all_mats[i].clone();
+			Feature fea(temp,pca);
+			pd->detect(fea);
+			Result tempres = fea.getResult();
+			tempres.rect = ic->all_rects[i];
+			results[i]=(tempres);
+			});
 #else
 	auto it_mats = ic->getMats();
 	auto end_mats = ic->getMatsEnd();
@@ -100,9 +100,9 @@ Rect ImageWrapper::matchArea(const vector<bool>& gamecard) {
 	for (int i = 0; i < len; i++) {
 		if (gamecard[i]) {
 			for_each(rtb[i].begin(), rtb[i].end(), [&points](Result r) {
-				points.push_back(r.rect.tl());
-				points.push_back(r.rect.br());
-			});
+					points.push_back(r.rect.tl());
+					points.push_back(r.rect.br());
+					});
 		}
 	}
 	return boundingRect(points);
@@ -114,7 +114,7 @@ vector<vector<Result>> ImageWrapper::getMatchedResults(
 	size_t len = histogram.size();
 	for (int i = 0; i < len; i++) {
 		if (gamecard[i]) {
-			
+
 			res.push_back(rtb[i]);
 		}
 	}
@@ -128,8 +128,8 @@ vector<Result> ImageWrapper::getBestResults(int len) {
 		a[i] = i;
 	}
 	sort(a.begin(), a.end(), [&](int x, int y) {
-		return results[x].score<results[y].score;
-	});
+			return results[x].score<results[y].score;
+			});
 	auto res = vector<Result>();
 	int reslen = len > mat_count ? mat_count : len;
 	for (int i = 0; i < len; i++) {

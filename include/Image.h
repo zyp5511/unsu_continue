@@ -72,5 +72,6 @@ public:
 	void scan(const PCA& pca);//best match for a given set of clusters
 	vector<Rect> scanDebug(int i);
 	vector<Result> getBestResults(int len);//rects of top i responce from certain clusters of scan result
+
 };
 #endif /* defined(__HumanPoseDetector__Image__) */
