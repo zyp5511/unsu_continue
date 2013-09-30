@@ -10,18 +10,35 @@
 
 Cluster::Cluster() {
 	avgDistance = -1;
+	avgRadius = -1;
+	centerNorm = -1;
 	maxDistance = -1;
 	minDistance = -1;
 }
 
 Cluster::Cluster(const Mat& feavec) {
 	avgDistance = -1;
+	avgRadius = -1;
+	centerNorm = -1;
 	maxDistance = -1;
 	minDistance = -1;
 	this->feavec = feavec;
 }
 
 Cluster::~Cluster() {
+}
+
+float Cluster::getCenterNorm(){
+	if (centerNorm< 0) {
+		init();
+	}
+	return centerNorm;
+}
+float Cluster::getAvgRadius() {
+	if (avgRadius< 0) {
+		init();
+	}
+	return avgRadius;
 }
 
 float Cluster::getAvgDistance() {
@@ -74,8 +91,16 @@ void Cluster::init() {
 		feamean += feavec.row(i);
 	}
 	feamean /= numvec;
+	centerNorm = norm(feamean);
 	minDistance = norm(feavec.row(0), feavec.row(1));
 	double dis;
+	double censum = 0;
+	for (size_t i = 0; i < numvec; i++){
+		censum +=norm(feavec.row(i),feamean);
+	}
+	censum/=numvec;
+	avgRadius = censum;
+
 	for (size_t i = 0; i < numvec - 1; i++)
 		for (size_t j = i + 1; j < numvec; j++) {
 			dis = norm(feavec.row(i), feavec.row(j));

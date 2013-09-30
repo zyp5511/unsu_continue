@@ -186,12 +186,15 @@ int main(int argc, const char * argv[]) {
 		vector<Cluster> clus = Cluster::makeClusters(feavec, ind, k);
 		ofstream fout(vecoutfn);
 		ofstream fout2(auxfn);
-		fout << "Min\tMax\tAvg" << endl;
+		fout << "Min\tMax\tAvg\tRadius\tCenter" << endl;
 		for (int i = 0; i < k; i++) {
 			float mindis = clus[i].getMinDistance();
 			float maxdis = clus[i].getMaxDistance();
 			float avgdis = clus[i].getAvgDistance();
-			fout << mindis << "\t" << maxdis << "\t" << avgdis << endl;
+			float avgr = clus[i].getAvgRadius();
+			float center= clus[i].getCenterNorm();
+			fout << mindis << "\t" << maxdis << "\t" << avgdis << "\t" << 
+				avgr <<"\t"<<center<< endl;
 		}
 		fout.close();
 		for (size_t i = 0; i < k; i++) {

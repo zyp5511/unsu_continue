@@ -20,6 +20,8 @@ public:
 	Cluster(const Mat& feavec);
 	virtual ~Cluster();
 	float getAvgDistance();
+	float getAvgRadius();
+	float getCenterNorm();
 	float getMaxDistance();
 	float getMinDistance();
 	float distance(const Cluster& b){
@@ -29,6 +31,8 @@ public:
 private:
 	void init();
 	float avgDistance;
+	float avgRadius;
+	float centerNorm;
 	float maxDistance;
 	float minDistance;
 	Mat feamean;
