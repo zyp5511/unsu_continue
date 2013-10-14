@@ -2,6 +2,7 @@
 #include<sstream>
 #include<iostream>
 #include<cstdlib>
+#include<cmath>
 
 using namespace std;
 
@@ -25,7 +26,7 @@ int main(int argc, char** argv){
 			ss>>dis;
 			while(ss>>dis){
 				j++;
-				if (dis<threshold){
+				if ((dis)>threshold){
 					fout<<i<<"\t"<<j<<"\t"<<dis<<endl;
 				}
 			}

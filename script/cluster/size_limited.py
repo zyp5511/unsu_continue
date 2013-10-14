@@ -11,11 +11,11 @@ import os
 
 
 ## define data dir
-root = os.path.join("/mnt","vault","allnet");
+root = os.path.join("/media","cixi","cos-net");
 
 
 ## Read from file
-g = ig.Graph.Read_Edgelist(os.path.join(root,"network1m_noweight.txt"),directed=False)
+g = ig.Graph.Read_Edgelist(os.path.join(root,"net095_noweight.txt"),directed=False)
 ##ig.plot(g,vertex_label=g.vs.indices)
 
 
@@ -47,8 +47,8 @@ def exportmem( amem, afname ):
     with open(os.path.join(root, afname),"w") as f:
         f.write('\n'.join(str(i) for i in amem.membership));
         
-exportmem(mem,"fastgreedy_1m.txt")
-exportmem(ml_mem,"ml_1m.txt")
+exportmem(mem,"fastgreedy_095.txt")
+exportmem(ml_mem,"ml_095.txt")
 
 
 

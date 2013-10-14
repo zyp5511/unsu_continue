@@ -17,6 +17,6 @@ IO.foreach(clulist).with_index do|c,i|
 		end
 		set<<ci;
 	end;
-	FileUtils.mv "#{srcfolder}/#{i+1}.jpg", subdir
+	FileUtils.cp "#{srcfolder}/#{i+1}.jpg", subdir
 end
 

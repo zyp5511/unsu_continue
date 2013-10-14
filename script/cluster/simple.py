@@ -11,7 +11,7 @@ import os
 
 
 ## define data dir
-root = os.path.join("/mnt","vault","allnet");
+root = os.path.join("/media","cixi","cos-net");
 
 
 ## Read from file
