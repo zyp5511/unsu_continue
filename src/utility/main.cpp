@@ -376,13 +376,14 @@ int main(int argc, const char * argv[]) {
 		vector<string> files = loadFolder(srcfolder, prefix);
 		iw.loadCVModel(modelname);
 		for (auto& s : files) {
+			float ratio=1;
 			try {
 				auto fname = srcfolder + s;
 				Mat raw = imread(fname);
 				Mat mat;
 				cout << fname << "\t" << raw.size() << endl;
-				if (raw.rows > 800) {
-					float ratio = 800. / raw.rows;
+				if (raw.rows > 500 ) {
+					ratio = 500. / raw.rows;
 					resize(raw, mat, Size(), ratio, ratio);
 					cout << "resized to \t" << mat.size() << endl;
 				} else {
@@ -396,8 +397,9 @@ int main(int argc, const char * argv[]) {
 					fout << s << endl;
 					Mat out = mat.clone();
 					for (const Rect& r : result) {
-						fout << r.x << ":" << r.y << ":" << r.width << ":"
-							<< r.height << endl;
+						fout << (int)(r.x/ratio) << ":" << (int)(r.y/ratio) << ":" 
+							<< (int)(r.width/ratio) << ":" << (int)(r.height/ratio)
+							<< endl;
 						rectangle(out, r, Scalar(255, 0, 0));
 					}
 					imwrite(desfolder + s, out);
@@ -582,8 +584,9 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	Mat raw = imread(fname);
 	Mat mat;
 	cout << fname << "\t" << raw.size() << endl;
-	if (raw.rows > 800) {
-		float ratio = 800. / raw.rows;
+	float ratio=1;
+	if (raw.rows > 500) {
+		ratio = 500. / raw.rows;
 		resize(raw, mat, Size(), ratio, ratio);
 		cout << "resized to \t" << mat.size() << endl;
 	} else {
@@ -607,8 +610,9 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	auto goodRes = iw.getGoodResults();
 	for (const Result& r : goodRes) {
 		fout << r.category << "\t" << r.score << "\t";
-		fout << r.rect.x << ":" << r.rect.y << ":" << r.rect.width << ":"
-			<< r.rect.height << endl;
+		fout << (int)(r.rect.x/ratio) << ":" << (int)(r.rect.y/ratio) << ":" 
+			<< (int)(r.rect.width/ratio) << ":" << (int)(r.rect.height/ratio)
+			<< endl;
 	}
 
 	Scalar colors[] = { Scalar(128, 0, 0), Scalar(0, 128, 0), Scalar(0, 0, 128),
