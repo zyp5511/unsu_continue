@@ -13,11 +13,11 @@ class Record
 		@rects = lines.drop(2).take_while{|x| !x.include?("=>")}.map{|l| Rect.makeRect(l)}
 		@dest = des
 		@ori = Magick::Image.read(File.join(src,@filename).to_s).first
-		if @ori.rows>800
-			old_r,old_c = @ori.rows,@ori.columns
-			@ori.resize_to_fit!(5000,800)
-			puts "resizes from #{old_r}x#{old_c} to #{@ori.rows}x#{@ori.columns}"
-		end
+		#if @ori.rows>800
+		#	old_r,old_c = @ori.rows,@ori.columns
+		#	@ori.resize_to_fit!(5000,800)
+		#	puts "resizes from #{old_r}x#{old_c} to #{@ori.rows}x#{@ori.columns}"
+		#end
 	end
 
 	def export
