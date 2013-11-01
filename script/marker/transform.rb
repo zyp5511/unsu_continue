@@ -68,7 +68,7 @@ class LCTransformSet
 		end
 		LCTransformSet.new(trans)
 	end
-	def simplify (appr,id=594)
+	def simplify (appr,id=594)# rule extraction using different lambda
 		@transforms.group_by{|t| t.from }.flat_map do |kf,fg|
 			fg.group_by{|tt| tt.to}.select{|k,v| k==id}.map do |kt,tg| 
 				sorted_tg = tg.sort

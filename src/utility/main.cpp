@@ -585,8 +585,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	Mat mat;
 	cout << fname << "\t" << raw.size() << endl;
 	float ratio=1;
-	if (raw.rows > 500) {
-		ratio = 500. / raw.rows;
+	if (raw.rows > 800) {
+		ratio = 800. / raw.rows;
 		resize(raw, mat, Size(), ratio, ratio);
 		cout << "resized to \t" << mat.size() << endl;
 	} else {
