@@ -40,6 +40,7 @@ if type == "if"
 	puts " #{c} images are selected"
 else
 	records.each do|x|
-		x.rects.each{|r|x.draw_rect r; x.export}
+		x.rects.each{|r|x.draw_rect r}
+		x.export
 	end
 end

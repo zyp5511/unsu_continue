@@ -464,13 +464,17 @@ int main(int argc, const char * argv[]) {
 		cout << "start loading index" << endl;
 
 
+
+		//load standard head clusters, for rule observation,
+		//and rule applying
 		vector<bool> coregc = vector<bool>();
 		if (vm.count("corecard")) {
 			coregc = buildGameCard(coregcfn, k);
 		}
 
+		//load geometric transfrom rules
 		LCTransformSet ts;
-		if (vm.count("transform")) {//geometric transfrom
+		if (vm.count("transform")) {
 			ts = LCTransformSet(k, transfn);
 		}
 
@@ -621,6 +625,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
 				Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
 	int count = 0;
+
+	//record transformations from head related patches to standard head patches
 	if (vm.count("co-occurrence")) {
 		if (!core_gc.empty()) {
 			vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
