@@ -51,6 +51,7 @@ lcrecords.each do |k,v|
 			end
 		end
 		if found
+			puts "#{k}"
 			ori.write(File.join(des,k).to_s)
 		end
 	else 

@@ -69,4 +69,3 @@ void KNNDetector::classify(const vector<float>& vec, int&c, float&score) {
 		c = -1;
 	}
 }
-
