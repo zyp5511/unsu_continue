@@ -115,6 +115,7 @@ int main(int argc, const char * argv[]) {
 	cropdesc.add_options()
 		("height", po::value<int>()->default_value(128),"set patch height")
 		("width", po::value<int>()->default_value(96),"set patch width")
+		("stride", po::value<int>()->default_value(32),"set cropping stride")
 		("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
 		("onelevel", "set prymaid or not");
 
@@ -323,6 +324,7 @@ int main(int argc, const char * argv[]) {
 		shared_ptr<LatentDetector> kd;
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
+		ec->setStride(vm["stride"].as<int>());
 
 		FileStorage pcafs(pcafn, FileStorage::READ);
 		PCA pca;
@@ -453,6 +455,7 @@ int main(int argc, const char * argv[]) {
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
 		ec->setSize(128, 96);
+		ec->setStride(vm["stride"].as<int>());
 
 		FileStorage pcafs(pcafn, FileStorage::READ);
 		PCA pca;

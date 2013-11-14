@@ -26,7 +26,7 @@ class Record
 
 	def draw_rect(rect)
 		rdraw = Magick::Draw.new
-#		rdraw.text(rect.x,rect.y+10,rect.type.to_s)
+		rdraw.text(rect.x,rect.y+10,rect.type.to_s)
 		rdraw.stroke(@@colors[rect.type]).stroke_width(0.5)
 		rdraw.fill("transparent")
 		rdraw.rectangle(rect.x,rect.y,rect.x+rect.w-1,rect.y+rect.h-1)

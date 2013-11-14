@@ -26,7 +26,7 @@ protected:
 public:
 	vector<int> category;
 	RandomCropper(){toprymaid=true;patchesPerImage = 50;};
-	RandomCropper(int k){toprymaid=true;patchesPerImage = k;};
+	RandomCropper(int k){toprymaid=true;patchesPerImage = k;}//set sampling density to k/img;
 	~RandomCropper(){};
 	void collectSrcDir(string fname);
 

@@ -4,9 +4,9 @@
 using namespace std;
 ExhaustiveCropper::ExhaustiveCropper(void)
 {
-	patch_r = 160;
-	patch_c = 96;
-	stride = (patch_c+patch_r)/4;
+	//patch_r = 160;
+	//patch_c = 96;
+	//stride = (patch_c+patch_r)/4;
 }
 
 
