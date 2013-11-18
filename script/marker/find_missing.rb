@@ -1,3 +1,4 @@
+#finding the responding clusters on missing faces in a given list of hard examples.
 require 'set'
 require 'RMagick'
 require 'fileutils'

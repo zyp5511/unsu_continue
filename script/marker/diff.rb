@@ -19,14 +19,25 @@ def parse_cv_data fname
 	end
 end
 
-
-#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(report)).map{|r|[r.filename, r.rects.map{|r| table.tranform(r)]}}]
 cvrecords = Hash[parse_cv_data cvdat]
 lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
 
 cso=0
 osc=0
 inter=0
+
+tphist = Array.new(1006,0) #hard coded cluster count
+fphist = Array.new(1006,0) #hard coded cluster count
+
+fndir = File.join(des,'fn')
+if !File.directory?(fndir)
+	FileUtils.mkdir(fndir)
+end
+
+fpdir = File.join(des,'fp')
+if !File.directory?(fpdir)
+	FileUtils.mkdir(fpdir)
+end
 
 lcrecords.each do |k,v|
 	ori = Magick::Image.read(File.join(src,k).to_s).first
@@ -38,6 +49,7 @@ lcrecords.each do |k,v|
 			#vid = v.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
 			vid = vv.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
 			if vid.size==0
+				# miss found
 				cso+=1
 				found = true;
 				rdraw = Magick::Draw.new
@@ -46,19 +58,24 @@ lcrecords.each do |k,v|
 				rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
 				rdraw.draw(ori)
 			else
+				#matched
 				vid.each{|x|x.matched=true};
 				inter+=1
 			end
 		end
 		if found
+			#export missing faces
 			puts "#{k}"
-			ori.write(File.join(des,k).to_s)
+			ori.write(File.join(des,'fn',k).to_s)
 		end
 	else 
 		puts "CV records not found for #{k}"
 	end
 	found = false;
+	vv.select{|x|x.matched}.each{|vvr|tphist[vvr.type]+=1}
 	vv.select{|x|!x.matched}.each do |vvr|
+		#export false alert
+		fphist[vvr.type]+=1;
 		found = true;
 		vrdraw = Magick::Draw.new
 		vrdraw.stroke('red').stroke_width(0.5)
@@ -68,8 +85,16 @@ lcrecords.each do |k,v|
 		vrdraw.draw(oscimg)
 	end
 	osc+= vv.size-vv.select{|x|x.matched}.size;
-	oscimg.write(File.join(des,"win",k).to_s) if found
+	oscimg.write(File.join(des,"fp",k).to_s) if found
 end
-puts "Intersection(cv,ours) records: #{inter}"
-puts "cv-ours records: #{cso}"
-puts "ours-cv records: #{osc}"
+
+File.open(File.join(des,'tphist.txt'),"w") do |f|
+	tphist.each_with_index{|x,i| f.puts "#{i}\t#{x}"}
+end
+File.open(File.join(des,'fphist.txt'),"w") do |f|
+	fphist.each_with_index{|x,i| f.puts "#{i}\t#{x}"}
+end
+puts "True Positive: #{inter}"
+puts "Missing: #{cso}"
+puts "False Positive: #{osc}"
+
