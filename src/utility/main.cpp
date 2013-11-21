@@ -375,7 +375,17 @@ int main(int argc, const char * argv[]) {
 		string modelname = vm["model-file"].as<string>();
 		ofstream fout(vecoutfn);
 		ImageWrapper iw;
-		vector<string> files = loadFolder(srcfolder, prefix);
+		vector<string> files;
+		if (vm.count("list")) {
+			string listfn=vm["list"].as<string>();
+			ifstream listfin(listfn);
+			string line;
+			while(getline(listfin,line))
+				files.push_back(line);
+			listfin.close();
+		}else{
+			files = loadFolder(srcfolder, prefix);
+		}
 		iw.loadCVModel(modelname);
 		for (auto& s : files) {
 			float ratio=1;
@@ -556,7 +566,17 @@ int main(int argc, const char * argv[]) {
 		} else {
 			ofstream fout(vecoutfn);
 			if (vm.count("batch")) {
-				vector<string> files = loadFolder(srcfolder, prefix);
+				vector<string> files;
+				if (vm.count("list")) {
+					string listfn=vm["list"].as<string>();
+					ifstream listfin(listfn);
+					string line;
+					while(getline(listfin,line))
+						files.push_back(line);
+					listfin.close();
+				}else{
+					files = loadFolder(srcfolder, prefix);
+				}
 
 				for (auto& s : files) {
 					classify(kd, ec, srcfolder, desfolder, k, pca, s, gc,
@@ -675,7 +695,7 @@ vector<string> loadFolder(string srcfolder, string prefix) {
 			[&prefix](const fs::directory_entry& e)->bool {
 			string ext = al::to_lower_copy(e.path().extension().string());
 			string fn = al::to_lower_copy(e.path().filename().string());
-			bool condition = (ext == ".png" || ext == ".jpg");
+			bool condition = (ext == ".png" || ext == ".jpg" || ext == ".jpeg");
 			if(prefix !="") {
 			condition = condition && al::starts_with(fn,prefix);
 			}
