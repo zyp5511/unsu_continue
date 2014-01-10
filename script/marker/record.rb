@@ -10,9 +10,20 @@ class Record
 	def initialize(src,des,lines)
 		@filename = lines[0];
 		@vectors = lines[1]
-		@rects = lines.drop(2).take_while{|x| !x.include?("=>")}.map{|l| Rect.makeRect(l)}
 		@dest = des
-		@ori = Magick::Image.read(File.join(src,@filename).to_s).first
+		if lines.count > 3
+			tmp = lines.drop(2).take_while{|x| x.include?(":")&&!x.include?("=>")}
+			if tmp != nil
+				@rects = tmp.map do |l| 
+					begin 
+						Rect.makeRect(l) 
+					rescue 
+						puts lines.inspect
+					end
+				end
+				#@ori = Magick::Image.read(File.join(src,@filename).to_s).first
+			end
+		end
 		#if @ori.rows>800
 		#	old_r,old_c = @ori.rows,@ori.columns
 		#	@ori.resize_to_fit!(5000,800)
@@ -44,7 +55,7 @@ class Record
 	end
 
 	def self.seperate_records(src,des,lines)
-		lines.map{|x|x.chomp}.chunk{|l|l.end_with?("jpg")||l.end_with?("png") }.each_slice(2).map{|a| Record.new(src,des,a[0][1]+a[1][1])}
+		lines.map{|x|x.chomp}.chunk{|l|l.end_with?("gif")||l.end_with?("jpg")||l.end_with?("png")||l.end_with?("jpeg") }.each_slice(2).map{|a| Record.new(src,des,a[0][1]+a[1][1])}
 	end
 
 end

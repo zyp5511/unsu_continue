@@ -14,13 +14,13 @@ table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, shoul
 head = IO.readlines(headdat).map{|x|x.to_i}.to_set
 
 def parse_cv_data fname
-	IO.foreach(fname).map{|x|x.chomp}.chunk{|l|l.end_with?("jpg")||l.end_with?("png") }.each_slice(2).map do |a|
+	IO.foreach(fname).map{|x|x.chomp}.chunk{|l|l.end_with?("gif")||l.end_with?("jpg")||l.end_with?("png")||l.end_with?("jpeg") }.each_slice(2).map do |a|
 		[a[0][1][0], a[1][1].map{|x|Rect.makePureRect(x)}]
 	end
 end
 
 cvrecords = Hash[parse_cv_data cvdat]
-lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
+lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
 
 cso=0
 osc=0
@@ -50,13 +50,14 @@ lcrecords.each do |k,v|
 			vid = vv.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
 			if vid.size==0
 				# miss found
+				
 				cso+=1
 				found = true;
-				rdraw = Magick::Draw.new
-				rdraw.stroke('yellow').stroke_width(0.5)
-				rdraw.fill("transparent")
-				rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
-				rdraw.draw(ori)
+				#rdraw = Magick::Draw.new
+				#rdraw.stroke('yellow').stroke_width(0.5)
+				#rdraw.fill("transparent")
+				#rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
+				#rdraw.draw(ori)
 			else
 				#matched
 				vid.each{|x|x.matched=true};
@@ -65,8 +66,8 @@ lcrecords.each do |k,v|
 		end
 		if found
 			#export missing faces
-			puts "#{k}"
-			ori.write(File.join(des,'fn',k).to_s)
+
+			#ori.write(File.join(des,'fn',k).to_s)
 		end
 	else 
 		puts "CV records not found for #{k}"
