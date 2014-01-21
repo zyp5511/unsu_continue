@@ -15,6 +15,14 @@ class LCTransform
 		from_str,to_str,xr_str,yr_str,r_str = str.split(/=>|:|\s/).map(&:chomp)
 		LCTransform.new(from_str.to_i,to_str.to_i,xr_str.to_f,yr_str.to_f,r_str.to_f)
 	end
+	def self.extract ri, rj
+		ii = ri.type
+		jj = rj.type
+		xx = (rj.x - ri.x+0.0)/ri.w
+		yy = (rj.y - ri.y+0.0)/ri.h
+		rr = (rj.h + 0.0)/ri.h
+		LCTransform.new(ii,jj,xx,yy,rr)
+	end
 	def transform rect 
 		x = rect.x + xr * rect.w
 		y = rect.y + yr * rect.h
@@ -26,6 +34,7 @@ class LCTransform
 	def to_s
 		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}"
 	end
+
 	def <=>(other)# for sorting
 		comparision = r <=> other.r
 		if comparision == 0

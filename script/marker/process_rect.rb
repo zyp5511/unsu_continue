@@ -40,7 +40,7 @@ if type == "if"
 	puts " #{c} images are selected"
 else
 	records.each do|x|
-		x.rects.each{|r|x.draw_rect r}
-		x.export
+		puts "there are #{x.rects.count} rects"
+		x.rects.each{|r|x.crop_rect r}
 	end
 end
