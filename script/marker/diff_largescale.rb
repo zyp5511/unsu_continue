@@ -41,7 +41,7 @@ end
 
 lcrecords.each do |k,v|
 	ori = Magick::Image.read(File.join(src,k).to_s).first
-	oscimg =  ori.clone
+	oscimg = ori.clone
 	vv = v.map{|orir|table.transform orir};
 	if cvrecords[k]!=nil
 		found = false
@@ -53,11 +53,11 @@ lcrecords.each do |k,v|
 				
 				cso+=1
 				found = true;
-				#rdraw = Magick::Draw.new
-				#rdraw.stroke('yellow').stroke_width(0.5)
-				#rdraw.fill("transparent")
-				#rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
-				#rdraw.draw(ori)
+				rdraw = Magick::Draw.new
+				rdraw.stroke('yellow').stroke_width(0.5)
+				rdraw.fill("transparent")
+				rdraw.rectangle(cvr.x,cvr.y,cvr.x+cvr.w-1,cvr.y+cvr.h-1)
+				rdraw.draw(ori)
 			else
 				#matched
 				vid.each{|x|x.matched=true};
@@ -67,7 +67,7 @@ lcrecords.each do |k,v|
 		if found
 			#export missing faces
 
-			#ori.write(File.join(des,'fn',k).to_s)
+			ori.write(File.join(des,'fn',k).to_s)
 		end
 	else 
 		puts "CV records not found for #{k}"
