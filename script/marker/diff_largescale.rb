@@ -70,7 +70,7 @@ lcrecords.each do |k,v|
 			ori.write(File.join(des,'fn',k).to_s)
 		end
 	else 
-		puts "CV records not found for #{k}"
+		#puts "CV records not found for #{k}"
 	end
 	found = false;
 	vv.select{|x|x.matched}.each{|vvr|tphist[vvr.type]+=1}
