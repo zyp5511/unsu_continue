@@ -2,18 +2,39 @@ require_relative 'rect'
 
 class LCTransform
 	include Comparable
-	attr_accessor :from, :to, :xr, :yr, :r
-	def initialize(from, to, xr, yr, r)
+	attr_accessor :from, :to, :xr, :yr, :r, 
+		:vx, :vy, :vr
+	attr_accessor :derived
+	attr_accessor :reliability # sum of relative standard variance
+	def initialize(from, to, xr, yr, r,avx=1,avy=1,avr=1,derived=false,rel=100000)
 		@from = from;
 		@to = to;
 		@xr = xr;
 		@yr = yr;
 		@r = r;
+		@vx = avx;
+		@vy = avy;
+		@vr = avr;
+		@derived=derived;
+		if !@derived
+			@reliability = Math.sqrt(vx)/@xr.abs+Math.sqrt(vy)/@yr.abs+Math.sqrt(vr)/@r.abs
+		else 
+			@reliability = rel;
+		end
 	end
 
 	def self.load (str)
 		from_str,to_str,xr_str,yr_str,r_str = str.split(/=>|:|\s/).map(&:chomp)
 		LCTransform.new(from_str.to_i,to_str.to_i,xr_str.to_f,yr_str.to_f,r_str.to_f)
+	end
+
+	def self.loadTable (str)
+		fromto_str,c_str,vx_str,vy_str,vr_str,mx_str,my_str,mr_str = str.split(/\s/).map(&:chomp)
+		ft_i = fromto_str.to_i
+		f_i = ft_i/10000;
+		t_i = ft_i%10000;
+		LCTransform.new(f_i,t_i,mx_str.to_f,my_str.to_f,mr_str.to_f,
+										vx_str.to_f,vy_str.to_f,vr_str.to_f)
 	end
 	def self.extract ri, rj
 		ii = ri.type
@@ -32,7 +53,15 @@ class LCTransform
 	end
 
 	def to_s
+		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}\t#{@vx}:#{@vy}:#{@vr}\t#{"derived" if @derived}\t#{@reliability}"
+	end
+
+	def to_short_s
 		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}"
+	end
+
+	def inv
+		LCTransform.new(@to,@from,-@xr/@r,-@yr/@r,1/@r, @vx/@r/@r,@vy/@r/@r,@vr,true,@reliability)
 	end
 
 	def <=>(other)# for sorting
@@ -50,11 +79,6 @@ class LCTransform
 		LCTransform.new(from,to,xr/n,yr/n,r/n)
 	end
 end
-
-
-
-
-
 
 class LCTransformSet
 	def initialize(transforms)
@@ -96,6 +120,42 @@ class LCTransformTable < LCTransformSet
 			rect
 		end
 	end	
+
+	def self.loadTable(fname,src,des)
+		trans = Hash.new{|h,k|h[k]=[]}
+		srctrimmed = src-des;
+		IO.foreach(fname) do |line|
+			rule = LCTransform.loadTable(line) 
+			if (des.include?(rule.to) && srctrimmed.include?(rule.from)) 
+				trans[rule.from] << rule  
+			end
+			if (des.include?(rule.from) && srctrimmed.include?(rule.to))
+				trans[rule.to] << rule.inv
+			end
+		end
+		b = Hash[trans.map{|k,v|[k,v.min_by{|x|x.reliability}]}]
+		File.open("140cluster_rules_cand.txt", "w") do |file|
+			trans.each do |k,v|
+				file.puts "#{k}:"
+				v.each{|r|file.puts "\t#{r}"}
+				file.puts
+			end 
+		end 
+		File.open("140cluster_rules_selection.txt", "w") do |file|
+			b.each do |k,v|
+				file.puts "#{k}:#{v.to}"
+				file.puts
+			end 
+		end
+
+		File.open("140cluster_rules.txt", "w") do |file|
+			b.each do |k,v|
+				file.puts "#{v.to_short_s}"
+			end 
+		end
+	end
+
+
 	def self.loadMap(fname,n)
 		trans = Array.new(n);
 		IO.foreach(fname) do |line|
@@ -104,6 +164,7 @@ class LCTransformTable < LCTransformSet
 		end
 		LCTransformTable.new(trans)
 	end
+
 end
 
 
