@@ -17,7 +17,7 @@ class LCTransform
 		@vr = avr;
 		@derived=derived;
 		if !@derived
-			@reliability = Math.sqrt(vx)/@xr.abs+Math.sqrt(vy)/@yr.abs+Math.sqrt(vr)/@r.abs
+			@reliability = @vx+@vy+Math.sqrt(@vr)/@r.abs
 		else 
 			@reliability = rel;
 		end
@@ -134,21 +134,21 @@ class LCTransformTable < LCTransformSet
 			end
 		end
 		b = Hash[trans.map{|k,v|[k,v.min_by{|x|x.reliability}]}]
-		File.open("140cluster_rules_cand.txt", "w") do |file|
+		File.open("cluster_rules_cand.txt", "w") do |file|
 			trans.each do |k,v|
 				file.puts "#{k}:"
 				v.each{|r|file.puts "\t#{r}"}
 				file.puts
 			end 
 		end 
-		File.open("140cluster_rules_selection.txt", "w") do |file|
+		File.open("52cluster_rules_selection.txt", "w") do |file|
 			b.each do |k,v|
 				file.puts "#{k}:#{v.to}"
 				file.puts
 			end 
 		end
 
-		File.open("140cluster_rules.txt", "w") do |file|
+		File.open("52cluster_rules.txt", "w") do |file|
 			b.each do |k,v|
 				file.puts "#{v.to_short_s}"
 			end 
