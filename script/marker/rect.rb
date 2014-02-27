@@ -21,10 +21,14 @@ class Rect
 		Rect.new(-1,0,x,y,w,h)
 	end
 
+	def to_s
+		"#{@type}:#{@x}:#{@y}:#{@w}:#{@h}"
+	end
+	
 	def to_short_s
 		"#{@x}:#{@y}:#{@w}:#{@h}"
 	end
-	
+
 	def has_point x,y
 		dx = x - @x;
 		dy = y - @y;

@@ -1,8 +1,9 @@
 require_relative 'transform'
 require 'set'
 
-fcore_name = "../../res/core_head_clusters_52.txt"
-fhead_name = "../../res/head_clusters_52.txt"
+
+fcore_name = ARGV[0]#"../../res/core_head_clusters_52.txt";
+fhead_name = ARGV[1]#"../../res/head_clusters_52.txt"
 frules= "/home/lichao/research/posecpp/geo/geostd_with_mean.txt"
 foutput_name = "rules.txt"
 
