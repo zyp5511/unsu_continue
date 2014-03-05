@@ -81,7 +81,7 @@ lcrecords.each do |k,v|
 		vrdraw.stroke('red').stroke_width(0.5)
 		vrdraw.fill("transparent")
 		vrdraw.rectangle(vvr.x,vvr.y,vvr.x+vvr.w-1,vvr.y+vvr.h-1)
-		vrdraw.text(vvr.x+1,vvr.y+20,vvr.type.to_s)
+		vrdraw.text(vvr.x+1,vvr.y+vvr.h-20,vvr.type.to_s)
 		vrdraw.draw(oscimg)
 	end
 	osc+= vv.size-vv.select{|x|x.matched}.size;
