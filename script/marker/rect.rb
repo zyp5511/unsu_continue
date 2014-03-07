@@ -9,6 +9,7 @@ class Rect
 		@h = h
 		@matched = false
 	end
+
 	def self.makeRect(desc)
 		eles = desc.split
 		type = eles[0].to_i
@@ -16,15 +17,22 @@ class Rect
 		x,y,w,h = eles[2].split(':').map(&:to_i)
 		Rect.new(type,dis,x,y,w,h)
 	end
+
 	def self.makePureRect(sdesc)
 		x,y,w,h=sdesc.split(':').map(&:to_i)
 		Rect.new(-1,0,x,y,w,h)
 	end
 
+	def include other
+		c1 = self.has_point other.x+(other.w/2),other.y+(other.h/2)
+		c2 = other.has_point self.x+(self.w/2),self.y+(self.h/2)
+		c1 || c2
+	end 
+
 	def to_s
 		"#{@type}:#{@x}:#{@y}:#{@w}:#{@h}"
 	end
-	
+
 	def to_short_s
 		"#{@x}:#{@y}:#{@w}:#{@h}"
 	end
@@ -38,5 +46,33 @@ class Rect
 			return false;
 		end
 	end
-	
+end
+
+class RectGroup
+	attr_accessor :rects
+	attr_accessor :inferred_rects
+	def initialize 
+	end
+	def initialize arect, airect
+		@rects=[arect]
+		@inferred_rects=[airect]
+	end
+	def include arect
+		if @rects.count >0
+			return @rects.inject(false){|res,rec|res || (rec.include arect)}
+		else 
+			return false
+		end
+	end
+	def inferred_include arect
+		if @inferred_rects.count>0
+			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}
+		else 
+			return false
+		end
+	end
+	def add_rect ar, air
+		@rects << ar;
+		@inferred_rects << air;
+	end
 end

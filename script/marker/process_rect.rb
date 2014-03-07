@@ -19,25 +19,33 @@ if type == "if"
 		table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
 	end
 	records.each do|x|
-		goodset = x.rects.select{|r|head.include? r.type }
-		if goodset.count > 0
+		x.pick_good_set head
+		if x.goodset.count > 0
 			c+=1
 			if oper == "list"
 				puts x.filename;
 			elsif oper == "draw"
-				goodset.each{|r|x.draw_rect r}
+				x.goodset.each{|r|x.draw_rect r}
 				x.export
 			elsif oper == "crop"
-				goodset.each{|r|x.crop_rect r}
+				x.goodset.each{|r|x.crop_rect r}
 			elsif oper == "draw_inferred"
-				goodset.each{|r|x.draw_rect (table.transform r)}
+				x.goodset.each{|r|x.draw_rect (table.transform r)}
 				x.export
 			elsif oper == "crop_inferred"
-				goodset.each{|r|x.crop_rect (table.transform r)}
+				x.goodset.each{|r|x.crop_rect (table.transform r)}
+			elsif oper == "draw_group_inferred"
+				x.group_rects table
+				if x.groups.values.to_set.count > 1
+					x.groups.values.to_set.each_with_index do |g,i|
+						g.inferred_rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
+					end
+					x.export
+				end
 			end
 		end
 	end
-	puts " #{c} images are selected"
+	puts " #{c} images are processed"
 else
 	records.each do|x|
 		puts "there are #{x.rects.count} rects"

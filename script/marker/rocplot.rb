@@ -1,3 +1,4 @@
+#create data list for gnuplot use
 require 'set'
 require 'RMagick'
 require 'fileutils'

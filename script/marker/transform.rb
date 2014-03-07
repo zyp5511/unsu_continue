@@ -23,11 +23,13 @@ class LCTransform
 		end
 	end
 
+	#load old formatted line
 	def self.load (str)
 		from_str,to_str,xr_str,yr_str,r_str = str.split(/=>|:|\s/).map(&:chomp)
 		LCTransform.new(from_str.to_i,to_str.to_i,xr_str.to_f,yr_str.to_f,r_str.to_f)
 	end
 
+	#load newly formatted line with var info
 	def self.loadTable (str)
 		fromto_str,c_str,vx_str,vy_str,vr_str,mx_str,my_str,mr_str = str.split(/\s/).map(&:chomp)
 		ft_i = fromto_str.to_i
@@ -60,6 +62,7 @@ class LCTransform
 		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}"
 	end
 
+	# inverse transform
 	def inv
 		LCTransform.new(@to,@from,-@xr/@r,-@yr/@r,1/@r, @vx/@r/@r,@vy/@r/@r,@vr,true,@reliability)
 	end
@@ -121,6 +124,7 @@ class LCTransformTable < LCTransformSet
 		end
 	end	
 
+	#pick best rules from each outier nodes to core nodes
 	def self.loadTable(fname,src,des)
 		trans = Hash.new{|h,k|h[k]=[]}
 		srctrimmed = src-des;
