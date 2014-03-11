@@ -1,7 +1,7 @@
 require 'RMagick'
 require 'fileutils'
 
-require_relative 'rect'
+require_relative 'rect_group'
 require_relative 'transform'
 
 class Record

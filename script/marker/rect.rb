@@ -48,31 +48,3 @@ class Rect
 	end
 end
 
-class RectGroup
-	attr_accessor :rects
-	attr_accessor :inferred_rects
-	def initialize 
-	end
-	def initialize arect, airect
-		@rects=[arect]
-		@inferred_rects=[airect]
-	end
-	def include arect
-		if @rects.count >0
-			return @rects.inject(false){|res,rec|res || (rec.include arect)}
-		else 
-			return false
-		end
-	end
-	def inferred_include arect
-		if @inferred_rects.count>0
-			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}
-		else 
-			return false
-		end
-	end
-	def add_rect ar, air
-		@rects << ar;
-		@inferred_rects << air;
-	end
-end

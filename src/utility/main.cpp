@@ -695,7 +695,7 @@ vector<string> loadFolder(string srcfolder, string prefix) {
 			[&prefix](const fs::directory_entry& e)->bool {
 			string ext = al::to_lower_copy(e.path().extension().string());
 			string fn = al::to_lower_copy(e.path().filename().string());
-			bool condition = (ext == ".png" || ext == ".jpg" || ext == ".jpeg");
+			bool condition = (ext == ".png" || ext == ".jpg" || ext == ".jp2" || ext == ".jpeg");
 			if(prefix !="") {
 			condition = condition && al::starts_with(fn,prefix);
 			}

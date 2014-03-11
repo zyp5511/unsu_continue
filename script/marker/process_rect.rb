@@ -14,10 +14,8 @@ if type == "if"
 	clufn= ARGV[5]
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
-	if oper.end_with? "inferred"
-		transfn = ARGV[6]
-		table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
-	end
+	transfn = ARGV[6]
+	table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
 	records.each do|x|
 		x.pick_good_set head
 		if x.goodset.count > 0
@@ -39,6 +37,16 @@ if type == "if"
 				if x.groups.values.to_set.count > 1
 					x.groups.values.to_set.each_with_index do |g,i|
 						g.inferred_rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
+						x.draw_rect(g.aggregate,"\#ffffff")
+					end
+					x.export
+				end
+			elsif oper == "draw_group"
+				x.group_rects table
+				if x.groups.values.to_set.count > 1
+					x.groups.values.to_set.each_with_index do |g,i|
+						g.rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
+						x.draw_rect(g.aggregate,"\#ffffff")
 					end
 					x.export
 				end

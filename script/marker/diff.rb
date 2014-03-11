@@ -20,7 +20,10 @@ def parse_cv_data fname
 end
 
 cvrecords = Hash[parse_cv_data cvdat]
-lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
+#all inferred rects
+#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.map{|r|[r.filename, r.rects.select{|x|head.include?(x.type)}]}]
+#agregated inferred rects
+lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.map{|r|r.pick_good_set head;r.group_rects table; [r.filename, r.groups.values.to_set.map{|x|x.aggregate}]}]
 
 cso=0
 osc=0
