@@ -38,4 +38,23 @@ class RectGroup
 		medh = med.call(ah)
 		Rect.new(-1,0,medx,medy,medw,medh)
 	end
+	def aggregate table
+		if @rects.count > 1 
+			loop do 
+				sum_delta=0;
+				@rects.each{|x| sum_delta += adjust(x,table)}
+				
+				if sum_delta<0.03 
+					break
+				end
+			end
+			
+		else 
+			return nil
+		end
+	end
+	def adjust node,table
+		
+	end
+		
 end
