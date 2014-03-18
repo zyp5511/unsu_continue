@@ -16,6 +16,7 @@ public:
 		score = 0;
 		accepted = false;
 	}
+
 	LCTransform getLCTransform(const Result& to) {
 		auto br = to.rect;
 		int x = br.x - rect.x;
@@ -31,7 +32,6 @@ public:
 	bool overlapped(const Result& b) {
 		return (rect & b.rect) == Rect() ? false : true;
 	}
-
 
 	int category;
 	float score;

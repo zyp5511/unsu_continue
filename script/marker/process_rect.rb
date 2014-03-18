@@ -16,6 +16,10 @@ if type == "if"
 	c = 0;
 	transfn = ARGV[6]
 	table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+	netfn = ARGV[7]
+	nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
+	elfn = ARGV[8]
+	nettable.restrict elfn
 	records.each do|x|
 		x.pick_good_set head
 		if x.goodset.count > 0
@@ -43,9 +47,14 @@ if type == "if"
 				end
 			elsif oper == "draw_group"
 				x.group_rects table
-				if x.groups.values.to_set.count > 1
-					x.groups.values.to_set.each_with_index do |g,i|
-						g.rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
+				goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
+				if goodgroups.count > 0
+					goodgroups.each_with_index do |g,i|
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*10],true)}
+						x.draw_rect(g.aggregate,"\#ffffff",true)
+						g.aggregate_with_table nettable
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+						g.reset_infer table
 						x.draw_rect(g.aggregate,"\#ffffff")
 					end
 					x.export

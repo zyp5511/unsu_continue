@@ -70,11 +70,14 @@ class Record
 		@ori.write(File.join(@dest,@filename).to_s)
 	end
 
-	def draw_rect(rect,color=@@colors[rect.type])
+	def draw_rect(rect,color=@@colors[rect.type],dash=false)
 		self.load_img
 		rdraw = Magick::Draw.new
 		rdraw.text(rect.x,rect.y+10,rect.type.to_s)
 		rdraw.stroke(color).stroke_width(0.5)
+		if dash
+			rdraw.stroke_dasharray(5,5)
+		end
 		rdraw.fill("transparent")
 		rdraw.rectangle(rect.x,rect.y,rect.x+rect.w-1,rect.y+rect.h-1)
 		rdraw.draw(@ori)

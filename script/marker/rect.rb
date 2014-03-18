@@ -46,5 +46,40 @@ class Rect
 			return false;
 		end
 	end
+
+	def *(k)# for average calculation
+		atype = @type
+		adis = @dis;
+		ax = (@x*k).to_i
+		ay = (@y*k).to_i
+		aw = (@w*k).to_i
+		ah = (@h*k).to_i
+		Rect.new(atype,adis,ax,ay,aw,ah)
+	end
+
+	def +(other)# for average calculation
+		atype = @type
+		adis = 0;
+		ax = @x +other.x
+		ay = @y +other.y
+		aw = @w +other.w
+		ah = @h +other.h
+		Rect.new(atype,adis,ax,ay,aw,ah)
+	end
+
+	def -(other)# for difference calculation
+		atype = @type
+		adis = 0;
+		ax = @x -other.x
+		ay = @y -other.y
+		aw = @w -other.w
+		ah = @h -other.h
+		Rect.new(atype,adis,ax,ay,aw,ah)
+	end
+
+	def /(n)
+		Rect.new(@type,@dis,(@x.to_f/n).to_i,(@y.to_f/n).to_i,
+						 (@w.to_f/n).to_i,(@h.to_f/n).to_i)
+	end
 end
 

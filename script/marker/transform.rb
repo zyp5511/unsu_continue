@@ -1,4 +1,5 @@
 require_relative 'rect'
+require 'set'
 
 class LCTransform
 	include Comparable
@@ -46,12 +47,21 @@ class LCTransform
 		rr = (rj.h + 0.0)/ri.h
 		LCTransform.new(ii,jj,xx,yy,rr)
 	end
+
 	def transform rect 
-		x = rect.x + xr * rect.w
-		y = rect.y + yr * rect.h
-		w = rect.w * r
-		h = rect.h * r
+		x = rect.x + @xr * rect.w
+		y = rect.y + @yr * rect.h
+		w = rect.w * @r
+		h = rect.h * @r
 		Rect.new(rect.type,rect.dis,x.to_i,y.to_i,w.to_i,h.to_i)
+	end
+
+	def transform_with_type rect 
+		x = rect.x + @xr * rect.w
+		y = rect.y + @yr * rect.h
+		w = rect.w * @r
+		h = rect.h * @r
+		Rect.new(@to,rect.dis,x.to_i,y.to_i,w.to_i,h.to_i)
 	end
 
 	def to_s
@@ -97,6 +107,7 @@ class LCTransformSet
 			end
 		}
 	end
+
 	def self.loadAll(fname)
 		trans = Array.new
 		IO.foreach(fname) do |line|
@@ -104,6 +115,7 @@ class LCTransformSet
 		end
 		LCTransformSet.new(trans)
 	end
+
 	def simplify (appr,id=594)# rule extraction using different lambda
 		@transforms.group_by{|t| t.from }.flat_map do |kf,fg|
 			fg.group_by{|tt| tt.to}.select{|k,v| k==id}.map do |kt,tg| 
@@ -114,7 +126,11 @@ class LCTransformSet
 	end
 end
 
-class LCTransformTable < LCTransformSet
+class LCTransformTable 
+	def initialize(transforms)
+		@transforms = transforms
+	end
+
 	def transform rect
 		t = @transforms[rect.type]
 		if t!=nil
@@ -124,7 +140,6 @@ class LCTransformTable < LCTransformSet
 		end
 	end	
 
-	#pick best rules from each outier nodes to core nodes
 	def self.loadTable(fname,src,des)
 		trans = Hash.new{|h,k|h[k]=[]}
 		srctrimmed = src-des;
@@ -158,8 +173,6 @@ class LCTransformTable < LCTransformSet
 			end 
 		end
 	end
-
-
 	def self.loadMap(fname,n)
 		trans = Array.new(n);
 		IO.foreach(fname) do |line|
@@ -168,7 +181,47 @@ class LCTransformTable < LCTransformSet
 		end
 		LCTransformTable.new(trans)
 	end
-
 end
 
 
+class LCTransformFullTable 
+	#pick best rules from each outier nodes to core nodes
+	attr_accessor :table
+	def initialize ahash
+		@table = ahash
+		@goodset = Set.new;
+	end
+	def query from,to
+		if from == to
+			return LCTransform.new(from,from,0,0,1)
+		end
+		target = from*10000+to
+		invtarget= to*10000+from
+		if @goodset.count>0
+			if @goodset.include?(target)||@goodset.include?(invtarget)
+				return @table[target]
+			else 
+				return nil
+			end
+		else 
+			return @table[target]
+		end 
+
+	end
+	def restrict fname
+		IO.foreach(fname) do |line|
+			good=line.split.map(&:to_i)
+			@goodset<<(good[0]*10000+good[1])
+		end
+	end
+
+	def self.loadTable(fname)
+		trans= Hash.new
+		IO.foreach(fname) do |line|
+			rule = LCTransform.loadTable(line) 
+			trans[rule.from*10000+rule.to] = rule  
+			trans[rule.to*10000+rule.from] = rule.inv 
+		end
+		LCTransformFullTable.new(trans)
+	end
+end
