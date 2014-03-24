@@ -1,13 +1,17 @@
 require 'RMagick'
 require 'fileutils'
 
+require 'rgl/adjacency'
+require 'rgl/traversal'
+require 'rgl/connected_components'
+
 require_relative 'rect_group'
 require_relative 'transform'
 
 class Record
 	attr_accessor :rects,:filename
 	attr_accessor :groups
-	attr_accessor :goodset
+	attr_accessor :headset
 	@@colors = Hash.new{|h,k|h[k]="\##{Random.rand(16777216).to_i.to_s(16).rjust(6,'0')}"}
 	def initialize(src,des,lines)
 		@filename = lines[0];
@@ -35,17 +39,41 @@ class Record
 
 	def pick_good_set head
 		if @rects !=nil
-			@goodset = @rects.select{|r|head.include? r.type }
+			@headset = @rects.select{|r|head.include? r.type }
 		else 
-			@goodset = [];
+			@headset = [];
 		end
 	end
-	def group_rects  table
+	def group_rects_with_graph  net,table
 		@groups = Hash.new
-		if @goodset==nil
+		if @headset==nil
 			raise "Empty goodset"
 		else
-			@goodset.each do |r|
+			head_node_lookup = Hash.new
+			g = RGL::AdjacencyGraph.new
+			@headset.each_with_index do |r,i| 
+				head_node_lookup[r]=i
+				g.add_vertex(i)
+			end
+			@headset.combination(2).each do |r,s|
+				rule = net.query r.type, s.type
+				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
+					g.add_edge(head_node_lookup[r],head_node_lookup[s])
+				end
+			end
+			g.each_connected_component do |c|
+				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri],table.transform(@headset[ri]);rg}
+			end
+		end
+	end
+
+
+	def group_rects  table
+		@groups = Hash.new
+		if @headset==nil
+			raise "Empty goodset"
+		else
+			@headset.each do |r|
 				ir = table.transform r
 				if @groups.values.count>0
 					g = @groups.values.find{|v|v.inferred_include ir}

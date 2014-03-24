@@ -22,21 +22,21 @@ if type == "if"
 	nettable.restrict elfn
 	records.each do|x|
 		x.pick_good_set head
-		if x.goodset.count > 0
+		if x.headset.count > 0
 			c+=1
 			if oper == "list"
 				puts x.filename;
 			elsif oper == "draw"
-				x.goodset.each{|r|x.draw_rect r}
+				x.headset.each{|r|x.draw_rect r}
 				x.export
 			elsif oper == "crop"
-				x.goodset.each{|r|x.crop_rect r}
+				x.headset.each{|r|x.crop_rect r}
 			elsif oper == "draw_inferred"
-				x.goodset.each{|r|x.draw_rect (table.transform r)}
+				x.headset.each{|r|x.draw_rect (table.transform r)}
 				x.export
 			elsif oper == "crop_inferred"
-				x.goodset.each{|r|x.crop_rect (table.transform r)}
-			elsif oper == "draw_group_inferred"
+				x.headset.each{|r|x.crop_rect (table.transform r)}
+			elsif oper == "draw_group_med_inferred"
 				x.group_rects table
 				if x.groups.values.to_set.count > 1
 					x.groups.values.to_set.each_with_index do |g,i|
@@ -46,11 +46,20 @@ if type == "if"
 					x.export
 				end
 			elsif oper == "draw_group"
+				x.group_rects_with_graph  nettable,table
+				goodgroups=x.groups.values.to_set
+				if goodgroups.count > 0
+					goodgroups.each_with_index do |g,i|
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11])}
+					end
+					x.export
+				end
+			elsif oper == "draw_group_net_inferred"
 				x.group_rects table
 				goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
 				if goodgroups.count > 0
 					goodgroups.each_with_index do |g,i|
-						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*10],true)}
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11],true)}
 						x.draw_rect(g.aggregate,"\#ffffff",true)
 						g.aggregate_with_table nettable
 						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}

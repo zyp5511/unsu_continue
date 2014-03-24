@@ -3,11 +3,14 @@ require_relative 'rect'
 class RectGroup
 	attr_accessor :rects
 	attr_accessor :inferred_rects
-	def initialize 
-	end
-	def initialize arect, airect
-		@rects=[arect]
-		@inferred_rects=[airect]
+	def initialize arect=nil, airect=nil
+		if arect!=nil
+			@rects=[arect]
+			@inferred_rects=[airect]
+		else
+			@rects=[]
+			@inferred_rects=[]
+		end
 	end
 	def include arect
 		if @rects.count >0
@@ -78,7 +81,7 @@ class RectGroup
 			makeupr = difr/2;
 			newadj = node + makeupr
 			puts "#{adjr}\t-\t#{node}\t=\t#{difr}"
-			puts "#{node}\t+\t#{makeupr}\t=\t#{newadj}"
+			puts "#{node}\t+\t#{makeupr}\t=\t#{newadj}\tdiff:\t#{newadj.diff node}"
 			@rects[i]=newadj
 		end
 		0.01

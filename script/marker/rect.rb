@@ -47,6 +47,13 @@ class Rect
 		end
 	end
 
+	def diff arect
+		dx = (@x-arect.x).abs.to_f/[@w,arect.w].max
+		dy = (@y-arect.y).abs.to_f/[@h,arect.h].max
+		dw = (@w-arect.w).abs.to_f/[@w,arect.w].max
+		dx+dy+dw
+	end
+
 	def *(k)# for average calculation
 		atype = @type
 		adis = @dis;
