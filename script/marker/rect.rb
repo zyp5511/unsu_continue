@@ -47,6 +47,10 @@ class Rect
 		end
 	end
 
+	def distance_from x,y
+		Math.sqrt((@x+@w*0.5-x)**2+(@y+@h*0.5-y)**2)
+	end
+
 	def diff arect
 		dx = (@x-arect.x).abs.to_f/[@w,arect.w].max
 		dy = (@y-arect.y).abs.to_f/[@h,arect.h].max

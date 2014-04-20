@@ -55,7 +55,7 @@ if type == "if"
 					x.export
 				end
 			elsif oper == "draw_group_net_inferred"
-				x.group_rects table
+				x.group_rects_with_graph  nettable,table
 				goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
 				if goodgroups.count > 0
 					goodgroups.each_with_index do |g,i|
