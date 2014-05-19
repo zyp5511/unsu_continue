@@ -92,13 +92,14 @@ int main(int argc, const char * argv[]) {
 	po::options_description cropdesc("Patch cropping options");
 	po::options_description detectdesc("Detection options");
 	po::options_description transdesc("Transform options");
+	po::options_description kmeansdesc("Kmeans clustering options");
 	po::options_description cvdesc("OpenCV stock classifier options");
 	po::options_description casdesc("Cascading classifier options");
 	po::options_description distdesc("Distributed Computing options");
 
 	desc.add_options()
 		("help", "produce help message")
-		("configuration,K",po::value<string>(&config), "configuration file")
+		("config,K",po::value<string>(&config), "configuration file")
 		("cluster,C",po::value<int>(&k), "set Number of Clusters")
 		("operation,O",po::value<string>(&oper), "set operation")
 		("batch,B","set batch/single")
@@ -106,6 +107,11 @@ int main(int argc, const char * argv[]) {
 		("co-occurrence","set co-occurrence rule detection")
 		("aux-result,A",po::value<string>(&auxfn), "set aux result file")
 		("port",po::value<string>(&portn), "set port");
+
+	kmeansdesc.add_options()
+		("maxiter",po::value<int>(), "max iterations of kmeans")
+		("eps",po::value<double>(), "desired precision of kmeans");
+
 
 	distdesc.add_options()
 		("paroffset", po::value<int>()->default_value(0),"set parallel offset")
@@ -145,7 +151,8 @@ int main(int argc, const char * argv[]) {
 		("2ndPCA",po::value<string>(), "set 2nd PCA file")
 		;
 
-	desc.add(distdesc).add(cropdesc).add(detectdesc).add(transdesc).add(cvdesc).add(casdesc);
+	desc.add(distdesc).add(cropdesc).add(detectdesc) .add(transdesc)
+		.add(cvdesc).add(casdesc).add(kmeansdesc);
 
 	po::variables_map vm;
 
@@ -156,7 +163,7 @@ int main(int argc, const char * argv[]) {
 	if (vm.count("help")) {
 		cout << desc << "\n";
 		return 1;
-	} else if (vm.count("configuration")) {
+	} else if (vm.count("config")) {
 		cout << config << endl;
 		ifstream fconf(config);
 		po::store(po::parse_config_file(fconf, desc), vm);
@@ -268,12 +275,25 @@ int main(int argc, const char * argv[]) {
 		}
 		fout.close(); //use vecoutfn as the destination.
 	} else if (oper == "kmean") {
+		int mi = 1;
+		int ep = 0;
+		int mode =0;
+		if(vm.count("maxiter")){
+			mode+=TermCriteria::MAX_ITER;
+			mi = vm["maxiter"].as<int>();
+			cout<<"max iteration specified"<<endl;
+		}
 
+		if(vm.count("eps")){
+			mode+=TermCriteria::EPS;
+			ep = vm["eps"].as<double>();
+			cout<<"epsilon specified"<<endl;
+		}
 		auto fp = FeaturePartitioner();
 		auto fl = FeatureLoader();
 		auto fea = fl.loadTab(fsfn);
 		vector<int> category(fea.rows);
-		fp.kmean(fea, category, k);
+		fp.kmean(fea, category, k, TermCriteria(mode,mi,ep));
 
 		ofstream fout(indfn);
 		for (auto i : category) {

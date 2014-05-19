@@ -17,14 +17,19 @@ void FeaturePartitioner::exportPatches(vector<int> category, string srcdir, stri
 	}
 
 
-	for(int i=0;i<category.size();i++){
+	for(size_t i=0;i<category.size();i++){
 		string fn = to_string(i+1)+".jpg";
 		Mat im = imread(srcdir+fn);
 		imwrite(desdir+to_string(category[i])+"/"+fn, im);
 	}
 }
-void FeaturePartitioner::kmean(Mat& feavec, vector<int>& category, int k){
+void FeaturePartitioner::kmean(Mat& feavec, vector<int>& category, int k, const TermCriteria& tc){
 	cout<<"Start k-mean clustering"<<endl;
-	kmeans(feavec, k, category, TermCriteria(CV_TERMCRIT_ITER, 30, 0), 5, KMEANS_PP_CENTERS);
+	double compactness = kmeans(feavec, k, category, tc, 3, KMEANS_PP_CENTERS);
 	cout<<"Done k-mean clustering"<<endl;
+	cout<<"Compactness is "<<compactness<<endl;
+}
+void FeaturePartitioner::kmean(Mat& feavec, vector<int>& category, int k){
+	kmean(feavec,category,k,TermCriteria(CV_TERMCRIT_ITER, 30, 0));
+
 }
