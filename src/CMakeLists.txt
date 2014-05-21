@@ -17,6 +17,7 @@ add_executable(distance "utility/distance.cpp" ${SRCS})
 
 include_directories(${TBB_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries( unsu ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries( distance ${OpenCV_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
