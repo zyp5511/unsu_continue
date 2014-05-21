@@ -171,7 +171,7 @@ vector<LCTransform> ImageWrapper::getLCTransforms(const vector<bool>& gc,
 vector<Result> ImageWrapper::getGoodResults() {
 	auto mat_count = ic->all_mats.size();
 	auto res = vector<Result>();
-	for (int i = 0; i < mat_count; i++) {
+	for (size_t i = 0; i < mat_count; i++) {
 		if (results[i].category > -1)
 			res.push_back(results[i]);
 	}
@@ -189,11 +189,11 @@ vector<Rect> ImageWrapper::getocvresult(void) {
 	std::vector<Rect> faces;
 	Mat frame_gray;
 
-	cvtColor(img, frame_gray, CV_BGR2GRAY);
+	cvtColor(img, frame_gray, COLOR_BGR2GRAY);
 	equalizeHist(frame_gray, frame_gray);
 
 	//-- Detect faces
 	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2,
-			0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+			0, Size(30, 30));
 	return faces;
 }
