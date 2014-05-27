@@ -10,7 +10,7 @@ IO.foreach(clulist).with_index do|c,i|
 	subdir = "#{desfolder}/#{ci}".chomp
 	if !set.include?(ci)
 		begin
-			FileUtils.mkdir(subdir)
+			FileUtils.mkdir_p(subdir)
 		rescue => e
 			print e.message
 			print e.backtrace.join("\n")

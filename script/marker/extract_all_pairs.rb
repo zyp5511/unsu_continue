@@ -8,7 +8,7 @@ require_relative 'transform.rb'
 lcdat = ARGV[0]
 listfn = ARGV[1]
 File.open(listfn,'w') do |f|
-	Record::seperate_records("","",IO.foreach(lcdat)).each do |r|
+	Record::seperate_records("","",IO.foreach(lcdat)).select{|r| r.rects!=nil}.each do |r|
 		len = r.rects.count
 		(0...(len-1)).each do |i|
 			((i+1)...(len)).each do |j|
@@ -17,7 +17,7 @@ File.open(listfn,'w') do |f|
 				else
 					temp = LCTransform.extract r.rects[j],r.rects[i]
 				end
-				f.puts temp.to_s
+				f.puts temp.to_short_s
 			end
 		end
 	end
