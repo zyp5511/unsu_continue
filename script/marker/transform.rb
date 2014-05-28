@@ -18,7 +18,9 @@ class LCTransform
 		@vr = avr;
 		@derived=derived;
 		if !@derived
-			@reliability = @vx+@vy+Math.sqrt(@vr)/@r.abs
+			@reliability = Math.sqrt(@vx)/@r.abs+
+				Math.sqrt(@vy)/@r.abs+
+				Math.sqrt(@vr)/@r.abs
 		else 
 			@reliability = rel;
 		end
@@ -37,7 +39,7 @@ class LCTransform
 		f_i = ft_i/10000;
 		t_i = ft_i%10000;
 		LCTransform.new(f_i,t_i,mx_str.to_f,my_str.to_f,mr_str.to_f,
-										vx_str.to_f,vy_str.to_f,vr_str.to_f)
+						vx_str.to_f,vy_str.to_f,vr_str.to_f)
 	end
 	def self.extract ri, rj
 		ii = ri.type
@@ -136,7 +138,7 @@ class LCTransformTable
 		if t!=nil
 			t.transform rect
 		else
-			rect
+			nil
 		end
 	end	
 

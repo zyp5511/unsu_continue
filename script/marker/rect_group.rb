@@ -23,8 +23,8 @@ class RectGroup
 		end
 	end
 	def inferred_include arect
-		if @inferred_rects.count>0
-			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}
+		if @inferred_rects.select{|x|x!=nil}.count>0
+			return @inferred_rects.select{|x|x!=nil}.inject(false){|res,rec|res || (rec.include arect)}
 		else 
 			return false
 		end
