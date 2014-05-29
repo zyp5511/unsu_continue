@@ -10,8 +10,9 @@ lcdat = ARGV[3]
 headdat = ARGV[4]
 transfn = ARGV[5]
 netfn = ARGV[6]
-nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
 elfn = ARGV[7]
+
+nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
 nettable.restrict elfn
 
 table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
@@ -24,8 +25,8 @@ def parse_cv_data fname
 end
 
 cvrecords = Hash[parse_cv_data cvdat]
-lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects_with_graph  nettable,table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
-#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
+#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects_with_graph  nettable,table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
+lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
 
 puts "there are #{lcrecords.count} records"
 

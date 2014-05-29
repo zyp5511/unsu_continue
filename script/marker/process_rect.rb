@@ -14,6 +14,7 @@ if type == "if"
 	clufn= ARGV[5]
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
+	cp = 0;
 	transfn = ARGV[6]
 	table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
 	netfn = ARGV[7]
@@ -36,6 +37,14 @@ if type == "if"
 				x.export
 			elsif oper == "crop_inferred"
 				x.headset.each{|r|x.crop_rect (table.transform r)}
+			elsif oper == "crop_group_med_inferred"
+				x.group_rects table
+				if x.groups.values.to_set.count > 0
+					x.groups.values.to_set.each_with_index do |g,i|
+						cp+=1
+						x.crop_rect(g.aggregate)
+					end
+				end
 			elsif oper == "draw_group_med_inferred"
 				x.group_rects table
 				if x.groups.values.to_set.count > 1
@@ -71,7 +80,8 @@ if type == "if"
 			end
 		end
 	end
-	puts " #{c} images are processed"
+	puts " #{c} images processed"
+	puts " #{cp} patches created"
 else
 	records.each do|x|
 		puts "there are #{x.rects.count} rects"

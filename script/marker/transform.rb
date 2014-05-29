@@ -138,7 +138,7 @@ class LCTransformTable
 		if t!=nil
 			t.transform rect
 		else
-			nil
+			rect
 		end
 	end	
 

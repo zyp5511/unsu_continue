@@ -23,8 +23,8 @@ class RectGroup
 		end
 	end
 	def inferred_include arect
-		if @inferred_rects.select{|x|x!=nil}.count>0
-			return @inferred_rects.select{|x|x!=nil}.inject(false){|res,rec|res || (rec.include arect)}
+		if @inferred_rects.count>0
+			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}
 		else 
 			return false
 		end
@@ -46,10 +46,10 @@ class RectGroup
 		@aggregated_rect = Rect.new(-1,0,medx,medy,medw,medh)
 	end
 	def aggregate
-		ax = inferred_rects.map{|x|x.x}.sort!
-		ay = inferred_rects.map{|x|x.y}.sort!
-		aw = inferred_rects.map{|x|x.w}.sort!  
-		ah = inferred_rects.map{|x|x.h}.sort!  
+		ax = inferred_rects.map{|r|r.x}.sort!
+		ay = inferred_rects.map{|r|r.y}.sort!
+		aw = inferred_rects.map{|r|r.w}.sort!  
+		ah = inferred_rects.map{|r|r.h}.sort!  
 		med = ->(rules){rules[rules.size/2]}
 		medx = med.call(ax)
 		medy = med.call(ay)
