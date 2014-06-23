@@ -120,6 +120,7 @@ int main(int argc, const char * argv[]) {
 
 	cropdesc.add_options()
 		("height", po::value<int>()->default_value(128),"set patch height")
+		("maxheight", po::value<int>()->default_value(800),"set max image height")
 		("width", po::value<int>()->default_value(96),"set patch width")
 		("stride", po::value<int>()->default_value(32),"set cropping stride")
 		("patch-per-image",po::value<int>()->default_value(10), "set cropping density")
@@ -445,7 +446,11 @@ int main(int argc, const char * argv[]) {
 		string name;
 		shared_ptr<PatchDetector> kd;
 
-		vector<bool> gc = buildGameCard(gcfn, k);
+		
+		vector<bool> gc(k,false);
+		if(vm.count("gamecard")){
+			gc = buildGameCard(gcfn, k);
+		}
 
 
 		if (oper == "knn") {
@@ -484,8 +489,11 @@ int main(int argc, const char * argv[]) {
 			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond,kdthird);
 		}
 		shared_ptr<ExhaustiveCropper> ec(new ExhaustiveCropper());
-		ec->setSize(128, 96);
-		ec->setStride(vm["stride"].as<int>());
+		int h = vm["height"].as<int>();
+		int w = vm["width"].as<int>();
+		int ss = vm["stride"].as<int>();
+		ec->setSize(h, w);
+		ec->setStride(ss);
 
 		FileStorage pcafs(pcafn, FileStorage::READ);
 		PCA pca;
@@ -632,8 +640,9 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 	Mat mat;
 	cout << fname << "\t" << raw.size() << endl;
 	float ratio=1;
-	if (raw.rows > 800) {
-		ratio = 800. / raw.rows;
+	int maxheight = vm["maxheight"].as<int>();
+	if (raw.rows > maxheight) {
+		ratio = (maxheight+0.0) / raw.rows;
 		resize(raw, mat, Size(), ratio, ratio);
 		cout << "resized to \t" << mat.size() << endl;
 	} else {

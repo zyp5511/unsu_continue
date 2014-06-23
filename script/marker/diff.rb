@@ -35,8 +35,8 @@ osc=0
 inter=0
 inter_c=0
 
-#tphist = Array.new(1006,0) #hard coded cluster count
-#fphist = Array.new(1006,0) #hard coded cluster count
+tphist = Array.new(1006,0) #hard coded cluster count
+fphist = Array.new(1006,0) #hard coded cluster count
 
 tcthist= Array.new(1000,0) 
 fcthist= Array.new(1000,0) 
