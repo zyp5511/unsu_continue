@@ -1,2 +1,0 @@
-/home/lichao/git/posecpp/debug/src/CMakeFiles/distance.dir
-/home/lichao/git/posecpp/debug/src/CMakeFiles/unsu.dir
