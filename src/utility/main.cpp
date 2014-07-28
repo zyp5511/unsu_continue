@@ -473,6 +473,16 @@ int main(int argc, const char * argv[]) {
 			kdsecond->load(fsfn, indfn);
 			kdsecond->loadGC(gc);
 
+			kd = make_shared<TwoStageDetector>(kdfirst, kdsecond);
+		} else if (oper == "3cascading") {
+			shared_ptr<PatchClassDetector> kdfirst = make_shared<VoronoiDetector>();
+			shared_ptr<PatchClassDetector> kdsecond = make_shared<KNNDetector>();
+			shared_ptr<HoGAlignmentDetector> kdthird = make_shared<HoGAlignmentDetector>();
+			kdfirst->load(fsfn, indfn);
+			kdfirst->loadGC(gc);
+			kdsecond->load(fsfn, indfn);
+			kdsecond->loadGC(gc);
+
 			shared_ptr<KNNDetector> rf = make_shared<KNNDetector>();
 			rf->load(vm["2ndfeature"].as<string>(), 
 					vm["2ndindex"].as<string>());

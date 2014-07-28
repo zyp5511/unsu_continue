@@ -24,7 +24,7 @@ void TwoStageDetector::detect(Feature& feature) {
 		second->detect(feature);
 		if (feature.res.accepted) {
 			return;
-		} else {
+		} else if (third) {
 			cout << "caution, entering rescue mode" << endl;
 			third->detect(feature);
 			if(!feature.res.accepted) {
