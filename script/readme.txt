@@ -15,4 +15,6 @@ Scripts description:
 	clustering
 		python igraph clustering for edgelist network
 
+	misc
+		image tagging from algorithm output
 

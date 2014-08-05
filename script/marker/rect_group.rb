@@ -29,9 +29,14 @@ class RectGroup
 			return false
 		end
 	end
-	def add_rect ar, air
+
+	def add_rect_with_inferred ar, air
 		@rects << ar;
 		@inferred_rects << air;
+	end
+
+	def add_rect ar
+		@rects << ar;
 	end
 
 	def reset_infer table

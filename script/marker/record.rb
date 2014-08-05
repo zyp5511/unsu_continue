@@ -44,7 +44,31 @@ class Record
 			@headset = [];
 		end
 	end
-	def group_rects_with_graph  net,table
+
+	def group_rects_with_graph  net
+		@groups = Hash.new
+		if @headset==nil
+			raise "Empty goodset"
+		else
+			head_node_lookup = Hash.new
+			g = RGL::AdjacencyGraph.new
+			@headset.each_with_index do |r,i| 
+				head_node_lookup[r]=i
+				g.add_vertex(i)
+			end
+			@headset.combination(2).each do |r,s|
+				rule = net.query r.type, s.type
+				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
+					g.add_edge(head_node_lookup[r],head_node_lookup[s])
+				end
+			end
+			g.each_connected_component do |c|
+				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri];rg}
+			end
+		end
+	end
+
+	def group_rects_with_graph_and_table  net,table
 		@groups = Hash.new
 		if @headset==nil
 			raise "Empty goodset"

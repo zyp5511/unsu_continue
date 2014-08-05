@@ -15,8 +15,12 @@ if type == "if"
 	head = IO.readlines(clufn).map{|x|x.to_i}.to_set
 	c = 0;
 	cp = 0;
-	transfn = ARGV[6]
-	table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+	begin
+		transfn = ARGV[6]
+		table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+	rescue Exception => e
+		puts e
+	end
 	netfn = ARGV[7]
 	nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
 	elfn = ARGV[8]
@@ -55,7 +59,7 @@ if type == "if"
 					x.export
 				end
 			elsif oper == "draw_group"
-				x.group_rects_with_graph  nettable,table
+				x.group_rects_with_graph  nettable
 				goodgroups=x.groups.values.to_set
 				if goodgroups.count > 0
 					goodgroups.each_with_index do |g,i|
