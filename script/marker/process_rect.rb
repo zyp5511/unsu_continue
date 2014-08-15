@@ -63,9 +63,10 @@ if type == "if"
 				goodgroups=x.groups.values.to_set
 				if goodgroups.count > 0
 					goodgroups.each_with_index do |g,i|
-						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11])}
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
 					end
 					x.export
+					x.export_el
 				end
 			elsif oper == "draw_group_net_inferred"
 				x.group_rects_with_graph  nettable,table

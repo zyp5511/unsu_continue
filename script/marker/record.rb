@@ -3,6 +3,7 @@ require 'fileutils'
 
 require 'rgl/adjacency'
 require 'rgl/traversal'
+require 'rgl/dot'
 require 'rgl/connected_components'
 
 require_relative 'rect_group'
@@ -12,6 +13,7 @@ class Record
 	attr_accessor :rects,:filename
 	attr_accessor :groups
 	attr_accessor :headset
+	attr_accessor :graph
 	@@colors = Hash.new{|h,k|h[k]="\##{Random.rand(16777216).to_i.to_s(16).rjust(6,'0')}"}
 	def initialize(src,des,lines)
 		@filename = lines[0];
@@ -51,19 +53,20 @@ class Record
 			raise "Empty goodset"
 		else
 			head_node_lookup = Hash.new
-			g = RGL::AdjacencyGraph.new
+			@graph = RGL::AdjacencyGraph.new
 			@headset.each_with_index do |r,i| 
 				head_node_lookup[r]=i
-				g.add_vertex(i)
+				@graph.add_vertex(i*10000+r.type)
 			end
 			@headset.combination(2).each do |r,s|
 				rule = net.query r.type, s.type
 				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-					g.add_edge(head_node_lookup[r],head_node_lookup[s])
+					@graph.add_edge(head_node_lookup[r]*10000+r.type,
+									head_node_lookup[s]*10000+s.type)
 				end
 			end
-			g.each_connected_component do |c|
-				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri];rg}
+			@graph.each_connected_component do |c|
+				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri/10000]]=rg;rg.add_rect @headset[ri/10000];rg}
 			end
 		end
 	end
@@ -74,18 +77,18 @@ class Record
 			raise "Empty goodset"
 		else
 			head_node_lookup = Hash.new
-			g = RGL::AdjacencyGraph.new
+			@graph = RGL::AdjacencyGraph.new
 			@headset.each_with_index do |r,i| 
 				head_node_lookup[r]=i
-				g.add_vertex(i)
+				@graph.add_vertex(i)
 			end
 			@headset.combination(2).each do |r,s|
 				rule = net.query r.type, s.type
 				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-					g.add_edge(head_node_lookup[r],head_node_lookup[s])
+					@graph.add_edge(head_node_lookup[r],head_node_lookup[s])
 				end
 			end
-			g.each_connected_component do |c|
+			@graph.each_connected_component do |c|
 				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri],table.transform(@headset[ri]);rg}
 			end
 		end
@@ -106,7 +109,7 @@ class Record
 				end
 				if g!=nil
 					@groups[r]=g
-					g.add_rect r, ir;
+					g.add_rect_with_inferred r, ir;
 				else
 					@groups[r]=RectGroup.new(r,ir)
 				end
@@ -117,9 +120,16 @@ class Record
 	def load_img
 		@ori ||= Magick::Image.read(File.join(@src,@filename).to_s).first
 	end
+
 	def export
 		self.load_img
 		@ori.write(File.join(@dest,@filename).to_s)
+	end
+
+	def export_el
+		fb = File.basename(@filename,File.extname(@filename))
+		fn = fb +".txt"
+		@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));
 	end
 
 	def draw_rect(rect,color=@@colors[rect.type],dash=false)
