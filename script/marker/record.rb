@@ -5,6 +5,7 @@ require 'rgl/adjacency'
 require 'rgl/traversal'
 require 'rgl/dot'
 require 'rgl/connected_components'
+require 'rgl/edge_properties_map'
 
 require_relative 'rect_group'
 require_relative 'transform'
@@ -14,6 +15,7 @@ class Record
 	attr_accessor :groups
 	attr_accessor :headset
 	attr_accessor :graph
+	attr_accessor :edges
 	@@colors = Hash.new{|h,k|h[k]="\##{Random.rand(16777216).to_i.to_s(16).rjust(6,'0')}"}
 	def initialize(src,des,lines)
 		@filename = lines[0];
@@ -54,15 +56,23 @@ class Record
 		else
 			head_node_lookup = Hash.new
 			@graph = RGL::AdjacencyGraph.new
+			@edges = Hash.new()
 			@headset.each_with_index do |r,i| 
 				head_node_lookup[r]=i
 				@graph.add_vertex(i*10000+r.type)
 			end
 			@headset.combination(2).each do |r,s|
 				rule = net.query r.type, s.type
-				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-					@graph.add_edge(head_node_lookup[r]*10000+r.type,
-									head_node_lookup[s]*10000+s.type)
+				if rule !=nil
+					rdis=((rule.transform_with_type r).diff s)
+
+					#if rule != nil && ((rule.transform_with_type r).diff s)<0.8
+					if rdis<0.5
+						@graph.add_edge(head_node_lookup[r]*10000+r.type,
+										head_node_lookup[s]*10000+s.type)
+						@edges[[head_node_lookup[r]*10000+r.type,
+										head_node_lookup[s]*10000+s.type]]=rdis;
+					end
 				end
 			end
 			@graph.each_connected_component do |c|
@@ -71,28 +81,28 @@ class Record
 		end
 	end
 
-	def group_rects_with_graph_and_table  net,table
-		@groups = Hash.new
-		if @headset==nil
-			raise "Empty goodset"
-		else
-			head_node_lookup = Hash.new
-			@graph = RGL::AdjacencyGraph.new
-			@headset.each_with_index do |r,i| 
-				head_node_lookup[r]=i
-				@graph.add_vertex(i)
-			end
-			@headset.combination(2).each do |r,s|
-				rule = net.query r.type, s.type
-				if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-					@graph.add_edge(head_node_lookup[r],head_node_lookup[s])
-				end
-			end
-			@graph.each_connected_component do |c|
-				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri],table.transform(@headset[ri]);rg}
-			end
-		end
-	end
+	#def group_rects_with_graph_and_table  net,table
+	#	@groups = Hash.new
+	#	if @headset==nil
+	#		raise "Empty goodset"
+	#	else
+	#		head_node_lookup = Hash.new
+	#		@graph = RGL::AdjacencyGraph.new
+	#		@headset.each_with_index do |r,i| 
+	#			head_node_lookup[r]=i
+	#			@graph.add_vertex(i)
+	#		end
+	#		@headset.combination(2).each do |r,s|
+	#			rule = net.query r.type, s.type
+	#			if rule != nil && ((rule.transform_with_type r).diff s)<0.8
+	#				@graph.add_edge(head_node_lookup[r],head_node_lookup[s])
+	#			end
+	#		end
+	#		@graph.each_connected_component do |c|
+	#			c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri],table.transform(@headset[ri]);rg}
+	#		end
+	#	end
+	#end
 
 
 	def group_rects  table
@@ -128,8 +138,12 @@ class Record
 
 	def export_el
 		fb = File.basename(@filename,File.extname(@filename))
-		fn = fb +".txt"
-		@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));
+		fn = fb +"_el.dot"
+		#@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));
+		data = @graph.to_dot_graph(map: RGL::EdgePropertiesMap.new(@edges,false))
+		File.open(File.join(@dest,fn),"w")do |f|
+			f.puts data
+		end
 	end
 
 	def draw_rect(rect,color=@@colors[rect.type],dash=false)
