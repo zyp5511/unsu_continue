@@ -160,7 +160,7 @@ void RandomCropper::setUp(Mat img){
 				all_rects.push_back(Rect(Point2d(*cs,*rs) * scale, scaled_win_size));
 				cout<<*cs<<"\t"<<*rs<<endl;
 				//sub mat list
-				Mat temp = smaller_img(Range(*rs,*rs+patch_r),Range(*cs,*cs+patch_c));
+				Mat temp = smaller_img(Range(*rs,*rs+patch_r),Range(*cs,*cs+patch_c)).clone();
 				all_mats.push_back(temp);
 			}
 		}
