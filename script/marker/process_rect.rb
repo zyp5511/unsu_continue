@@ -63,7 +63,9 @@ if type == "if"
 				goodgroups=x.groups.values.to_set
 				if goodgroups.count > 0
 					goodgroups.each_with_index do |g,i|
-						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+						if g.rects.count>2
+							g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+						end
 					end
 					x.export
 					x.export_el

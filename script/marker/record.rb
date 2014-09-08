@@ -49,7 +49,7 @@ class Record
 		end
 	end
 
-	def group_rects_with_graph  net
+	def group_rects_with_graph(net)
 		@groups = Hash.new
 		if @headset==nil
 			raise "Empty goodset"
