@@ -5,6 +5,8 @@ class RectGroup
 	attr_accessor :inferred_rects
 	attr_accessor :matched
 	attr_accessor :aggregated_rect
+	attr_accessor :bodyX, :bodyY, 
+		:bodyH,:bodyW, :bodyS
 	def initialize arect=nil, airect=nil
 		matched = false
 		if arect!=nil
@@ -14,6 +16,25 @@ class RectGroup
 			@rects=[]
 			@inferred_rects=[]
 		end
+	end
+	def infer_part(net, partID)
+		cands = []
+		@rects.each do |r|
+			rule = net.query r.type, partID
+			if rule !=nil
+				cand=(rule.transform_with_type r)
+				cands<<cand;
+			end
+		end
+		res = cands.inject(:+)/cands.count
+	end
+	def infer_part_globally(net, dx, dy, ds)
+
+
+	end
+	def infer_global
+		@aggregated_rect = Rect.new(-1,0,medx,medy,medw,medh)
+
 	end
 	def include arect
 		if @rects.count >0
