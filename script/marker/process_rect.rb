@@ -25,66 +25,109 @@ if type == "if"
 	nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
 	elfn = ARGV[8]
 	nettable.restrict elfn
+	global_fn = ARGV[9]
+	global_table=Point.loadGlobal(global_fn)
+	#puts global_table
+	#define lambda expression
+	if oper == "list"
+		process = ->(x){
+			puts x.filename;
+		}
+	elsif oper == "draw"
+		process = ->(x){
+			x.headset.each{|r|x.draw_rect r}
+			x.export
+		}
+	elsif oper == "crop"
+		process = ->(x){
+			x.headset.each{|r|x.crop_rect r}
+		}
+	elsif oper == "draw_inferred"
+		process = ->(x){
+			x.headset.each{|r|x.draw_rect (table.transform r)}
+			x.export
+		}
+	elsif oper == "crop_inferred"
+		process = ->(x){
+			x.headset.each{|r|x.crop_rect (table.transform r)}
+		}
+	elsif oper == "crop_group_med_inferred"
+		process = ->(x){
+			x.group_rects table
+			if x.groups.values.to_set.count > 0
+				x.groups.values.to_set.each_with_index do |g,i|
+					cp+=1
+					x.crop_rect(g.aggregate)
+				end
+			end
+		}
+	elsif oper == "draw_group_med_inferred"
+		process = ->(x){
+			x.group_rects table
+			if x.groups.values.to_set.count > 1
+				x.groups.values.to_set.each_with_index do |g,i|
+					g.inferred_rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
+					x.draw_rect(g.aggregate,"\#ffffff")
+				end
+				x.export
+			end
+		}
+	elsif oper == "draw_group_net_global"
+		process = ->(x){
+			x.group_rects_with_graph  nettable
+			goodgroups=x.groups.values.to_set
+			if goodgroups.count > 0
+				goodgroups.each_with_index do |g,i|
+					if g.rects.map{|x|x.type}.to_set.count>2
+						begin
+							g.calibrate_global global_table
+							x.draw_rect(g.infer_part_globally(global_table,100),"\#ffffff")
+							x.draw_rect(g.infer_part_globally(global_table,482),"\#ffff00")
+						rescue Exception => e
+							puts e
+						end
+					end
+				end
+				x.export
+			end
+		}
+	elsif oper == "draw_group_net"  # old name is draw_group
+		process = ->(x){
+			x.group_rects_with_graph  nettable
+			goodgroups=x.groups.values.to_set
+			if goodgroups.count > 0
+				goodgroups.each_with_index do |g,i|
+					if g.rects.count>2
+						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+					end
+				end
+				x.export
+				x.export_dot
+			end
+		}
+	elsif oper == "draw_group_net_inferred"
+		process = ->(x){
+			x.group_rects_with_graph  nettable,table
+			goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
+			if goodgroups.count > 0
+				goodgroups.each_with_index do |g,i|
+					g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11],true)}
+					x.draw_rect(g.aggregate,"\#ffffff",true)
+					g.aggregate_with_table nettable
+					g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+					g.reset_infer table
+					x.draw_rect(g.aggregate,"\#ffffff")
+				end
+				x.export
+			end
+		}
+	end
+
 	records.each do|x|
 		x.pick_good_set head
 		if x.headset.count > 0
 			c+=1
-			if oper == "list"
-				puts x.filename;
-			elsif oper == "draw"
-				x.headset.each{|r|x.draw_rect r}
-				x.export
-			elsif oper == "crop"
-				x.headset.each{|r|x.crop_rect r}
-			elsif oper == "draw_inferred"
-				x.headset.each{|r|x.draw_rect (table.transform r)}
-				x.export
-			elsif oper == "crop_inferred"
-				x.headset.each{|r|x.crop_rect (table.transform r)}
-			elsif oper == "crop_group_med_inferred"
-				x.group_rects table
-				if x.groups.values.to_set.count > 0
-					x.groups.values.to_set.each_with_index do |g,i|
-						cp+=1
-						x.crop_rect(g.aggregate)
-					end
-				end
-			elsif oper == "draw_group_med_inferred"
-				x.group_rects table
-				if x.groups.values.to_set.count > 1
-					x.groups.values.to_set.each_with_index do |g,i|
-						g.inferred_rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
-						x.draw_rect(g.aggregate,"\#ffffff")
-					end
-					x.export
-				end
-			elsif oper == "draw_group"
-				x.group_rects_with_graph  nettable
-				goodgroups=x.groups.values.to_set
-				if goodgroups.count > 0
-					goodgroups.each_with_index do |g,i|
-						if g.rects.count>2
-							g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
-						end
-					end
-					x.export
-					x.export_el
-				end
-			elsif oper == "draw_group_net_inferred"
-				x.group_rects_with_graph  nettable,table
-				goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
-				if goodgroups.count > 0
-					goodgroups.each_with_index do |g,i|
-						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11],true)}
-						x.draw_rect(g.aggregate,"\#ffffff",true)
-						g.aggregate_with_table nettable
-						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
-						g.reset_infer table
-						x.draw_rect(g.aggregate,"\#ffffff")
-					end
-					x.export
-				end
-			end
+			process.call(x)
 		end
 	end
 	puts " #{c} images processed"

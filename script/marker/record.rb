@@ -136,7 +136,7 @@ class Record
 		@ori.write(File.join(@dest,@filename).to_s)
 	end
 
-	def export_el
+	def export_dot
 		fb = File.basename(@filename,File.extname(@filename))
 		fn = fb +"_el.dot"
 		#@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));

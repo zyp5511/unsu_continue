@@ -1,11 +1,12 @@
 require_relative 'rect'
+require_relative 'point'
 
 class RectGroup
 	attr_accessor :rects
 	attr_accessor :inferred_rects
 	attr_accessor :matched
 	attr_accessor :aggregated_rect
-	attr_accessor :bodyX, :bodyY, 
+	attr_accessor :originx, :originy, :originsx,:originsy, :bodyX, :bodyY, 
 		:bodyH,:bodyW, :bodyS
 	def initialize arect=nil, airect=nil
 		matched = false
@@ -17,24 +18,56 @@ class RectGroup
 			@inferred_rects=[]
 		end
 	end
-	def infer_part(net, partID)
-		cands = []
+
+	def infer_part_globally global_table,n_index
+		pt = global_table[n_index] 
+		if pt !=nil
+			res = Rect.new(n_index,0,pt.x*@originsx+@originx,pt.y*@originsy+@originy,pt.s*@originsx,pt.s*@originsy)
+		else 
+			raise "Entry not exist in global table"
+		end
+	end
+
+	def calibrate_global global_table
+		puts "==============================="
+		xs=[];ys=[];
+		as=[];bs=[];ss=[];
+		ssy=[];
 		@rects.each do |r|
-			rule = net.query r.type, partID
-			if rule !=nil
-				cand=(rule.transform_with_type r)
-				cands<<cand;
+			pt = global_table[r.type] 
+			if pt !=nil
+				xs << r.x
+				ys << r.y
+				as << pt.x
+				bs << pt.y
+				ss << r.w.to_f/pt.s
+				ssy << r.h.to_f/pt.s
+			else 
+				puts "type #{r.type} not found"
 			end
 		end
-		res = cands.inject(:+)/cands.count
-	end
-	def infer_part_globally(net, dx, dy, ds)
 
+		######################
+		##Alternative Mathod##
+		#avg_x = xs.inject(:+).to_f/xs.count 
+		#avg_y = ys.inject(:+).to_f/ys.count 
+		#avg_a = as.inject(:+).to_f/as.count 
+		#avg_b = bs.inject(:+).to_f/bs.count 
 
-	end
-	def infer_global
-		@aggregated_rect = Rect.new(-1,0,medx,medy,medw,medh)
+		#sx = as.map{|a|a*(a-avg_a)}.inject(:+)/as.zip(xs).map{|a,x|a*(x-avg_x)}.inject(:+)
+		#sy = bs.map{|b|b*(b-avg_b)}.inject(:+)/bs.zip(ys).map{|b,y|b*(y-avg_y)}.inject(:+)
+		#
+		#puts "avg_x is #{avg_x};avg_y is #{avg_y};avg_a is #{avg_a};avg_b is #{avg_b};" 
+		######################
 
+		@originsx = ss.inject(:+)/ss.count;
+		@originsy = ssy.inject(:+)/ssy.count;
+		@originx = as.zip(xs).map{|a,x|(x-@originsx*a)}.inject(:+)/xs.count
+		@originy = bs.zip(ys).map{|b,y|(y-@originsy*b)}.inject(:+)/ys.count
+
+		puts "originsxis #{@originsx} originsy is #{@originsy}"
+		puts "origin_x is #{@originx}; origin_y is #{@originy}"
+		puts "==============================="
 	end
 	def include arect
 		if @rects.count >0
