@@ -71,7 +71,7 @@ class Record
 						@graph.add_edge(head_node_lookup[r]*10000+r.type,
 										head_node_lookup[s]*10000+s.type)
 						@edges[[head_node_lookup[r]*10000+r.type,
-										head_node_lookup[s]*10000+s.type]]=rdis;
+			  head_node_lookup[s]*10000+s.type]]=rdis;
 					end
 				end
 			end
@@ -144,6 +144,19 @@ class Record
 		File.open(File.join(@dest,fn),"w")do |f|
 			f.puts data
 		end
+	end
+
+	def draw_group g,color,title=nil
+		g.rects.each{|r|draw_rect(r, color)}
+		if title!=nil
+			titlex = g.rects.map{|r|r.x}.inject(:+)/g.rects.count
+			titley = g.rects.map{|r|r.y}.inject(:+)/g.rects.count
+			rdraw = Magick::Draw.new
+			rdraw.pointsize(24)
+			rdraw.text(titlex,titley,title)
+			rdraw.draw(@ori)
+		end
+
 	end
 
 	def draw_rect(rect,color=@@colors[rect.type],dash=false)

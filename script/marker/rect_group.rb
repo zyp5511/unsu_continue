@@ -6,8 +6,7 @@ class RectGroup
 	attr_accessor :inferred_rects
 	attr_accessor :matched
 	attr_accessor :aggregated_rect
-	attr_accessor :originx, :originy, :originsx,:originsy, :bodyX, :bodyY, 
-		:bodyH,:bodyW, :bodyS
+	attr_accessor :originx, :originy, :originsx,:originsy
 	def initialize arect=nil, airect=nil
 		matched = false
 		if arect!=nil
@@ -17,6 +16,9 @@ class RectGroup
 			@rects=[]
 			@inferred_rects=[]
 		end
+	end
+	def abs2gbl rect
+		[(rect.x-@originx)/@originsx, (rect.y-@originy)/@originsy, (rect.w)/@originsx]
 	end
 
 	def infer_part_globally global_table,n_index
@@ -69,6 +71,7 @@ class RectGroup
 		puts "origin_x is #{@originx}; origin_y is #{@originy}"
 		puts "==============================="
 	end
+
 	def include arect
 		if @rects.count >0
 			return @rects.inject(false){|res,rec|res || (rec.include arect)}
@@ -76,6 +79,8 @@ class RectGroup
 			return false
 		end
 	end
+
+
 	def inferred_include arect
 		if @inferred_rects.count>0
 			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}

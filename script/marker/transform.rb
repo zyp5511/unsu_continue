@@ -186,44 +186,44 @@ class LCTransformTable
 end
 
 
-class LCTransformFullTable 
-	#pick best rules from each outier nodes to core nodes
-	attr_accessor :table
-	def initialize ahash
-		@table = ahash
-		@goodset = Set.new;
-	end
-	def query from,to
-		if from == to
-			return LCTransform.new(from,from,0,0,1)
-		end
-		target = from*10000+to
-		invtarget= to*10000+from
-		if @goodset.count>0
-			if @goodset.include?(target)||@goodset.include?(invtarget)
-				return @table[target]
-			else 
-				return nil
-			end
-		else 
-			return @table[target]
-		end 
-
-	end
-	def restrict fname
-		IO.foreach(fname) do |line|
-			good=line.split.map(&:to_i)
-			@goodset<<(good[0]*10000+good[1])
-		end
-	end
-
-	def self.loadTable(fname)
-		trans= Hash.new
-		IO.foreach(fname) do |line|
-			rule = LCTransform.loadTable(line) 
-			trans[rule.from*10000+rule.to] = rule  
-			trans[rule.to*10000+rule.from] = rule.inv 
-		end
-		LCTransformFullTable.new(trans)
-	end
-end
+#class LCTransformFullTable 
+#	#pick best rules from each outier nodes to core nodes
+#	attr_accessor :table
+#	def initialize ahash
+#		@table = ahash
+#		@goodset = Set.new;
+#	end
+#	def query from,to
+#		if from == to
+#			return LCTransform.new(from,from,0,0,1)
+#		end
+#		target = from*10000+to
+#		invtarget= to*10000+from
+#		if @goodset.count>0
+#			if @goodset.include?(target)||@goodset.include?(invtarget)
+#				return @table[target]
+#			else 
+#				return nil
+#			end
+#		else 
+#			return @table[target]
+#		end 
+#
+#	end
+#	def restrict fname
+#		IO.foreach(fname) do |line|
+#			good=line.split.map(&:to_i)
+#			@goodset<<(good[0]*10000+good[1])
+#		end
+#	end
+#
+#	def self.loadTable(fname)
+#		trans= Hash.new
+#		IO.foreach(fname) do |line|
+#			rule = LCTransform.loadTable(line) 
+#			trans[rule.from*10000+rule.to] = rule  
+#			trans[rule.to*10000+rule.from] = rule.inv 
+#		end
+#		LCTransformFullTable.new(trans)
+#	end
+#end

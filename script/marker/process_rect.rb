@@ -1,4 +1,6 @@
 require_relative 'record'
+require_relative 'network'
+require_relative 'voro_table'
 require 'set'
 
 type = ARGV[0]
@@ -22,11 +24,16 @@ if type == "if"
 		puts e
 	end
 	netfn = ARGV[7]
-	nettable = LCTransformFullTable.loadTable(netfn) #hard coded cluster number, should be changed later
+	nettable = Network.loadTable(netfn) 
+
 	elfn = ARGV[8]
 	nettable.restrict elfn
+
 	global_fn = ARGV[9]
 	global_table=Point.loadGlobal(global_fn)
+
+	vorofn = ARGV[10]
+	vorotable = VoroTable.loadTable(vorofn) 
 	#puts global_table
 	#define lambda expression
 	if oper == "list"
@@ -85,6 +92,32 @@ if type == "if"
 							x.draw_rect(g.infer_part_globally(global_table,482),"\#ffff00")
 						rescue Exception => e
 							puts e
+						end
+					end
+				end
+				x.export
+			end
+		}
+	elsif oper == "draw_group_quality"
+		process = ->(x){
+			x.group_rects_with_graph  nettable
+			goodgroups=x.groups.values.to_set
+			if goodgroups.count > 0
+				#bettergroups = goodgroups.sort_by{|g|g.rects.maps
+				
+				goodgroups.each_with_index do |g,i|
+					nodeset = g.rects.map{|x|x.type}.to_set
+					if nodeset.count>2
+						begin
+							g.aggregate_with_table nettable
+							g.calibrate_global global_table
+							#g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
+							x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+
+						rescue Exception => e
+							puts e
+							puts e.backtrace
+							puts
 						end
 					end
 				end
