@@ -102,26 +102,35 @@ if type == "if"
 		process = ->(x){
 			x.group_rects_with_graph  nettable
 			goodgroups=x.groups.values.to_set
-			if goodgroups.count > 0
-				#bettergroups = goodgroups.sort_by{|g|g.rects.maps
-				
-				goodgroups.each_with_index do |g,i|
-					nodeset = g.rects.map{|x|x.type}.to_set
-					if nodeset.count>2
-						begin
-							g.aggregate_with_table nettable
-							g.calibrate_global global_table
-							#g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
-							x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+			bettergroups = goodgroups.select{|g|g.rects.map{|x|x.type}.to_set.count>2}
+			if bettergroups.count > 0
+				changed = false;
 
-						rescue Exception => e
-							puts e
-							puts e.backtrace
-							puts
-						end
+				bettergroups.each_with_index do |g,i|
+					begin
+						g.aggregate_with_table nettable
+						g.calibrate_global global_table
+						#x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+					rescue Exception => e
+						puts e
+						puts e.backtrace
+						puts
 					end
 				end
-				x.export
+				changed = x.prune_group 
+				x.bettergroups.each_with_index do |g,i|
+					begin
+						x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+						#x.draw_group(g,x.colortab[(i+1)*31],"")
+					rescue Exception => e
+						puts e
+						puts e.backtrace
+						puts
+					end
+				end
+				if changed
+					x.export
+				end
 			end
 		}
 	elsif oper == "draw_group_net"  # old name is draw_group

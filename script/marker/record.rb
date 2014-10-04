@@ -13,6 +13,7 @@ require_relative 'transform'
 class Record
 	attr_accessor :rects,:filename
 	attr_accessor :groups
+	attr_accessor :bettergroups
 	attr_accessor :headset
 	attr_accessor :graph
 	attr_accessor :edges
@@ -39,6 +40,29 @@ class Record
 
 	def colortab
 		@@colors
+	end
+
+	def prune_group
+		groupscurrent = @groups.values.to_set.select{|g|g.rects.map{|x|x.type}.to_set.count>2}.to_a
+		gmerged = Hash.new(false)
+		groupsnew = [];
+		changed = false;
+
+		groupscurrent.combination(2).each do |gs,gt|
+			if !gmerged[gs] and !gmerged[gt] and gs.compatible? gt
+				gnew = RectGroup.merge(gs,gt)
+				puts "#{@filename} Group merged #{gt.inspect} #{gs.inspect} \nto\n#{gnew}"
+				gmerged[gs]=true
+				gmerged[gt]=true
+				changed = true
+				groupsnew<<gnew
+			end
+		end
+		groupscurrent.select{|g| !gmerged[g]}.each do |g|
+			groupsnew<<g
+		end
+		@bettergroups = groupsnew # one iteration for now
+		changed
 	end
 
 	def pick_good_set head
@@ -147,15 +171,21 @@ class Record
 	end
 
 	def draw_group g,color,title=nil
-		g.rects.each{|r|draw_rect(r, color)}
-		if title!=nil
-			titlex = g.rects.map{|r|r.x}.inject(:+)/g.rects.count
-			titley = g.rects.map{|r|r.y}.inject(:+)/g.rects.count
-			rdraw = Magick::Draw.new
-			rdraw.pointsize(24)
-			rdraw.text(titlex,titley,title)
-			rdraw.draw(@ori)
+		begin
+			g.rects.each{|r|draw_rect(r, color)}
+			if title!=nil
+				titlex = g.rects.map{|r|r.x}.inject(:+)/g.rects.count
+				titley = g.rects.map{|r|r.y}.inject(:+)/g.rects.count
+				rdraw = Magick::Draw.new
+				rdraw.pointsize(24)
+				rdraw.text(titlex,titley,title)
+				rdraw.draw(@ori)
+			end
+		rescue Exception => e
+			puts e.backtrace
+			puts "g=#{g}"
 		end
+
 
 	end
 

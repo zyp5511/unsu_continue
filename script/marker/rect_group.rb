@@ -7,6 +7,7 @@ class RectGroup
 	attr_accessor :matched
 	attr_accessor :aggregated_rect
 	attr_accessor :originx, :originy, :originsx,:originsy
+
 	def initialize arect=nil, airect=nil
 		matched = false
 		if arect!=nil
@@ -17,8 +18,44 @@ class RectGroup
 			@inferred_rects=[]
 		end
 	end
-	def abs2gbl rect
-		[(rect.x-@originx)/@originsx, (rect.y-@originy)/@originsy, (rect.w)/@originsx]
+
+	def self.merge ga,gb
+		arects=ga.rects+gb.rects
+		ainferred_rects=nil
+		if ga.inferred_rects!=nil and gb.inferred_rects!=nil
+			ainferred_rects=ga.inferred_rects+gb.inferred_rects
+		end
+		res = RectGroup.new 
+		res.rects = arects
+		res.inferred_rects = ainferred_rects
+		res.originx = ga.originx*ga.rects.count+gb.originx*gb.rects.count
+		res.originy = ga.originy*ga.rects.count+gb.originy*gb.rects.count
+		res.originsx = ga.originsx*ga.rects.count+gb.originsx*gb.rects.count
+		res.originsy = ga.originsy*ga.rects.count+gb.originsy*gb.rects.count
+		res
+	end
+
+	def compatible?(gb)
+		dx = (@originx-gb.originx).abs
+		dy = (@originy-gb.originy).abs
+		ds = (@originsy-gb.originsy).abs/(@originsy+gb.originsy)
+		stdx = @originsx+gb.originsx
+		stdy = @originsy+gb.originsy
+
+		if (dx<stdx*0.1) && (dy<stdy*0.1) && (ds<0.2)
+			true
+		else
+			false
+		end
+	end
+
+	def abs2gbl arect
+		begin
+			[(arect.x-@originx)/@originsx, (arect.y-@originy)/@originsy, (arect.w)/@originsx]
+		rescue Exception => e
+			puts e.backtrace
+			puts "arect is #{arect}"
+		end
 	end
 
 	def infer_part_globally global_table,n_index
@@ -31,7 +68,7 @@ class RectGroup
 	end
 
 	def calibrate_global global_table
-		puts "==============================="
+		#puts "==============================="
 		xs=[];ys=[];
 		as=[];bs=[];ss=[];
 		ssy=[];
@@ -45,7 +82,7 @@ class RectGroup
 				ss << r.w.to_f/pt.s
 				ssy << r.h.to_f/pt.s
 			else 
-				puts "type #{r.type} not found"
+				#		puts "type #{r.type} not found"
 			end
 		end
 
@@ -67,9 +104,9 @@ class RectGroup
 		@originx = as.zip(xs).map{|a,x|(x-@originsx*a)}.inject(:+)/xs.count
 		@originy = bs.zip(ys).map{|b,y|(y-@originsy*b)}.inject(:+)/ys.count
 
-		puts "originsxis #{@originsx} originsy is #{@originsy}"
-		puts "origin_x is #{@originx}; origin_y is #{@originy}"
-		puts "==============================="
+		#puts "originsx is #{@originsx} originsy is #{@originsy}"
+		#puts "origin_x is #{@originx}; origin_y is #{@originy}"
+		#puts "==============================="
 	end
 
 	def include arect
