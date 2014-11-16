@@ -447,11 +447,10 @@ int main(int argc, const char * argv[]) {
 		shared_ptr<PatchDetector> kd;
 
 		
-		vector<bool> gc(k,false);
+		vector<bool> gc = vector<bool>();
 		if(vm.count("gamecard")){
 			gc = buildGameCard(gcfn, k);
 		}
-
 
 		if (oper == "knn") {
 			auto temp = make_shared<KNNDetector>();
@@ -601,7 +600,7 @@ int main(int argc, const char * argv[]) {
 			}
 			close(sockfd);
 #endif
-		} else {
+		} else { //end if daemon
 			ofstream fout(vecoutfn);
 			if (vm.count("batch")) {
 				vector<string> files;
@@ -686,19 +685,16 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 				255, 255), Scalar(255, 0, 255), Scalar(255, 255, 0), Scalar(
 					0, 128, 128), Scalar(128, 0, 128), Scalar(128, 128, 0),
 				Scalar(64, 64, 64), Scalar(128, 128, 128), Scalar(255, 255, 255) };
-	int count = 0;
 
 	//record transformations from head related patches to standard head patches
-	if (vm.count("co-occurrence")) {
-		if (!core_gc.empty()) {
-			vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-			for (LCTransform& t : trans) {
-				fout << t.getString() << endl;
-			}
+	if (vm.count("co-occurrence")&&!core_gc.empty()) {
+		vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+		for (LCTransform& t : trans) {
+			fout << t.getString() << endl;
 		}
 	}
 
-	if (iw.match(gc)) {
+	if (vm.count("gamecard")&&!gc.empty()&&iw.match(gc)) {
 		cout << fname << " matched!" << endl;
 		Mat out = mat.clone();
 		Mat inferred_out;

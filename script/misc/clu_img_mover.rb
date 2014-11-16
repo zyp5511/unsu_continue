@@ -5,6 +5,8 @@ desfolder = ARGV[1]
 clulist = ARGV[2]
 puts "Collecting imgs from #{ srcfolder } to #{ desfolder } acording to #{clulist} ..."
 set = Set.new
+
+
 IO.foreach(clulist).with_index do|c,i|
 	ci = c.to_i;
 	subdir = "#{desfolder}/#{ci}".chomp
