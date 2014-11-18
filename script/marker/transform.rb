@@ -74,6 +74,10 @@ class LCTransform
 		"#{@from}=>#{@to}\t#{@xr}:#{@yr}:#{@r}"
 	end
 
+	def to_tsv_s
+		"#{@from}\t#{@to}\t#{@xr}\t#{@yr}\t#{@r}"
+	end
+
 	# inverse transform
 	def inv
 		LCTransform.new(@to,@from,-@xr/@r,-@yr/@r,1/@r, @vx/@r/@r,@vy/@r/@r,@vr,true,@reliability)

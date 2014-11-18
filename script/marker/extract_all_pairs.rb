@@ -17,7 +17,7 @@ File.open(listfn,'w') do |f|
 				else
 					temp = LCTransform.extract r.rects[j],r.rects[i]
 				end
-				f.puts temp.to_short_s
+				f.puts temp.to_tsv_s
 			end
 		end
 	end

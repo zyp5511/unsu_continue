@@ -5,7 +5,7 @@ require 'rgl/adjacency'
 require 'rgl/traversal'
 require 'rgl/dot'
 require 'rgl/connected_components'
-require 'rgl/edge_properties_map'
+#require 'rgl/edge_properties_map'
 
 require_relative 'rect_group'
 require_relative 'transform'
@@ -160,15 +160,15 @@ class Record
 		@ori.write(File.join(@dest,@filename).to_s)
 	end
 
-	def export_dot
-		fb = File.basename(@filename,File.extname(@filename))
-		fn = fb +"_el.dot"
-		#@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));
-		data = @graph.to_dot_graph(map: RGL::EdgePropertiesMap.new(@edges,false))
-		File.open(File.join(@dest,fn),"w")do |f|
-			f.puts data
-		end
-	end
+	#def export_dot
+	#	fb = File.basename(@filename,File.extname(@filename))
+	#	fn = fb +"_el.dot"
+	#	#@graph.write_to_graphic_file('png',File.join(@dest,fb+"_el"));
+	#	data = @graph.to_dot_graph(map: RGL::EdgePropertiesMap.new(@edges,false))
+	#	File.open(File.join(@dest,fn),"w")do |f|
+	#		f.puts data
+	#	end
+	#end
 
 	def draw_group g,color,title=nil
 		begin
