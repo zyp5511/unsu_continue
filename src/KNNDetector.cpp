@@ -43,6 +43,12 @@ void KNNDetector::classify(const vector<float>& vec, int&c, float&score) {
 
 	map<int, int> count = map<int, int>();
 	if (dis[0] < 12) {
+		/*
+		 * the 12 value is based on experience with human hog data.
+		 * which is 160x96 or 128x96, and ~1500 after PCA, it doesn't
+		 * mater very much because of the KNN, but it is still better
+		 * to use a dim related  threshold instead
+		 */
 		//cout<<"==============="<<endl;
 		for (auto i = 0; i < n; i++) {
 			int nind = ind[i];
@@ -61,7 +67,13 @@ void KNNDetector::classify(const vector<float>& vec, int&c, float&score) {
 		//cout<<"==============="<<endl;
 		if (max > 1) {
 			c = maxi;
-			score = dis[0]; //not good.. not real distance.
+			for(auto i = 0; i < n ; i++){
+				if ( clus[ind[i]]==maxi){
+					score  = ind[i];
+					break;
+				}
+			}
+			//score = dis[0]; //not good.. not real distance.
 		} else {
 			c = -1;
 		}

@@ -96,6 +96,7 @@ int main(int argc, const char * argv[]) {
 	po::options_description cvdesc("OpenCV stock classifier options");
 	po::options_description casdesc("Cascading classifier options");
 	po::options_description distdesc("Distributed Computing options");
+	po::options_description voronoidesc("kmeans class purification options");
 
 	desc.add_options()
 		("help", "produce help message")
@@ -152,8 +153,12 @@ int main(int argc, const char * argv[]) {
 		("2ndPCA",po::value<string>(), "set 2nd PCA file")
 		;
 
+	voronoidesc.add_options()
+		("members",po::value<string>(), "left nodes and membership file")
+		;
+
 	desc.add(distdesc).add(cropdesc).add(detectdesc) .add(transdesc)
-		.add(cvdesc).add(casdesc).add(kmeansdesc);
+		.add(cvdesc).add(casdesc).add(kmeansdesc).add(voronoidesc);
 
 	po::variables_map vm;
 
@@ -239,11 +244,11 @@ int main(int argc, const char * argv[]) {
 		ofstream fout(vecoutfn);
 
 		for(int i=start;i<end;i++){
-				auto inorm = fea.col(i).norm();
-				auto nume= fea.col(i).transpose()*fea.block(0,i,fea.rows(),overallEnd-i);
-				auto deno= fea.block(0,i,fea.rows(),overallEnd-i).colwise().norm()*inorm;
-				auto temp = nume.cwiseQuotient(deno);
-				fout<<temp<<endl;
+			auto inorm = fea.col(i).norm();
+			auto nume= fea.col(i).transpose()*fea.block(0,i,fea.rows(),overallEnd-i);
+			auto deno= fea.block(0,i,fea.rows(),overallEnd-i).colwise().norm()*inorm;
+			auto temp = nume.cwiseQuotient(deno);
+			fout<<temp<<endl;
 		}
 		fout.close(); //use vecoutfn as the destination.
 	} else if (oper == "network") { 
@@ -271,8 +276,8 @@ int main(int argc, const char * argv[]) {
 		ofstream fout(vecoutfn);
 
 		for(int i=start;i<end;i++){
-				auto temp = (fea.block(0,i,fea.rows(),overallEnd-i).colwise() - fea.col(i)).colwise().norm();
-				fout<<temp<<endl;
+			auto temp = (fea.block(0,i,fea.rows(),overallEnd-i).colwise() - fea.col(i)).colwise().norm();
+			fout<<temp<<endl;
 		}
 		fout.close(); //use vecoutfn as the destination.
 	} else if (oper == "kmean") {
@@ -446,7 +451,7 @@ int main(int argc, const char * argv[]) {
 		string name;
 		shared_ptr<PatchDetector> kd;
 
-		
+
 		vector<bool> gc = vector<bool>();
 		if(vm.count("gamecard")){
 			gc = buildGameCard(gcfn, k);
@@ -633,7 +638,33 @@ int main(int argc, const char * argv[]) {
 			}
 			fout.close();
 		}
-	}
+	} else if (oper == "clusterpurify") { 
+		if(!vm.count("members")){
+			cerr<<"members parameter not specified"<<endl;
+			return -1;
+		}
+		auto memfn = vm["members"].as<string>();
+		ifstream memfin(memfn);
+		string line;
+		map<int,set<int>>members;
+		while(getline(memfin,line)){
+			stringstream ss(line);
+			int clu;
+			int idx;
+			ss>>clu;
+			ss>>idx;
+			//cout<<clu<<"\t:\t"<<idx<<"\t inserted"<<endl;
+			members[clu].insert(idx);
+		}
+		memfin.close();
+		
+		auto temp = make_shared<VoronoiDetector>();
+		temp->load(fsfn, indfn);
+		auto res= temp->diffCenters(members);
+		for (size_t i=0;i<res.first.size();i++)
+			cout<<i<<"\t"<<res.first[i]<<"\t"<<res.second[i]<<endl;
+			
+	};
 	double overall_diff = (clock() - overall_start) / (double) CLOCKS_PER_SEC;
 	cout << "FINISHED!  " << overall_diff << " seconds used." << endl;
 	return 0;

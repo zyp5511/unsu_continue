@@ -3,6 +3,7 @@
 #include "FeatureLoader.h"
 #include <fstream>
 #include <memory>
+#include <set>
 
 using namespace cv;
 
@@ -22,6 +23,9 @@ public:
 	virtual void classify(const vector<float>& vec, int&c, float&score)
 			override;
 	void load(string fsfn, string clusfn) override; //load feature and indice list
+	Mat voronoiCenters();
+	pair<Mat,vector<int>> purifiedVoronoiCenters(map<int,set<int>> members);
+	pair<vector<float>,vector<int>> diffCenters(map<int,set<int>> members);
 protected:
 	Mat centers;
 	vector<int> clus; //cluster tag

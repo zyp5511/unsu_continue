@@ -34,6 +34,38 @@ void VoronoiDetector::load(string vecfn, string clusfn) {
 
 }
 
+Mat VoronoiDetector::voronoiCenters(){
+	return centers;
+}
+pair<Mat,vector<int>> VoronoiDetector::purifiedVoronoiCenters(map<int,set<int>> members){
+	Mat pcenters = Mat(centers.rows, feavec.cols, CV_32F, Scalar(0));
+	vector<int> vec_count(centers.rows, 0);
+
+	for (int i = 0; i < feavec.rows; i++) {
+		if (members[clus[i]].find(i) != members[clus[i]].end()){
+			pcenters.row(clus[i]) += feavec.row(i);
+			vec_count[clus[i]]++;
+		}
+	}
+	for (int i = 0; i < pcenters.rows; i++) {
+		if(vec_count[i]!=0){
+			pcenters.row(i) /= vec_count[i];
+		}
+	}
+	return make_pair(pcenters,vec_count);
+}
+pair<vector<float>,vector<int>> VoronoiDetector::diffCenters(map<int,set<int>> members){
+	auto apair = purifiedVoronoiCenters(members);
+	Mat pcenters = apair.first;
+	vector<int> pcount= apair.second;
+	vector<float> res(pcenters.rows,0);
+	for (int i = 0; i < pcenters.rows; i++) {
+		if(pcount[i]!=0){
+			res[i] =cv::norm(pcenters.row(i),centers.row(i));
+		}
+	}
+	return make_pair(res,pcount);
+}
 void VoronoiDetector::classify(const vector<float>& vec, int&c, float&score) {
 	int n = 5;
 	c = -1;
