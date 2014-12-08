@@ -19,7 +19,7 @@ if type == "if"
 	cp = 0;
 	begin
 		transfn = ARGV[6]
-		table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
+		table = LCTransformTable.loadMap(transfn,400) #hard coded cluster number, should be changed later
 	rescue Exception => e
 		puts e
 	end
@@ -29,11 +29,19 @@ if type == "if"
 	elfn = ARGV[8]
 	nettable.restrict elfn
 
-	global_fn = ARGV[9]
-	global_table=Point.loadGlobal(global_fn)
+	begin
+		global_fn = ARGV[9]
+		global_table=Point.loadGlobal(global_fn)
+	rescue Exception => e
+		puts e
+	end
 
-	vorofn = ARGV[10]
-	vorotable = VoroTable.loadTable(vorofn) 
+	begin
+		vorofn = ARGV[10]
+		vorotable = VoroTable.loadTable(vorofn) 
+	rescue Exception => e
+		puts e
+	end
 	#puts global_table
 	#define lambda expression
 	if oper == "list"
@@ -105,12 +113,10 @@ if type == "if"
 			bettergroups = goodgroups.select{|g|g.rects.map{|x|x.type}.to_set.count>2}
 			if bettergroups.count > 0
 				changed = false;
-
 				bettergroups.each_with_index do |g,i|
 					begin
 						g.aggregate_with_table nettable
 						g.calibrate_global global_table
-						#x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
 					rescue Exception => e
 						puts e
 						puts e.backtrace
@@ -121,16 +127,16 @@ if type == "if"
 				x.bettergroups.each_with_index do |g,i|
 					begin
 						x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
-						#x.draw_group(g,x.colortab[(i+1)*31],"")
+						#x.draw_group(g,x.colortab[(i+1)*31],"x")
 					rescue Exception => e
 						puts e
 						puts e.backtrace
 						puts
 					end
 				end
-				if changed
+				#if changed
 					x.export
-				end
+				#end
 			end
 		}
 	elsif oper == "draw_group_net"  # old name is draw_group

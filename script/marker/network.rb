@@ -5,7 +5,7 @@ require 'rgl/adjacency'
 require 'rgl/traversal'
 require 'rgl/dot'
 require 'rgl/connected_components'
-require 'rgl/edge_properties_map'
+#require 'rgl/edge_properties_map'
 
 require_relative 'rect_group'
 require_relative 'transform'
@@ -35,7 +35,7 @@ class Network
 	def initialize ahash
 		@table = ahash
 		@good_set = Set.new;
-		@distances = {}
+		#@distances = {}
 	end
 
 
@@ -57,26 +57,26 @@ class Network
 
 	end
 
-	def set_distance i,j,d #store each val twice for easier node iteration
-		i,j=j,i if i>j
-		if @distances[i]==nil
-			@distances[i]= {}
-		end
-		if @distances[j]==nil
-			@distances[j]= {}
-		end
-		@distances[i][j]=d
-		@distances[j][i]=d
-	end
+	#def set_distance i,j,d #store each val twice for easier node iteration
+	#	i,j=j,i if i>j
+	#	if @distances[i]==nil
+	#		@distances[i]= {}
+	#	end
+	#	if @distances[j]==nil
+	#		@distances[j]= {}
+	#	end
+	#	@distances[i][j]=d
+	#	@distances[j][i]=d
+	#end
 
-	def get_distance i,j
-		i,j=j,i if i>j
-		if @distances[i]!=nil
-			@distances[i][j]
-		else
-			nil
-		end
-	end
+	#def get_distance i,j
+	#	i,j=j,i if i>j
+	#	if @distances[i]!=nil
+	#		@distances[i][j]
+	#	else
+	#		nil
+	#	end
+	#end
 	def restrict fname
 		@graph = RGL::AdjacencyGraph.new
 		@nodes = Set.new
@@ -90,25 +90,25 @@ class Network
 			else
 				@good_set<<(good[1]*10000+good[0])
 			end
-			set_distance good[0],good[1],1
+		#	set_distance good[0],good[1],1
 		end
-		nodes_array = @nodes.sort
-		for k in 0...(nodes_array.count)
-			for i in 0...(nodes_array.count-1)
-				if i!=k
-					for j in (i+1)...(nodes_array.count)
-						if j!=k
-							dik=get_distance(i,k)
-							dkj=get_distance(k,j)
-							dij=get_distance(i,j)
-							if (dik!=nil and dkj!=nil) and (dij==nil or dij>dkj+dik)
-								set_distance(i,j,dkj+dik)
-							end
-						end
-					end
-				end
-			end
-		end
+		#nodes_array = @nodes.sort
+		#for k in 0...(nodes_array.count)
+		#	for i in 0...(nodes_array.count-1)
+		#		if i!=k
+		#			for j in (i+1)...(nodes_array.count)
+		#				if j!=k
+		#					dik=get_distance(i,k)
+		#					dkj=get_distance(k,j)
+		#					dij=get_distance(i,j)
+		#					if (dik!=nil and dkj!=nil) and (dij==nil or dij>dkj+dik)
+		#						set_distance(i,j,dkj+dik)
+		#					end
+		#				end
+		#			end
+		#		end
+		#	end
+		#end
 	end
 
 	def self.loadTable(fname)

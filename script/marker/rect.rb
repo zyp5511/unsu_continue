@@ -52,9 +52,16 @@ class Rect
 	end
 
 	def diff arect
-		dx = (@x-arect.x).abs.to_f/[@w,arect.w].max
-		dy = (@y-arect.y).abs.to_f/[@h,arect.h].max
-		dw = (@w-arect.w).abs.to_f/[@w,arect.w].max
+		aw = arect.w
+		ah = arect.h
+
+		sw = @w>aw ? @w : aw
+		sh = @h>ah ? @h : ah
+
+		dx = (@x-arect.x).abs.to_f/sw
+		dy = (@y-arect.y).abs.to_f/sh
+		dw = (Math.log(@w)-Math.log(aw)).abs.to_f
+
 		dx+dy+dw
 	end
 

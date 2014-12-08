@@ -62,6 +62,7 @@ class Record
 			groupsnew<<g
 		end
 		@bettergroups = groupsnew # one iteration for now
+		puts "#{@filename} is changed!"
 		changed
 	end
 
@@ -94,8 +95,7 @@ class Record
 					if rdis<0.5
 						@graph.add_edge(head_node_lookup[r]*10000+r.type,
 										head_node_lookup[s]*10000+s.type)
-						@edges[[head_node_lookup[r]*10000+r.type,
-			  head_node_lookup[s]*10000+s.type]]=rdis;
+						@edges[[head_node_lookup[r]*10000+r.type, head_node_lookup[s]*10000+s.type]]=rdis;
 					end
 				end
 			end

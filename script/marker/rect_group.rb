@@ -28,10 +28,13 @@ class RectGroup
 		res = RectGroup.new 
 		res.rects = arects
 		res.inferred_rects = ainferred_rects
-		res.originx = ga.originx*ga.rects.count+gb.originx*gb.rects.count
-		res.originy = ga.originy*ga.rects.count+gb.originy*gb.rects.count
-		res.originsx = ga.originsx*ga.rects.count+gb.originsx*gb.rects.count
-		res.originsy = ga.originsy*ga.rects.count+gb.originsy*gb.rects.count
+
+		alpha = ga.rects.count;
+		beta = gb.rects.count;
+		res.originx = ( ga.originx*alpha+gb.originx*beta)/(alpha+beta)
+		res.originy = ( ga.originy*alpha+gb.originy*beta)/(alpha+beta)
+		res.originsx = ( ga.originsx*alpha+gb.originsx*beta)/(alpha+beta)
+		res.originsy = ( ga.originsy*alpha+gb.originsy*beta)/(alpha+beta)
 		res
 	end
 
