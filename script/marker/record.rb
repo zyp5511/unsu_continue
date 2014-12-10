@@ -43,26 +43,42 @@ class Record
 	end
 
 	def prune_group
+
 		groupscurrent = @groups.values.to_set.select{|g|g.rects.map{|x|x.type}.to_set.count>2}.to_a
 		gmerged = Hash.new(false)
 		groupsnew = [];
 		changed = false;
 
-		groupscurrent.combination(2).each do |gs,gt|
-			if !gmerged[gs] and !gmerged[gt] and gs.compatible? gt
-				gnew = RectGroup.merge(gs,gt)
-				puts "#{@filename} Group merged #{gt.inspect} #{gs.inspect} \nto\n#{gnew}"
+		gidx = (0...groupscurrent.count).to_a
+		gidx.combination(2).each do |gs,gt|
+			if !gmerged[gs] and !gmerged[gt] and groupscurrent[gs].compatible? groupscurrent[gt]
+				gnew = RectGroup.merge(groupscurrent[gs],groupscurrent[gt])
+				puts "#{@filename} Group merged "
 				gmerged[gs]=true
 				gmerged[gt]=true
 				changed = true
 				groupsnew<<gnew
 			end
 		end
-		groupscurrent.select{|g| !gmerged[g]}.each do |g|
-			groupsnew<<g
+		gidx.select{|g| !gmerged[g]}.each do |g|
+			groupsnew<<groupscurrent[g]
 		end
+
+		#groupscurrent.combination(2).each do |gs,gt|
+		#	if !gmerged[gs] and !gmerged[gt] and gs.compatible? gt
+		#		gnew = RectGroup.merge(gs,gt)
+		#		puts "#{@filename} Group merged #{gt.inspect} #{gs.inspect} \nto\n#{gnew}"
+		#		gmerged[gs]=true
+		#		gmerged[gt]=true
+		#		changed = true
+		#		groupsnew<<gnew
+		#	end
+		#end
+		#groupscurrent.select{|g| !gmerged[g]}.each do |g|
+		#	groupsnew<<g
+		#end
+
 		@bettergroups = groupsnew # one iteration for now
-		puts "#{@filename} is changed!"
 		changed
 	end
 
@@ -81,52 +97,38 @@ class Record
 		else
 			head_node_lookup = Hash.new
 			@graph = RGL::AdjacencyGraph.new
-			@edges = Hash.new()
+			#@edges = Hash.new()
 			@headset.each_with_index do |r,i| 
 				head_node_lookup[r]=i
 				@graph.add_vertex(i*10000+r.type)
 			end
-			@headset.combination(2).each do |r,s|
-				rule = net.query r.type, s.type
-				if rule !=nil
-					rdis=((rule.transform_with_type r).diff s)
-
-					#if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-					if rdis<0.5
-						@graph.add_edge(head_node_lookup[r]*10000+r.type,
-										head_node_lookup[s]*10000+s.type)
-						@edges[[head_node_lookup[r]*10000+r.type, head_node_lookup[s]*10000+s.type]]=rdis;
+			hidx = (0...@headset.size).to_a
+			hidx.combination(2).each do |r,s|
+				same = @headset[r].type == @headset[s].type
+				if !same
+					rule = net.query @headset[r].type, @headset[s].type
+					if rule !=nil
+						rdis=((rule.transform_with_type @headset[r]).diff @headset[s])
 					end
+				else
+					rdis = @headset[r].diff @headset[s]
+				end
+				if (same or rule !=nil) and rdis < 0.5
+					@graph.add_edge(r*10000+@headset[r].type,
+									s*10000+@headset[s].type)
+					#@edges[[head_node_lookup[r]*10000+r.type, head_node_lookup[s]*10000+s.type]]=rdis;
 				end
 			end
 			@graph.each_connected_component do |c|
-				c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri/10000]]=rg;rg.add_rect @headset[ri/10000];rg}
+				c.inject(RectGroup.new) do |rg,ri|
+					@groups[@headset[ri/10000]]=rg;
+					rg.add_rect @headset[ri/10000];
+					rg
+				end
 			end
+
 		end
 	end
-
-	#def group_rects_with_graph_and_table  net,table
-	#	@groups = Hash.new
-	#	if @headset==nil
-	#		raise "Empty goodset"
-	#	else
-	#		head_node_lookup = Hash.new
-	#		@graph = RGL::AdjacencyGraph.new
-	#		@headset.each_with_index do |r,i| 
-	#			head_node_lookup[r]=i
-	#			@graph.add_vertex(i)
-	#		end
-	#		@headset.combination(2).each do |r,s|
-	#			rule = net.query r.type, s.type
-	#			if rule != nil && ((rule.transform_with_type r).diff s)<0.8
-	#				@graph.add_edge(head_node_lookup[r],head_node_lookup[s])
-	#			end
-	#		end
-	#		@graph.each_connected_component do |c|
-	#			c.inject(RectGroup.new){|rg,ri|@groups[@headset[ri]]=rg;rg.add_rect @headset[ri],table.transform(@headset[ri]);rg}
-	#		end
-	#	end
-	#end
 
 
 	def group_rects  table
@@ -185,7 +187,6 @@ class Record
 			puts e.backtrace
 			puts "g=#{g}"
 		end
-
 
 	end
 

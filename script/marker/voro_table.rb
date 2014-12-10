@@ -37,7 +37,7 @@ class VoroTable
 		end
 		target = from*10000+to
 		invtarget= to*10000+from
-		if @good_set.count>0
+		if !@good_set.empty?
 			if @good_set.include?(target)||@good_set.include?(invtarget)
 				return @table[target]
 			else 

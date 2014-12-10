@@ -113,7 +113,7 @@ class RectGroup
 	end
 
 	def include arect
-		if @rects.count >0
+		if !@rects.empty?
 			return @rects.inject(false){|res,rec|res || (rec.include arect)}
 		else 
 			return false
@@ -122,7 +122,7 @@ class RectGroup
 
 
 	def inferred_include arect
-		if @inferred_rects.count>0
+		if !@inferred_rects.empty?
 			return @inferred_rects.inject(false){|res,rec|res || (rec.include arect)}
 		else 
 			return false
@@ -142,13 +142,16 @@ class RectGroup
 		@inferred_rects = []
 		@rects.each{|r| ir = table.transform r;@inferred_rects<<ir}
 	end
+
 	def aggregate_avg
-		medx = inferred_rects.inject(0){|s,r|s+r.x}/inferred_rects.count.to_f
-		medy = inferred_rects.inject(0){|s,r|s+r.y}/inferred_rects.count.to_f
-		medw = inferred_rects.inject(0){|s,r|s+r.w}/inferred_rects.count.to_f
-		medh = inferred_rects.inject(0){|s,r|s+r.h}/inferred_rects.count.to_f
+		irc = inferred_rects.count.to_f
+		medx = inferred_rects.inject(0){|s,r|s+r.x}/irc
+		medy = inferred_rects.inject(0){|s,r|s+r.y}/irc
+		medw = inferred_rects.inject(0){|s,r|s+r.w}/irc
+		medh = inferred_rects.inject(0){|s,r|s+r.h}/irc
 		@aggregated_rect = Rect.new(-1,0,medx,medy,medw,medh)
 	end
+
 	def aggregate
 		ax = inferred_rects.map{|r|r.x}.sort!
 		ay = inferred_rects.map{|r|r.y}.sort!
@@ -181,21 +184,15 @@ class RectGroup
 		end
 	end
 	def adjust i,table
-		#puts "*******"
-		#puts "processing nodes #{i}"
 		node = @rects[i]
 		rest = @rects - [node];
-		#puts "originally #{@rects.count}, after removing self, #{rest.count}"
 		goodpairs= rest.map{|x| [(table.query x.type,node.type),x]}.reject{|x|x[0] == nil}
-		if goodpairs.count>0
+		if !goodpairs.empty?
 			sumweight=goodpairs.map{|x|x[0].r*x[0].r}.inject(:+)
-			#puts "originally #{rest.count}, after removing bad ones, #{goodpairs.count}"
 			adjr =goodpairs.map{|x| (x[0].transform_with_type x[1])*(x[0].r*x[0].r)}.inject{|s,x|s+=x}/sumweight
 			difr = adjr - node;
 			makeupr = difr/2;
 			newadj = node + makeupr
-			#puts "#{adjr}\t-\t#{node}\t=\t#{difr}"
-			#puts "#{node}\t+\t#{makeupr}\t=\t#{newadj}\tdiff:\t#{newadj.diff node}"
 			@rects[i]=newadj
 		end
 		0.01

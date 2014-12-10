@@ -23,11 +23,16 @@ if type == "if"
 	rescue Exception => e
 		puts e
 	end
-	netfn = ARGV[7]
-	nettable = Network.loadTable(netfn) 
 
-	elfn = ARGV[8]
-	nettable.restrict elfn
+	begin
+		netfn = ARGV[7]
+		nettable = Network.loadTable(netfn) 
+
+		elfn = ARGV[8]
+		nettable.restrict elfn
+	rescue Exception => e
+		puts e
+	end
 
 	begin
 		global_fn = ARGV[9]
@@ -111,7 +116,7 @@ if type == "if"
 			x.group_rects_with_graph  nettable
 			goodgroups=x.groups.values.to_set
 			bettergroups = goodgroups.select{|g|g.rects.map{|x|x.type}.to_set.count>2}
-			if bettergroups.count > 0
+			if !bettergroups.empty?
 				changed = false;
 				bettergroups.each_with_index do |g,i|
 					begin
@@ -125,17 +130,11 @@ if type == "if"
 				end
 				changed = x.prune_group 
 				x.bettergroups.each_with_index do |g,i|
-					begin
-						x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
-						#x.draw_group(g,x.colortab[(i+1)*31],"x")
-					rescue Exception => e
-						puts e
-						puts e.backtrace
-						puts
-					end
+					x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+					#x.draw_group(g,x.colortab[(i+1)*31],"x")
 				end
 				#if changed
-					x.export
+				x.export
 				#end
 			end
 		}
@@ -172,10 +171,18 @@ if type == "if"
 	end
 
 	records.each do|x|
-		x.pick_good_set head
-		if x.headset.count > 0
-			c+=1
-			process.call(x)
+		begin
+			x.pick_good_set head
+			if !x.headset.empty?
+				c+=1
+				process.call(x)
+			end
+		rescue Exception => e
+			puts "process_rect=======================Error!====================="
+			puts e.backtrace.join("\n")
+			puts $!
+			puts caller[0..100]
+			puts "process_rect=======================Error!====================="
 		end
 	end
 	puts " #{c} images processed"
