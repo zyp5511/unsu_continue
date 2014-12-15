@@ -25,7 +25,7 @@ end
 lcrecords= Hash[parse_cv_data lcdat]
 astlcrecords= Hash[parse_cv_data astlcdat]
 
-puts "there are #{lcrecords.count} records"
+puts "there are #{lcrecords.length} records"
 
 cso=0
 osc=0

@@ -25,10 +25,10 @@ def parse_cv_data fname
 end
 
 cvrecords = Hash[parse_cv_data cvdat]
-#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects_with_graph  nettable,table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
-lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
+#lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects_with_graph  nettable,table}.select{|r|r.groups.values.to_set.length>0}.map{|r|[r.filename, r]}] 
+lcrecords = Hash[Record::seperate_records(src,des,IO.foreach(lcdat)).select{|r|r.rects!=nil}.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.length>0}.map{|r|[r.filename, r]}] 
 
-puts "there are #{lcrecords.count} records"
+puts "there are #{lcrecords.length} records"
 
 cso=0
 osc=0
@@ -62,7 +62,7 @@ lcrecords.each do |k,v|
 			g.aggregate
 	end
 	#vg = v.groups.values.to_set
-	vg=v.groups.values.to_set.select{|y|y.rects.count>1}
+	vg=v.groups.values.to_set.select{|y|y.rects.length>1}
 
 	if cvrecords[k]!=nil
 		cv_processed << k;
@@ -95,11 +95,11 @@ lcrecords.each do |k,v|
 	found = false;
 	#vv.select{|x|x.matched}.each{|vvr|tphist[vvr.type]+=1}
 	vg.select{|x|x.matched}.each do |g|
-		tcthist[g.rects.count]+=1
+		tcthist[g.rects.length]+=1
 	end
 	vg.select{|x|!x.matched}.each do |g|
 		#export false alert
-		fcthist[g.rects.count]+=1;
+		fcthist[g.rects.length]+=1;
 		#vrdraw = Magick::Draw.new
 		#vrdraw.stroke('red').stroke_width(0.5)
 		#vrdraw.fill("transparent")

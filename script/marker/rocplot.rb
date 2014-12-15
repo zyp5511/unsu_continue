@@ -17,7 +17,7 @@ nettable.restrict elfn
 
 table = LCTransformTable.loadMap(transfn,1006) #hard coded cluster number, should be changed later
 orihead = IO.readlines(headdat).map{|x|x.to_i}
-len = orihead.count
+len = orihead.length
 
 def parse_cv_data fname
 	IO.foreach(fname).map{|x|x.chomp}.chunk{|l|l.end_with?("gif")||l.end_with?("jpg")||l.end_with?("png")||l.end_with?("jpeg") }.each_slice(2).map do |a|
@@ -35,7 +35,7 @@ total = 3306.0
 	osc=0
 	inter=0
 	head = orihead.take(l).to_set
-	lcrecords = Hash[orilcrecords.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.count>0}.map{|r|[r.filename, r]}] 
+	lcrecords = Hash[orilcrecords.each{|r|r.pick_good_set head;r.group_rects table}.select{|r|r.groups.values.to_set.length>0}.map{|r|[r.filename, r]}] 
 	cv_processed = Set.new()
 	lcrecords.each do |k,v|
 		#ori = Magick::Image.read(File.join(src,k).to_s).first
@@ -47,7 +47,7 @@ total = 3306.0
 			g.aggregate
 		end
 		#vg = v.groups.values.to_set
-		vg=v.groups.values.to_set.select{|y|y.rects.count>1}
+		vg=v.groups.values.to_set.select{|y|y.rects.length>1}
 
 		if cvrecords[k]!=nil
 			cv_processed << k;

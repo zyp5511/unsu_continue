@@ -13,7 +13,7 @@ class VoroTable
 	end
 
 	def group_quality(group)
-		group.rects.map{|r|query_raw(group.abs2gbl r)}.to_set.count
+		group.rects.map{|r|query_raw(group.abs2gbl r)}.to_set.length
 	end
 
 

@@ -23,7 +23,7 @@ class Record
 		@vectors = lines[1]
 		@dest = des
 		@src = src
-		if lines.count > 3
+		if lines.length > 3
 			tmp = lines.drop(2).take_while{|x| x.include?(":")&&!x.include?("=>")}
 			if tmp != nil
 				@rects = tmp.map do |l| 
@@ -44,12 +44,12 @@ class Record
 
 	def prune_group
 
-		groupscurrent = @groups.values.to_set.select{|g|g.rects.map{|x|x.type}.to_set.count>2}.to_a
+		groupscurrent = @groups.values.to_set.select{|g|g.rects.map{|x|x.type}.to_set.length>2}.to_a
 		gmerged = Hash.new(false)
 		groupsnew = [];
 		changed = false;
 
-		gidx = (0...groupscurrent.count).to_a
+		gidx = (0...groupscurrent.length).to_a
 		gidx.combination(2).each do |gs,gt|
 			if !gmerged[gs] and !gmerged[gt] and groupscurrent[gs].compatible? groupscurrent[gt]
 				gnew = RectGroup.merge(groupscurrent[gs],groupscurrent[gt])
@@ -138,7 +138,7 @@ class Record
 		else
 			@headset.each do |r|
 				ir = table.transform r
-				if @groups.values.count>0
+				if !@groups.values.empty?
 					g = @groups.values.find{|v|v.inferred_include ir}
 				else 
 					g = nil
@@ -176,8 +176,8 @@ class Record
 		begin
 			g.rects.each{|r|draw_rect(r, color)}
 			if title!=nil
-				titlex = g.rects.map{|r|r.x}.inject(:+)/g.rects.count
-				titley = g.rects.map{|r|r.y}.inject(:+)/g.rects.count
+				titlex = g.rects.map{|r|r.x}.inject(:+)/g.rects.length
+				titley = g.rects.map{|r|r.y}.inject(:+)/g.rects.length
 				rdraw = Magick::Draw.new
 				rdraw.pointsize(24)
 				rdraw.text(titlex,titley,title)

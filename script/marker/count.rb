@@ -4,5 +4,5 @@ require 'fileutils'
 require_relative 'record'
 
 lcdat = ARGV[0]
-Record::seperate_records("","",IO.foreach(lcdat)).each{|r|puts "#{r.filename}:#{r.rects.count}"}
+Record::seperate_records("","",IO.foreach(lcdat)).each{|r|puts "#{r.filename}:#{r.rects.length}"}
 

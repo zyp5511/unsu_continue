@@ -203,7 +203,7 @@ end
 #		end
 #		target = from*10000+to
 #		invtarget= to*10000+from
-#		if @goodset.count>0
+#		if @goodset.length>0
 #			if @goodset.include?(target)||@goodset.include?(invtarget)
 #				return @table[target]
 #			else 

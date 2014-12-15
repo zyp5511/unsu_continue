@@ -10,7 +10,7 @@ des = ARGV[3]
 report = ARGV[4]
 
 records = Record::seperate_records(src,des,IO.foreach(report))
-puts "there are #{records.count} records"
+puts "there are #{records.length} records"
 
 if type == "if"
 	clufn= ARGV[5]
@@ -74,7 +74,7 @@ if type == "if"
 	elsif oper == "crop_group_med_inferred"
 		process = ->(x){
 			x.group_rects table
-			if x.groups.values.to_set.count > 0
+			if x.groups.values.to_set.length > 0
 				x.groups.values.to_set.each_with_index do |g,i|
 					cp+=1
 					x.crop_rect(g.aggregate)
@@ -84,7 +84,7 @@ if type == "if"
 	elsif oper == "draw_group_med_inferred"
 		process = ->(x){
 			x.group_rects table
-			if x.groups.values.to_set.count > 1
+			if x.groups.values.to_set.length > 1
 				x.groups.values.to_set.each_with_index do |g,i|
 					g.inferred_rects.each{|r|x.draw_rect((r), x.colortab[i*10])}
 					x.draw_rect(g.aggregate,"\#ffffff")
@@ -96,9 +96,9 @@ if type == "if"
 		process = ->(x){
 			x.group_rects_with_graph  nettable
 			goodgroups=x.groups.values.to_set
-			if goodgroups.count > 0
+			if goodgroups.length > 0
 				goodgroups.each_with_index do |g,i|
-					if g.rects.map{|x|x.type}.to_set.count>2
+					if g.rects.map{|x|x.type}.to_set.length>2
 						begin
 							g.calibrate_global global_table
 							x.draw_rect(g.infer_part_globally(global_table,100),"\#ffffff")
@@ -115,7 +115,7 @@ if type == "if"
 		process = ->(x){
 			x.group_rects_with_graph  nettable
 			goodgroups=x.groups.values.to_set
-			bettergroups = goodgroups.select{|g|g.rects.map{|x|x.type}.to_set.count>2}
+			bettergroups = goodgroups.select{|g|g.rects.map{|x|x.type}.to_set.length>2}
 			if !bettergroups.empty?
 				changed = false;
 				bettergroups.each_with_index do |g,i|
@@ -130,8 +130,10 @@ if type == "if"
 				end
 				changed = x.prune_group 
 				x.bettergroups.each_with_index do |g,i|
-					x.draw_group(g,x.colortab[(i+1)*31],"#{vorotable.group_quality g}")
+					gqual = vorotable.group_quality g
+					x.draw_group(g,x.colortab[(i+1)*31],"#{gqual}")
 					#x.draw_group(g,x.colortab[(i+1)*31],"x")
+					puts "#{x.filename}\t#{i}\t#{gqual}"
 				end
 				#if changed
 				x.export
@@ -142,9 +144,9 @@ if type == "if"
 		process = ->(x){
 			x.group_rects_with_graph  nettable
 			goodgroups=x.groups.values.to_set
-			if goodgroups.count > 0
+			if goodgroups.length > 0
 				goodgroups.each_with_index do |g,i|
-					if g.rects.count>2
+					if g.rects.length>2
 						g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*31])}
 					end
 				end
@@ -155,8 +157,8 @@ if type == "if"
 	elsif oper == "draw_group_net_inferred"
 		process = ->(x){
 			x.group_rects_with_graph  nettable,table
-			goodgroups=x.groups.values.to_set.select{|y|y.rects.count>3}
-			if goodgroups.count > 0
+			goodgroups=x.groups.values.to_set.select{|y|y.rects.length>3}
+			if goodgroups.length > 0
 				goodgroups.each_with_index do |g,i|
 					g.rects.each{|r|x.draw_rect((r), x.colortab[(i+1)*11],true)}
 					x.draw_rect(g.aggregate,"\#ffffff",true)
@@ -189,7 +191,7 @@ if type == "if"
 	puts " #{cp} patches created"
 else
 	records.each do|x|
-		puts "there are #{x.rects.count} rects"
+		puts "there are #{x.rects.length} rects"
 		x.rects.each{|r|x.crop_rect r}
 	end
 end

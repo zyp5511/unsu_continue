@@ -45,7 +45,7 @@ class Network
 		end
 		target = from*10000+to
 		invtarget= to*10000+from
-		#if @good_set.count>0  ## stupid implementation, super slow
+		#if @good_set.length>0  ## stupid implementation, super slow
 		if !@good_set.empty?
 			if @good_set.include?(target)||@good_set.include?(invtarget)
 				return @table[target]
@@ -94,10 +94,10 @@ class Network
 		#	set_distance good[0],good[1],1
 		end
 		#nodes_array = @nodes.sort
-		#for k in 0...(nodes_array.count)
-		#	for i in 0...(nodes_array.count-1)
+		#for k in 0...(nodes_array.length)
+		#	for i in 0...(nodes_array.length-1)
 		#		if i!=k
-		#			for j in (i+1)...(nodes_array.count)
+		#			for j in (i+1)...(nodes_array.length)
 		#				if j!=k
 		#					dik=get_distance(i,k)
 		#					dkj=get_distance(k,j)

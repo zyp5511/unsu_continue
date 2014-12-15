@@ -29,8 +29,8 @@ class RectGroup
 		res.rects = arects
 		res.inferred_rects = ainferred_rects
 
-		alpha = ga.rects.count;
-		beta = gb.rects.count;
+		alpha = ga.rects.length;
+		beta = gb.rects.length;
 		res.originx = ( ga.originx*alpha+gb.originx*beta)/(alpha+beta)
 		res.originy = ( ga.originy*alpha+gb.originy*beta)/(alpha+beta)
 		res.originsx = ( ga.originsx*alpha+gb.originsx*beta)/(alpha+beta)
@@ -91,10 +91,10 @@ class RectGroup
 
 		######################
 		##Alternative Mathod##
-		#avg_x = xs.inject(:+).to_f/xs.count 
-		#avg_y = ys.inject(:+).to_f/ys.count 
-		#avg_a = as.inject(:+).to_f/as.count 
-		#avg_b = bs.inject(:+).to_f/bs.count 
+		#avg_x = xs.inject(:+).to_f/xs.length 
+		#avg_y = ys.inject(:+).to_f/ys.length 
+		#avg_a = as.inject(:+).to_f/as.length 
+		#avg_b = bs.inject(:+).to_f/bs.length 
 
 		#sx = as.map{|a|a*(a-avg_a)}.inject(:+)/as.zip(xs).map{|a,x|a*(x-avg_x)}.inject(:+)
 		#sy = bs.map{|b|b*(b-avg_b)}.inject(:+)/bs.zip(ys).map{|b,y|b*(y-avg_y)}.inject(:+)
@@ -102,10 +102,10 @@ class RectGroup
 		#puts "avg_x is #{avg_x};avg_y is #{avg_y};avg_a is #{avg_a};avg_b is #{avg_b};" 
 		######################
 
-		@originsx = ss.inject(:+)/ss.count;
-		@originsy = ssy.inject(:+)/ssy.count;
-		@originx = as.zip(xs).map{|a,x|(x-@originsx*a)}.inject(:+)/xs.count
-		@originy = bs.zip(ys).map{|b,y|(y-@originsy*b)}.inject(:+)/ys.count
+		@originsx = ss.inject(:+)/ss.length;
+		@originsy = ssy.inject(:+)/ssy.length;
+		@originx = as.zip(xs).map{|a,x|(x-@originsx*a)}.inject(:+)/xs.length
+		@originy = bs.zip(ys).map{|b,y|(y-@originsy*b)}.inject(:+)/ys.length
 
 		#puts "originsx is #{@originsx} originsy is #{@originsy}"
 		#puts "origin_x is #{@originx}; origin_y is #{@originy}"
@@ -144,7 +144,7 @@ class RectGroup
 	end
 
 	def aggregate_avg
-		irc = inferred_rects.count.to_f
+		irc = inferred_rects.length.to_f
 		medx = inferred_rects.inject(0){|s,r|s+r.x}/irc
 		medy = inferred_rects.inject(0){|s,r|s+r.y}/irc
 		medw = inferred_rects.inject(0){|s,r|s+r.w}/irc
@@ -165,7 +165,7 @@ class RectGroup
 		@aggregated_rect = Rect.new(-1,0,medx,medy,medw,medh)
 	end
 	def aggregate_with_table table
-		if @rects.count > 1 
+		if @rects.length > 1 
 			itc = 0;
 			loop do 
 				#puts "===================="

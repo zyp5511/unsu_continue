@@ -32,7 +32,7 @@ end
 cvrecords = Hash[parse_cv_data cvdat]
 lcrecords = Hash[Record::seperate_records(src,$des,IO.foreach(lcdat)).select{|r| hard.include? r.filename}.map{|r|[r.filename, r.rects]}]
 
-puts "There are #{lcrecords.count} in hard samples"
+puts "There are #{lcrecords.length} in hard samples"
 
 fcount = 0
 
@@ -43,7 +43,7 @@ lcrecords.each do |k,v|
 		found = false
 		cvrecords[k].each do |cvr|
 			vid = v.select{|vr| vr.has_point cvr.x+(cvr.w/2),cvr.y+(cvr.h/2)}
-			fcount +=vid.count
+			fcount +=vid.length
 			vid.each do |r|
 				crop_rect ori,k,r
 			end
