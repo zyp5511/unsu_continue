@@ -24,9 +24,9 @@ void FeaturePartitioner::exportPatches(vector<int> category, string srcdir, stri
 	}
 }
 void FeaturePartitioner::kmean(Mat& feavec, vector<int>& category, int k, const TermCriteria& tc){
-	cout<<"Start k-mean clustering"<<endl;
+	cout<<"Start k-means clustering"<<endl;
 	double compactness = kmeans(feavec, k, category, tc, 3, KMEANS_PP_CENTERS);
-	cout<<"Done k-mean clustering"<<endl;
+	cout<<"Done k-means clustering"<<endl;
 	cout<<"Compactness is "<<compactness<<endl;
 }
 void FeaturePartitioner::kmean(Mat& feavec, vector<int>& category, int k){

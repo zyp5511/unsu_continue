@@ -64,20 +64,6 @@ class Record
 			groupsnew<<groupscurrent[g]
 		end
 
-		#groupscurrent.combination(2).each do |gs,gt|
-		#	if !gmerged[gs] and !gmerged[gt] and gs.compatible? gt
-		#		gnew = RectGroup.merge(gs,gt)
-		#		puts "#{@filename} Group merged #{gt.inspect} #{gs.inspect} \nto\n#{gnew}"
-		#		gmerged[gs]=true
-		#		gmerged[gt]=true
-		#		changed = true
-		#		groupsnew<<gnew
-		#	end
-		#end
-		#groupscurrent.select{|g| !gmerged[g]}.each do |g|
-		#	groupsnew<<g
-		#end
-
 		@bettergroups = groupsnew # one iteration for now
 		changed
 	end
@@ -113,7 +99,7 @@ class Record
 				else
 					rdis = @headset[r].diff @headset[s]
 				end
-				if (same or rule !=nil) and rdis < 0.5
+				if (same or rule !=nil) and rdis < 0.8 # old value is 0.5
 					@graph.add_edge(r*10000+@headset[r].type,
 									s*10000+@headset[s].type)
 					#@edges[[head_node_lookup[r]*10000+r.type, head_node_lookup[s]*10000+s.type]]=rdis;

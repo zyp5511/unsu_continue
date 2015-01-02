@@ -6,7 +6,10 @@ class RectGroup
 	attr_accessor :inferred_rects
 	attr_accessor :matched
 	attr_accessor :aggregated_rect
-	attr_accessor :originx, :originy, :originsx,:originsy
+	attr_accessor :originx, :originy
+	attr_accessor :originsx,:originsy # global unit length in pix
+	@@originmx = nil
+	@@originmy = nil
 
 	def initialize arect=nil, airect=nil
 		matched = false
@@ -41,9 +44,11 @@ class RectGroup
 	def compatible?(gb)
 		dx = (@originx-gb.originx).abs
 		dy = (@originy-gb.originy).abs
-		ds = (@originsy-gb.originsy).abs/(@originsy+gb.originsy)
-		stdx = @originsx+gb.originsx
-		stdy = @originsy+gb.originsy
+		ds = (Math.log(@originsy)-Math.log(gb.originsy)).abs
+		#stdx = @originsx+gb.originsx
+		#stdy = @originsy+gb.originsy
+		stdx = @@originmx * (@originsx + gb.originsx)
+		stdy = @@originmy * (@originsy + gb.originsy)
 
 		if (dx<stdx*0.1) && (dy<stdy*0.1) && (ds<0.2)
 			true
@@ -75,6 +80,19 @@ class RectGroup
 		xs=[];ys=[];
 		as=[];bs=[];ss=[];
 		ssy=[];
+		
+		if @@originmx == nil
+			tempxmax = global_table.values.max_by{|n|n.x}.x
+			tempxmin= global_table.values.min_by{|n|n.x}.x
+			@@originmx = tempxmax - tempxmin
+
+			tempymax = global_table.values.max_by{|n|n.y}.y
+			tempymin= global_table.values.min_by{|n|n.y}.y
+			@@originmy = tempymax - tempymin
+
+			puts "global x span is #{@@originmx}; global y span is #{@@originmy}"
+		end
+
 		@rects.each do |r|
 			pt = global_table[r.type] 
 			if pt !=nil

@@ -58,8 +58,8 @@ class Rect
 		sw = @w>aw ? @w : aw
 		sh = @h>ah ? @h : ah
 
-		dx = (@x-arect.x).abs.to_f/sw
-		dy = (@y-arect.y).abs.to_f/sh
+		dx = (@x-arect.x+(@w-aw).to_f/2).abs.to_f/sw
+		dy = (@y-arect.y+(@h-ah).to_f/2).abs.to_f/sh
 		dw = (Math.log(@w)-Math.log(aw)).abs.to_f
 
 		dx+dy+dw
