@@ -16,19 +16,24 @@ class VoroTable
 		group.rects.map{|r|query_raw(group.abs2gbl r)}.to_set.length
 	end
 
+	def group_quality_inspect(group) # to figure out the detected part indices
+		iset = group.rects.map{|r|query_raw(group.abs2gbl r)}.to_set
+	end
 
 	def query_raw gcor
-		gx,gy,gs=gcor
-		maxd2 = 0;
-		maxi = -1;
+		gx,gy,gs_raw = gcor
+		gs = Math.log(gs_raw)
+		mind2 = 100;
+		mini = -1;
 		@table.each_with_index do |c,i|
-			d2 = (c[0]-gx)*(c[0]-gx)+(c[1]-gy)*(c[1]-gy)+(c[2]-gs)*(c[2]-gs)
-			if d2>maxd2
-				maxi = i;
-				maxd2 = d2;
+			d2 = (c[0]-gx)*(c[0]-gx)/(gs_raw*gs_raw)+
+				(c[1]-gy)*(c[1]-gy)/(gs_raw*gs_raw)+(c[2]-gs)*(c[2]-gs)
+			if d2<mind2
+				mini = i;
+				mind2 = d2;
 			end
 		end
-		maxi
+		mini
 	end
 
 	def query from,to
