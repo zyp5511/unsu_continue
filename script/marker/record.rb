@@ -93,13 +93,13 @@ class Record
 				same = @headset[r].type == @headset[s].type
 				if !same
 					rule = net.query @headset[r].type, @headset[s].type
-					if rule !=nil
+					if !rule.nil?
 						rdis=((rule.transform_with_type @headset[r]).diff @headset[s])
 					end
 				else
 					rdis = @headset[r].diff @headset[s]
 				end
-				if (same or rule !=nil) and rdis < 0.8 # old value is 0.5
+				if (same or !rule.nil?) and rdis < 0.8 # old value is 0.5
 					@graph.add_edge(r*10000+@headset[r].type,
 									s*10000+@headset[s].type)
 					#@edges[[head_node_lookup[r]*10000+r.type, head_node_lookup[s]*10000+s.type]]=rdis;

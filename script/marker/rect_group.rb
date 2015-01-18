@@ -204,7 +204,7 @@ class RectGroup
 	def adjust i,table
 		node = @rects[i]
 		rest = @rects - [node];
-		goodpairs= rest.map{|x| [(table.query x.type,node.type),x]}.reject{|x|x[0] == nil}
+		goodpairs= rest.map{|x| [(table.query x.type,node.type),x]}.reject{|x|x[0].nil?}
 		if !goodpairs.empty?
 			sumweight=goodpairs.map{|x|x[0].r*x[0].r}.inject(:+)
 			adjr =goodpairs.map{|x| (x[0].transform_with_type x[1])*(x[0].r*x[0].r)}.inject{|s,x|s+=x}/sumweight
