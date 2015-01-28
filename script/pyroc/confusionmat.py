@@ -46,29 +46,17 @@ for i in range(4):
     Y[i] = Y[i].astype(bool)
     X[i] = X[i].astype(int)
     
-  
-# %% p
-# Compute ROC curve and ROC area for each class
-fpr = dict()
-tpr = dict()
-roc_auc = dict()
-for i in range(4):
-    fpr[i], tpr[i], _ = roc_curve(Y[i], X[i])
-    roc_auc[i] = auc(fpr[i], tpr[i])
-
-
-# Plot ROC curve
-plt.figure()
-
-for i in range(4):
-    plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'
-                                   ''.format(names[i], roc_auc[i]))
-
-plt.plot([0, 1], [0, 1], 'k--')
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic to multi-class')
-plt.legend(loc="lower right")
-plt.show()
+# %% read and processing data
+def fcolOne(XX,YY,th):
+    res= [];    
+    res.append(metrics.accuracy_score(preprocessing.binarize(XX[:400],th),np.ones(400)))   
+    res.append(metrics.accuracy_score(preprocessing.binarize(XX[400:800],th),np.ones(400)))    
+    res.append(metrics.accuracy_score(preprocessing.binarize(XX[800:1018],th),np.ones(218)))    
+    res.append(metrics.accuracy_score(preprocessing.binarize(XX[-400:],th),np.ones(400)))    
+    return res
+# %% read and processing data    
+th=[4.5,13,11,8]
+mat = np.ndarray((4,4))
+for i in range(4):    
+    mat[:,i]=np.array(fcolOne(X[i],Y[i],th[i]))
+pd.DataFrame(mat,columns=names)
