@@ -52,11 +52,12 @@ def fcolOne(XX,YY,th):
     res.append(metrics.accuracy_score(preprocessing.binarize(XX[:400],th),np.ones(400)))   
     res.append(metrics.accuracy_score(preprocessing.binarize(XX[400:800],th),np.ones(400)))    
     res.append(metrics.accuracy_score(preprocessing.binarize(XX[800:1018],th),np.ones(218)))    
-    res.append(metrics.accuracy_score(preprocessing.binarize(XX[-400:],th),np.ones(400)))    
+    res.append(metrics.accuracy_score(preprocessing.binarize(XX[-400:],th),np.ones(400))) 
+    res.append(metrics.precision_score(preprocessing.binarize(XX,th),1-YY)) 
     return res
 # %% read and processing data    
-th=[4.5,13,11,8]
-mat = np.ndarray((4,4))
+th=[5,13,11,8]
+mat = np.ndarray((5,4))
 for i in range(4):    
     mat[:,i]=np.array(fcolOne(X[i],Y[i],th[i]))
 pd.DataFrame(mat,columns=names)
