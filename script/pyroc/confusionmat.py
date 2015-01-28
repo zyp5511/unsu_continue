@@ -40,7 +40,7 @@ for i in range(4):
             rest = images[j]
         if rest > 0:            
             X[i] = np.append(X[i], np.zeros(rest));
-            Y[i] = np.append(Y[i], np.zeros(rest));
+            Y[i] = np.append(Y[i], (i==j) * np.ones(rest));
             if i==0:
                 Y_true = np.append(Y_true, j * np.ones(rest))
     Y[i] = Y[i].astype(bool)
@@ -56,7 +56,7 @@ def fcolOne(XX,YY,th):
     res.append(metrics.precision_score(preprocessing.binarize(XX,th),1-YY)) 
     return res
 # %% read and processing data    
-th=[5,13,11,8]
+th=[5,14,11,8]
 mat = np.ndarray((5,4))
 for i in range(4):    
     mat[:,i]=np.array(fcolOne(X[i],Y[i],th[i]))

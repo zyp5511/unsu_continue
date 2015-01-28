@@ -32,7 +32,7 @@ for i in range(4):
             rest = images[j]
         if rest > 0:            
             X[i] = np.append(X[i], np.zeros(rest));
-            Y[i] = np.append(Y[i], np.zeros(rest));
+            Y[i] = np.append(Y[i], (i==j) * np.ones(rest));
     Y[i] = Y[i].astype(bool)
     X[i] = X[i].astype(int)
   
