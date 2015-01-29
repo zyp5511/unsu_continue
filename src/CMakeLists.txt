@@ -1,6 +1,7 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Unsu_SOURCE_DIR}/cmake)
 
 include_directories(${Unsu_SOURCE_DIR}/include)
+include_directories(${Unsu_SOURCE_DIR}/3rdparty)
 
 SET(Boost_NO_BOOST_CMAKE ON)
 
