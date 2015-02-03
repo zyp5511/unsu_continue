@@ -7,13 +7,14 @@ Created on Fri Jan 16 15:05:28 2015
 print(__doc__)
 # %% import 
 import numpy as np
+import re
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import roc_curve, auc
-home = '/home/lichao/scratch/pami/groups/'
+home = 'Y:/vault/pami/groups/'
 # %% read and processing data
-names = ['airplane','car','face','motorbike']
+names = ['airplane_400','car_400','face','motorbike']
 images = [400,400,218,400]
 X = dict()
 Y = dict()
@@ -22,7 +23,7 @@ for i in range(n_cat):
     X[i]=np.ndarray((0,1))
     Y[i]=np.ndarray((0,1))
     for j in range(4):
-        fn = home+'/single_{0}/single_{0}_{1}_64.txt'.format(names[i],names[j])
+        fn = home+'/single_{0}/single_{0}_{1}_64.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
         t1 = pd.read_csv(fn,sep='\t',index_col=[0,1],header=None, names=['filename','gid','quality'])
         if t1.shape[0]>0:
             t1c = t1.groupby(level='filename').max()['quality'].as_matrix()
