@@ -120,7 +120,7 @@ if type == "if"
 				changed = false;
 				bettergroups.each_with_index do |g,i|
 					begin
-						g.aggregate_with_table nettable
+						#g.aggregate_with_table nettable
 						g.calibrate_global global_table
 					rescue Exception => e
 						puts e

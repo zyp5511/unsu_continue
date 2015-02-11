@@ -45,23 +45,32 @@ class Record
 	def prune_group
 
 		groupscurrent = @groups.values.to_set.select{|g|g.rects.map{|x|x.type}.to_set.length>2}.to_a
-		gmerged = Hash.new(false)
-		groupsnew = [];
-		changed = false;
+		its = 0;
+		changed = true;
+		while(its<3&&changed) do
+			gmerged = Hash.new(false)
+			groupsnew = [];
+			changed = false;
 
-		gidx = (0...groupscurrent.length).to_a
-		gidx.combination(2).each do |gs,gt|
-			if !gmerged[gs] and !gmerged[gt] and groupscurrent[gs].compatible? groupscurrent[gt]
-				gnew = RectGroup.merge(groupscurrent[gs],groupscurrent[gt])
-				puts "#{@filename} Group merged "
-				gmerged[gs]=true
-				gmerged[gt]=true
-				changed = true
-				groupsnew<<gnew
+			gidx = (0...groupscurrent.length).to_a
+			gidx.combination(2).each do |gs,gt|
+				if !gmerged[gs] and !gmerged[gt] and groupscurrent[gs].compatible? groupscurrent[gt]
+					gnew = RectGroup.merge(groupscurrent[gs],groupscurrent[gt])
+					oldlen1=groupscurrent[gs].rects.length
+					oldlen2=groupscurrent[gt].rects.length
+					newlen=gnew.rects.length
+					puts "#{@filename} Group merged #{oldlen1}+#{oldlen2}=#{newlen}"
+					gmerged[gs]=true
+					gmerged[gt]=true
+					changed = true
+					groupsnew<<gnew
+				end
 			end
-		end
-		gidx.select{|g| !gmerged[g]}.each do |g|
-			groupsnew<<groupscurrent[g]
+			gidx.select{|g| !gmerged[g]}.each do |g|
+				groupsnew<<groupscurrent[g]
+			end
+			groupscurrent = groupsnew
+			its=its+1
 		end
 
 		@bettergroups = groupsnew # one iteration for now
