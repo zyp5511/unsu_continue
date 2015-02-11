@@ -40,3 +40,14 @@ for i in range(4):
 # %% pandas transform
 XX = pd.DataFrame(X).transpose().fillna(0);
 # %% fit
+XX_train = XX[names].as_matrix()
+Y = XX['class'].as_matrix()
+lin_clf= svm.LinearSVC(multi_class='ovr');
+lin_clf.fit(XX_train,Y);
+Y_pred = lin_clf.predict(XX_train)
+
+# %% confusion matrix
+
+table  = pd.DataFrame(metrics.confusion_matrix(Y,Y_pred),columns=names)
+table = table.div(table.sum(axis=0))
+print(table.to_latex())
