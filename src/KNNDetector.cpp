@@ -49,7 +49,6 @@ void KNNDetector::classify(const vector<float>& vec, int&c, float&score) {
 		 * mater very much because of the KNN, but it is still better
 		 * to use a dim related  threshold instead
 		 */
-		//cout<<"==============="<<endl;
 		for (auto i = 0; i < n; i++) {
 			int nind = ind[i];
 			int nclu = clus[nind];
@@ -64,16 +63,14 @@ void KNNDetector::classify(const vector<float>& vec, int&c, float&score) {
 				maxi = p.first;
 			}
 		}
-		//cout<<"==============="<<endl;
 		if (max > 1) {
 			c = maxi;
 			for(auto i = 0; i < n ; i++){
 				if ( clus[ind[i]]==maxi){
-					score  = ind[i];
+					score  = dis[i];
 					break;
 				}
 			}
-			//score = dis[0]; //not good.. not real distance.
 		} else {
 			c = -1;
 		}

@@ -343,6 +343,9 @@ int main(int argc, const char * argv[]) {
 		nc.collectSrcDir(srcfolder);
 		cout << "Patches created!" << endl;
 		nc.exportFeatures(fsfn);
+		if(!fs::is_directory(desfolder)){
+			fs::create_directory(desfolder);
+		}
 		nc.exportPatches(desfolder);
 		nc.exportSeperators(seperator_fn);
 	} else if (oper == "latent") {
