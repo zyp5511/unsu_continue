@@ -12,30 +12,31 @@ import re
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import roc_curve, auc
-home = 'Y:/vault/pami/groups/'
+home = 'C:/users/lichao/scratch/groups/'
+#home = 'Y:/vault/pami/groups/'
 # %% read and processing data
-names = ['airplane_400','car_400','face','motorbike']
+names = ['car_400','airplane','face','motorbike']
 images = [400,400,218,400]
 X = dict()
 Y = dict()
-n_cat = 3
+n_cat = 4
 for i in range(n_cat):
     X[i]=np.ndarray((0,1))
     Y[i]=np.ndarray((0,1))
     for j in range(4):
-        fn = home+'/single_{0}/single_{0}_{1}_64.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
+        fn = home+'/{0}/single_{0}_{1}.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
         t1 = pd.read_csv(fn,sep='\t',index_col=[0,1],header=None, names=['filename','gid','quality'])
         if t1.shape[0]>0:
             t1c = t1.groupby(level='filename').max()['quality'].as_matrix()
             X[i] = np.append(X[i], t1c);
-            Y[i] = np.append(Y[i], (i==j) * np.ones((t1c.shape[0],1)))
+            Y[i] = np.append(Y[i], ((i%4)==j) * np.ones((t1c.shape[0],1)))
             rest = images[j]-t1c.shape[0]
         else:
             rest = images[j]
         if rest > 0:
             print("{}:{}:{}".format(names[i],names[j],rest))            
             X[i] = np.append(X[i], np.zeros(rest));
-            Y[i] = np.append(Y[i], (i==j) * np.ones(rest));
+            Y[i] = np.append(Y[i], ((i%4)==j) * np.ones(rest));
     Y[i] = Y[i].astype(bool)
     X[i] = X[i].astype(int)
   
@@ -50,7 +51,7 @@ for i in range(n_cat):
 
 
 # Plot ROC curve
-plt.figure()
+plt.figure(figsize=(11,8.5))
 
 for i in range(n_cat):
     plt.plot(fpr[i], tpr[i], label='ROC curve of class {0} (area = {1:0.2f})'
