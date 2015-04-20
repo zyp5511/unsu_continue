@@ -12,10 +12,11 @@ import re
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import roc_curve, auc
-home = 'C:/users/lichao/scratch/groups/'
+#home = 'C:/users/lichao/scratch/groups/'
+home = "Y:/vault/pami/archive/groups_multi/"
 #home = 'Y:/vault/pami/groups/'
 # %% read and processing data
-names = ['car_400','airplane','face','motorbike']
+names = ['car','airplane','face','motorbike']
 images = [400,400,218,400]
 X = dict()
 Y = dict()
@@ -24,7 +25,8 @@ for i in range(n_cat):
     X[i]=np.ndarray((0,1))
     Y[i]=np.ndarray((0,1))
     for j in range(4):
-        fn = home+'/{0}/single_{0}_{1}.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
+        #fn = home+'/{0}/single_{0}_{1}.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
+        fn = home+'/multi_{0}/multi_{0}_{1}_64.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
         t1 = pd.read_csv(fn,sep='\t',index_col=[0,1],header=None, names=['filename','gid','quality'])
         if t1.shape[0]>0:
             t1c = t1.groupby(level='filename').max()['quality'].as_matrix()
