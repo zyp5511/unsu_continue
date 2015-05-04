@@ -31,9 +31,9 @@ for i in range(4):
         fn = scratch+'svmtrain/{0}_train_{1}_res_64.txt'.format(names[i],re.sub(r'_.*',"",names[j]))
         t1 = pd.read_table(fn,header=None)
         if len(X[i])==0:
-            X[i]=t1>0;
+            X[i]=t1;
         else:
-            X[i] = np.r_[X[i], t1>0];
+            X[i] = np.r_[X[i], t1];
         Y[i] = np.append(Y[i], (i==j) * np.ones((t1.shape[0],1)))
         if i==0:
             membership = np.append(membership, j * np.ones((t1.shape[0],1)))
