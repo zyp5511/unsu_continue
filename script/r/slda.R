@@ -1,33 +1,40 @@
 # Read Data ---------------------------------------------------------------
 library(ggplot2)
 library(lda)
-scratch = 'C:/Users/Lichao/scratch/svm/'
-traindn ='svmtrain'
-testdn = 'svmdata'
+scratch <- 'C:/Users/Lichao/scratch/svm/'
+traindn <- 'svmtrain'
+testdn <- 'svmdata'
 
-suffix = '_res_64.txt'
+
 ns = c('car','face','motorbike','airplane')
 
 
-
-disthist <- function(prefix, suffix, m, ns ) {
-  dats = list()
+disthist <- function(prefix, suffix, m, ns, mid ) {
+  dats <<- list()
+  docs <<- list()
+  annot <<-list()
   for(n in ns){
-    dats[[n]] = read.table(paste(prefix,n,suffix,sep=''))
-    names(dats[[n]])=c('node','Distance')
-    dats[[n]]$Category = n
+    temp <-read.table(paste(prefix,mid,n,suffix,sep='_'))
+    dats <<- rbind(dats,temp)
+    
+    annot<<- c(annot,rep(n==m, dim(temp)[1]))
   }
-  alltable = do.call('rbind',dats)
-  ggplot(alltable[,c('Distance','Category')], aes(Distance, fill = Category)) + geom_density(alpha = 0.2)+ labs(title = paste(m,'Detector'))
-  ggsave(file=paste(prefix,m,"hist.pdf",sep='_'), width=8, height=6)
+  annot[annot==T]<<- 1
+  annot[annot==F]<<- -1
+  docs <<- apply(dats,1,function(vv){paste(sapply(1:length(vv),function(i){paste(rep(as.character(i),vv[i]),collapse = " ")}),collapse = " " )})
 }
-
-
+suffix <- 'res_64.txt'
+res<<-list()
 for(m in ns){
-  prefix = paste(scratch,traindn,m, 'test_',sep='/')
-  disthist(prefix, suffix,m,ns)
+  prefix <- paste(scratch,traindn,m,sep='/')
+  disthist(prefix, suffix,m,ns,'train')
+  corpus<-lexicalize(docs)
+  p <- sample(c(-1, 1), 4, replace=TRUE)
+  mo = slda.em(corpus$documents,corpus$vocab,K=4,annotations=unlist(annot),variance=0.25,num.e.iterations=10,num.m.iterations=4,alpha=1.0, eta=0.1,params=p)
+  testprefix <-paste(scratch,testdn,m,sep='/')
+  disthist(testprefix, suffix,m,ns,'test')
+  testcorpus <-lexicalize(docs,vocab = corpus$vocab)
+  res[[m]]=slda.predict(testcorpus,mo$topics,mo$model,alpha = 1.0,eta=0.1)
 }
 
-prefix = paste(scratch,'train','quad_train_',sep='/')
-suffix = '_train_64.txt'
-disthist(prefix, suffix,'Shared Dictionary',ns)
+
