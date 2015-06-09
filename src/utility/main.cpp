@@ -728,6 +728,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 		}
 	}
 
+	// for matching using active set(game card) and transforms to target set(core
+	// card )
 	if (vm.count("gamecard")&&!gc.empty()&&iw.match(gc)) {
 		cout << fname << " matched!" << endl;
 		Mat out = mat.clone();
