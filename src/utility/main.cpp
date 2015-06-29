@@ -105,6 +105,7 @@ int main(int argc, const char * argv[]) {
 		("operation,O",po::value<string>(&oper), "set operation")
 		("batch,B","set batch/single")
 		("daemon", "set daemon")
+		("list", po::value<string>(), "set file list to scan")
 		("co-occurrence","set co-occurrence rule detection")
 		("aux-result,A",po::value<string>(&auxfn), "set aux result file")
 		("port",po::value<string>(&portn), "set port");
