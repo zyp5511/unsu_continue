@@ -176,6 +176,10 @@ int main(int argc, const char * argv[]) {
 		po::notify(vm);
 		fconf.close();
 	}
+	if(vm.count("des") && !fs::is_directory(desfolder)){
+		cout<<"creating destination folder..."<<endl;
+		fs::create_directory(desfolder);
+	}
 
 	if (vm.count("prefix")) {
 		cout << "The filename prefix is " << vm["prefix"].as<string>() << endl;
@@ -343,9 +347,6 @@ int main(int argc, const char * argv[]) {
 		nc.collectSrcDir(srcfolder);
 		cout << "Patches created!" << endl;
 		nc.exportFeatures(fsfn);
-		if(!fs::is_directory(desfolder)){
-			fs::create_directory(desfolder);
-		}
 		nc.exportPatches(desfolder);
 		nc.exportSeperators(seperator_fn);
 	} else if (oper == "latent") {
@@ -730,7 +731,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
 
 	// for matching using active set(game card) and transforms to target set(core
 	// card )
-	if (vm.count("gamecard")&&!gc.empty()&&iw.match(gc)) {
+	if (vm.count("transform")&&!gc.empty()&&iw.match(gc)) {
 		cout << fname << " matched!" << endl;
 		Mat out = mat.clone();
 		Mat inferred_out;
