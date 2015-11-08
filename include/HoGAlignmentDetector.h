@@ -12,20 +12,18 @@
 
 #include <memory>
 
-
-class HoGAlignmentDetector: public PatchDetector {
+class HoGAlignmentDetector : public PatchDetector {
 public:
-	HoGAlignmentDetector();
-	virtual ~HoGAlignmentDetector();
-	virtual void detect(Feature& feature) override;
-	void setFinder(shared_ptr<KNNDetector> rf);
-	void setPCA(PCA& aPCA);
+  HoGAlignmentDetector();
+  virtual ~HoGAlignmentDetector();
+  virtual void detect(Feature &feature) override;
+  void setFinder(shared_ptr<KNNDetector> rf);
+  void setPCA(PCA &aPCA);
 
-	int tlx;
-	int tly;
+  int tlx;
+  int tly;
+
 private:
-	shared_ptr<KNNDetector> referenceFinder;
-	PCA pca;
-	
+  shared_ptr<KNNDetector> referenceFinder;
+  PCA pca;
 };
-

@@ -16,30 +16,35 @@
 using namespace std;
 using namespace cv;
 
-class RandomCropper:public ImageCropper {
+class RandomCropper : public ImageCropper {
 protected:
-	int patchesPerImage;
-	Mat feavec;
-	vector<int> seperators;
-	bool toprymaid;
+  int patchesPerImage;
+  Mat feavec;
+  vector<int> seperators;
+  bool toprymaid;
 
 public:
-	vector<int> category;
-	RandomCropper(){toprymaid=true;patchesPerImage = 50;};
-	RandomCropper(int k){toprymaid=true;patchesPerImage = k;}//set sampling density to k/img;
-	~RandomCropper(){};
-	void collectSrcDir(string fname);
+  vector<int> category;
+  RandomCropper() {
+    toprymaid = true;
+    patchesPerImage = 50;
+  };
+  RandomCropper(int k) {
+    toprymaid = true;
+    patchesPerImage = k;
+  } // set sampling density to k/img;
+  ~RandomCropper(){};
+  void collectSrcDir(string fname);
 
-	void kmean();
-	void kmean(int k);
-	void pca();
-	void setPrymaid(bool p){toprymaid=p;};
-	void exportPatches(string fname);
-	void exportFeatures(string fname);
-	void exportSeperators(string fname);
+  void kmean();
+  void kmean(int k);
+  void pca();
+  void setPrymaid(bool p) { toprymaid = p; };
+  void exportPatches(string fname);
+  void exportFeatures(string fname);
+  void exportSeperators(string fname);
 
-	virtual void setUp(Mat img) override;
+  virtual void setUp(Mat img) override;
 };
-
 
 #endif /* defined(__HumanPoseDetector__NegativeCollector__) */

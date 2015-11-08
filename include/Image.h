@@ -16,62 +16,67 @@
 #include "Feature.h"
 #include "Transform.h"
 
-#ifndef SEQ_IMG 
+#ifndef SEQ_IMG
 #include "tbb/tbb.h"
 #endif
 
 using namespace tbb;
 
 class ImageWrapper {
-	shared_ptr<PatchDetector> pd;
-	shared_ptr<ImageCropper> ic;
-	concurrent_vector<Result> results;
-	vector<vector<Result>> rtb; //reversal lookup table
-	vector<LCTransform> transforms;
-	CascadeClassifier face_cascade;
-	Mat img;
+  shared_ptr<PatchDetector> pd;
+  shared_ptr<ImageCropper> ic;
+  concurrent_vector<Result> results;
+  vector<vector<Result>> rtb; // reversal lookup table
+  vector<LCTransform> transforms;
+  CascadeClassifier face_cascade;
+  Mat img;
 
 public:
-	vector<int> histogram;
+  vector<int> histogram;
 
-	ImageWrapper(){};
-	ImageWrapper(shared_ptr<PatchDetector>  detector, shared_ptr<ImageCropper> cropper);
-	~ImageWrapper(){};
+  ImageWrapper(){};
+  ImageWrapper(shared_ptr<PatchDetector> detector,
+               shared_ptr<ImageCropper> cropper);
+  ~ImageWrapper(){};
 
-	/*
-	* pre-processing
-	*/
+  /*
+  * pre-processing
+  */
 
-	void setImage(Mat image);
-	void setImage(string imgFilename);
-	void collectPatches();
-	void setBins(int n);
+  void setImage(Mat image);
+  void setImage(string imgFilename);
+  void collectPatches();
+  void setBins(int n);
 
-	/*
-	* batch KNN matching, observation vector generating, pattern matching
-	*/
-	void collectResult();
-	void collectResult(const PCA& pca);
-	void calcClusHist();
-	bool match(const vector<bool>&);//if certain pattern are matched by image's histogram
-	Rect matchArea(const vector<bool>&);//minRect cover all rects from certain clusters of kNN result
-	vector<vector<Result>> getMatchedResults(const vector<bool>& gamecard);//all rects from certain clusters of kNN result
-	vector<LCTransform> getLCTransforms(const vector<bool>& gc, const vector<bool>& core_gc);
-	vector<Result> getGoodResults();
+  /*
+  * batch KNN matching, observation vector generating, pattern matching
+  */
+  void collectResult();
+  void collectResult(const PCA &pca);
+  void calcClusHist();
+  bool match(const vector<bool>
+                 &); // if certain pattern are matched by image's histogram
+  Rect matchArea(const vector<bool> &); // minRect cover all rects from certain
+                                        // clusters of kNN result
+  vector<vector<Result>> getMatchedResults(
+      const vector<bool>
+          &gamecard); // all rects from certain clusters of kNN result
+  vector<LCTransform> getLCTransforms(const vector<bool> &gc,
+                                      const vector<bool> &core_gc);
+  vector<Result> getGoodResults();
 
-	/*
-	* OpenCV haar detector
-	*/
-	void loadCVModel(string modelfn);
-	vector<Rect> getocvresult(void);
+  /*
+  * OpenCV haar detector
+  */
+  void loadCVModel(string modelfn);
+  vector<Rect> getocvresult(void);
 
-
-	/*
-	* scanning latent variables
-	*/
-	void scan(const PCA& pca);//best match for a given set of clusters
-	vector<Rect> scanDebug(int i);
-	vector<Result> getBestResults(int len);//rects of top i responce from certain clusters of scan result
-
+  /*
+  * scanning latent variables
+  */
+  void scan(const PCA &pca); // best match for a given set of clusters
+  vector<Rect> scanDebug(int i);
+  vector<Result> getBestResults(
+      int len); // rects of top i responce from certain clusters of scan result
 };
 #endif /* defined(__HumanPoseDetector__Image__) */
