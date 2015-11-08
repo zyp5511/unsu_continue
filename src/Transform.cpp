@@ -7,6 +7,4 @@
 
 #include "Transform.h"
 
-LCTransform::~LCTransform() {
-}
-
+LCTransform::~LCTransform() {}
