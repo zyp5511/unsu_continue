@@ -1,8 +1,10 @@
 #pragma once
 #include "PatchDetector.h"
+#include <opencv2/ml.hpp>
 
 using namespace std;
 using namespace cv;
+using namespace cv::ml;
 const int vlen = 4480;
 class SVMDetector : public PatchDetector {
 public:
@@ -13,7 +15,7 @@ public:
                       bool &accepted) override;
 
 private:
-  CvSVM SVM;
+  Ptr<SVM> classifier;
   bool load(string fname);
   float b; // constant term in svm
   float svm[vlen]; // svm coeff;
