@@ -2,6 +2,7 @@
 #include "ExhaustiveCropper.h"
 
 using namespace std;
+
 ExhaustiveCropper::ExhaustiveCropper(void) {
   // patch_r = 160;
   // patch_c = 96;

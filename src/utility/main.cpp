@@ -291,7 +291,9 @@ int main(int argc, const char *argv[]) {
       fout << temp << endl;
     }
     fout.close(); // use vecoutfn as the destination.
-  } else if (oper == "kmean") {
+  } else if (oper == "kmeans" ||
+		 	oper == "kmean" // historical typo
+			) {
     int mi = 1;
     int ep = 0;
     int mode = 0;
@@ -619,6 +621,7 @@ int main(int argc, const char *argv[]) {
       if (vm.count("batch")) {
         vector<string> files;
         if (vm.count("list")) {
+					// parse all files in the list.
           string listfn = vm["list"].as<string>();
           ifstream listfin(listfn);
           string line;
@@ -626,6 +629,7 @@ int main(int argc, const char *argv[]) {
             files.push_back(line);
           listfin.close();
         } else {
+					// parse all files in the folder.
           files = loadFolder(srcfolder, prefix);
         }
 
@@ -702,23 +706,28 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   iw.setBins(k);
   iw.collectPatches();
   iw.collectResult(pca);
-  iw.calcClusHist();
-  vector<int> vec = iw.histogram;
 
-  fout << s << endl;
-  fout << "vector:\t";
-  for (int i = 0; i < k - 1; i++) {
-    fout << vec[i] << ",";
-  }
-  fout << vec[k - 1] << endl;
+	// Calculating viewlet histogram.
+  //iw.calcClusHist();
+  //vector<int> vec = iw.histogram;
+
+  //fout << s << endl;
+  //fout << "vector:\t";
+  //for (int i = 0; i < k - 1; i++) {
+  //  fout << vec[i] << ",";
+  //}
+  //fout << vec[k - 1] << endl;
 
   auto goodRes = iw.getGoodResults();
-  for (const Result &r : goodRes) {
-    fout << r.category << "\t" << r.score << "\t";
-    fout << (int)(r.rect.x / ratio) << ":" << (int)(r.rect.y / ratio) << ":"
-         << (int)(r.rect.width / ratio) << ":" << (int)(r.rect.height / ratio)
-         << endl;
-  }
+	if (vm.count("export-feature") && !core_gc.empty()){
+	} else {
+		for (const Result &r : goodRes) {
+			fout << r.category << "\t" << r.score << "\t";
+			fout << (int)(r.rect.x / ratio) << ":" << (int)(r.rect.y / ratio) << ":"
+					 << (int)(r.rect.width / ratio) << ":" << (int)(r.rect.height / ratio)
+					 << endl;
+		}
+	}
 
   Scalar colors[] = {
       Scalar(128, 0, 0),   Scalar(0, 128, 0),     Scalar(0, 0, 128),
@@ -728,12 +737,13 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
       Scalar(64, 64, 64),  Scalar(128, 128, 128), Scalar(255, 255, 255)};
 
   // record transformations from head related patches to standard head patches
-  if (vm.count("co-occurrence") && !core_gc.empty()) {
-    vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
-    for (LCTransform &t : trans) {
-      fout << t.getString() << endl;
-    }
-  }
+	// (deprecated): using ruby script instead.
+  //if (vm.count("co-occurrence") && !core_gc.empty()) {
+  //  vector<LCTransform> trans = iw.getLCTransforms(gc, core_gc);
+  //  for (LCTransform &t : trans) {
+  //    fout << t.getString() << endl;
+  //  }
+  //}
 
   // for matching using active set(game card) and transforms to target set(core
   // card )

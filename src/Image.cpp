@@ -79,7 +79,7 @@ void ImageWrapper::setBins(int n) {
 bool ImageWrapper::match(const vector<bool> &gamecard) {
   bool matched = false;
   size_t len = histogram.size();
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     if ((gamecard[i] && histogram[i] > 0)) {
       matched = true;
       break;
@@ -91,7 +91,7 @@ bool ImageWrapper::match(const vector<bool> &gamecard) {
 Rect ImageWrapper::matchArea(const vector<bool> &gamecard) {
   size_t len = histogram.size();
   vector<Point> points;
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     if (gamecard[i]) {
       for_each(rtb[i].begin(), rtb[i].end(), [&points](Result r) {
         points.push_back(r.rect.tl());
@@ -106,16 +106,15 @@ vector<vector<Result>>
 ImageWrapper::getMatchedResults(const vector<bool> &gamecard) {
   auto res = vector<vector<Result>>();
   size_t len = histogram.size();
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     if (gamecard[i]) {
-
       res.push_back(rtb[i]);
     }
   }
   return res;
 }
 
-vector<Result> ImageWrapper::getBestResults(int len) {
+vector<Result> ImageWrapper::getBestResults(size_t len) {
   auto mat_count = ic->all_mats.size();
   vector<int> a = vector<int>(mat_count);
   for (size_t i = 0; i < mat_count; i++) {
@@ -125,7 +124,7 @@ vector<Result> ImageWrapper::getBestResults(int len) {
        [&](int x, int y) { return results[x].score < results[y].score; });
   auto res = vector<Result>();
   int reslen = len > mat_count ? mat_count : len;
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < reslen; i++) {
     res.push_back(results[a[i]]);
   }
   return res;
@@ -136,7 +135,7 @@ vector<LCTransform> ImageWrapper::getLCTransforms(const vector<bool> &gc,
     vector<Result> froms;
     vector<Result> tos;
     size_t len = histogram.size();
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
       if (core_gc[i]) {
         tos.insert(tos.end(), rtb[i].begin(), rtb[i].end());
       } else if (gc[i]) {
