@@ -52,7 +52,7 @@ public:
   * batch KNN matching, observation vector generating, pattern matching
   */
   void collectResult();
-  void collectResult(const PCA &pca);
+  void collectResult(const PCA &pca, bool with_fea_vec);
   void calcClusHist();
   bool match(const vector<bool>
                  &); // if certain pattern are matched by image's histogram

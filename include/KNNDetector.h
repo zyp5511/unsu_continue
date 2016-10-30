@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PatchClassDetector.h"
 #include "FeatureLoader.h"
+#include "PatchClassDetector.h"
 #include <fstream>
 #include <memory>
 
@@ -12,7 +12,7 @@ public:
   KNNDetector(void) {}
   KNNDetector(string vecfname, string clusfname);
   KNNDetector(const Mat &featurevec, vector<int> &clusvec)
-      : feavec(featurevec), clus(clusvec) {}
+      : clus(clusvec), feavec(featurevec) {}
   ~KNNDetector(void) {}
   virtual void classify(const vector<float> &vec, int &c,
                         float &score) override;
@@ -20,5 +20,5 @@ public:
                                                   // list
 protected:
   vector<int> clus; // cluster tag
-  Mat feavec; // feature index, hold memory
+  Mat feavec;       // feature index, hold memory
 };

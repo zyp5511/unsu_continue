@@ -1,7 +1,7 @@
 #include "FeaturePCA.h"
 FeaturePCA::FeaturePCA(MatrixXf &fea, float retainedVar) {
 
-  int len = fea.cols();
+  size_t len = fea.cols();
   int in_count = fea.rows();
 #ifdef DEBUG_PCA
   cout << "fea" << endl;
@@ -28,7 +28,7 @@ FeaturePCA::FeaturePCA(MatrixXf &fea, float retainedVar) {
   ev = MatrixXf(len, len);
   el = VectorXf(len);
   vector<int> position(len);
-  for (int i = 0; i < len; i++)
+  for (size_t i = 0; i < len; i++)
     position[i] = i;
   sort(position.begin(), position.end(),
        [&tempval](int i, int j) -> bool { return tempval(i) > tempval(j); });
@@ -40,7 +40,7 @@ FeaturePCA::FeaturePCA(MatrixXf &fea, float retainedVar) {
   // compute the cumulative energy content for each eigenvector
   vector<double> g(len);
   g[0] = el(0);
-  for (int ig = 1; ig < len; ig++) {
+  for (size_t ig = 1; ig < len; ig++) {
     g[ig] = g[ig - 1] + el(ig);
 #ifdef DEBUG_PCA
     cout << g[ig] << "\t";

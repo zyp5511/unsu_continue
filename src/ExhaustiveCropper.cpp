@@ -1,5 +1,5 @@
-#include <opencv2/opencv.hpp>
 #include "ExhaustiveCropper.h"
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 

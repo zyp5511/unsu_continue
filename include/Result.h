@@ -1,16 +1,20 @@
 #pragma once
-#include <opencv2/opencv.hpp>
 #include "Transform.h"
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace cv;
 class Result {
 public:
-  Result(int c, float s, bool a) {
-    category = c;
-    score = s;
-    accepted = a;
+  Result(int cat, float scr, bool acc, Mat feat) {
+    category = cat;
+    score = scr;
+    accepted = acc;
+    feature = feat;
   }
+
+  Result(int cat, float scr, bool acc) : Result(cat, scr, acc, Mat()) {}
+
   Result() {
     category = -1;
     score = 0;
@@ -35,6 +39,7 @@ public:
   float score;
   bool accepted;
 
+  Mat feature;
   Rect rect;
   Rect real_rect;
 };

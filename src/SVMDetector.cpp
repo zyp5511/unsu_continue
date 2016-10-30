@@ -1,7 +1,7 @@
-#include <opencv2/opencv.hpp>
-#include <fstream>
-#include <sstream>
 #include "SVMDetector.h"
+#include <fstream>
+#include <opencv2/opencv.hpp>
+#include <sstream>
 
 using namespace cv;
 using namespace cv::ml;
@@ -25,14 +25,14 @@ SVMDetector::SVMDetector(string fname) {
 }
 
 SVMDetector::SVMDetector(const Mat &feavec, const vector<int> &label) {
-	classifier = SVM::create();
+  classifier = SVM::create();
   classifier->setType(SVM::C_SVC);
   classifier->setKernel(SVM::LINEAR);
   classifier->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
 
   Mat labelsMat(label);
   // Train the SVM
-	// TODO: Maybe this is COL_SAMPLE
+  // TODO: Maybe this is COL_SAMPLE
   classifier->train(TrainData::create(feavec, ROW_SAMPLE, labelsMat));
 }
 

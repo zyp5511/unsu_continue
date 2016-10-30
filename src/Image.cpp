@@ -21,16 +21,19 @@ void ImageWrapper::collectPatches() {
   cout << "We collected " << ic->size() << " patches." << endl;
 }
 
-void ImageWrapper::collectResult(const PCA &pca) {
+void ImageWrapper::collectResult(const PCA &pca, bool with_fea_vec) {
 #ifndef SEQ_IMG
   auto mat_count = ic->all_mats.size();
   results = concurrent_vector<Result>(mat_count);
   parallel_for(size_t(0), mat_count, [&](size_t i) {
-    Mat temp = ic->all_mats[i].clone();
+    Mat temp = ic->all_mats[i].clone(); // TODO: Is clone necessary?
     Feature fea(temp, pca);
     pd->detect(fea);
     Result tempres = fea.getResult();
     tempres.rect = ic->all_rects[i];
+    if (with_fea_vec) {
+      tempres.feature = ic->all_mats[i];
+    }
     results[i] = (tempres);
   });
 #else
@@ -41,7 +44,12 @@ void ImageWrapper::collectResult(const PCA &pca) {
     Mat temp = it_mats->clone();
     Feature fea(temp, pca);
     fea.detect(*pd);
-    results.push_back(fea.getResult());
+    Result tempres = fea.getResult();
+    tempres.rect = ic->all_rects[i];
+    if (with_fea_vec) {
+      tempres.feature = ic->all_mats[i];
+    }
+    results.push_back(tempres);
     c++;
   }
 #endif

@@ -7,9 +7,9 @@
 //
 
 #include "RandomCropper.h"
-#include <fstream>
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <fstream>
 
 namespace fs = boost::filesystem;
 namespace al = boost::algorithm;
