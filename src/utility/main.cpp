@@ -1,7 +1,7 @@
 //
 //  main.cpp
-//  HumanPoseDetector
-//
+//  HumanPoseDetector 
+//  
 //  Created by Lichao Chen on 11/26/12.
 //  Copyright (c) 2012 Lichao Chen. All rights reserved.
 //
@@ -105,6 +105,7 @@ int main(int argc, const char *argv[]) {
       "operation,O", po::value<string>(&oper),
       "set operation")("batch,B", "set batch/single")("daemon", "set daemon")(
       "list", po::value<string>(), "set file list to scan")(
+      "export-feature", "Export feature vector instead of rect position")(
       "co-occurrence", "set co-occurrence rule detection")(
       "aux-result,A", po::value<string>(&auxfn),
       "set aux result file")("port", po::value<string>(&portn), "set port");
@@ -718,15 +719,10 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   //}
   // fout << vec[k - 1] << endl;
 
-  auto goodRes = iw.getGoodResults();
-  if (feat_vec_collected) {
-    // Export feature vectors from core_gc viewlets.
-    for (const Result &r : goodRes) {
-      fout << r.category << "\t" << r.score << "\t";
-      fout << r.feature << endl;
-    }
-  } else {
+  if (!feat_vec_collected) {
     // Export rect from core_gc viewlets.
+    auto goodRes = iw.getGoodResults();
+    fout << s << endl;
     for (const Result &r : goodRes) {
       fout << r.category << "\t" << r.score << "\t";
       fout << (int)(r.rect.x / ratio) << ":" << (int)(r.rect.y / ratio) << ":"
@@ -760,8 +756,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
     if (!core_gc.empty()) {
       inferred_out = mat.clone();
     }
-    vector<vector<Result>> debugs = iw.getMatchedResults(gc);
-    for (auto &rs : debugs) {
+    vector<vector<Result>> res_decks = iw.getMatchedResults(gc);
+    for (auto &rs : res_decks) {
       for (auto &r : rs) {
         rectangle(out, r.rect, colors[r.category % 15]);
         if (!core_gc.empty()) {
@@ -775,6 +771,19 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
     }
     imwrite(desfolder + "detected_" + s, out);
     imwrite(desfolder + "inferred_" + s, inferred_out);
+  } else if (feat_vec_collected) {
+    // Export feature vectors from core_gc viewlets.
+    cout << fname << " matched!" << endl;
+    Mat out = mat.clone();
+    vector<vector<Result>> res_decks = iw.getMatchedResults(core_gc);
+    for (auto &rs : res_decks) {
+      for (auto &r : rs) {
+        fout << r.category << "\t" << r.score << "\t";
+        fout << format(r.feature.t(), Formatter::FMT_CSV) << endl;
+        rectangle(out, r.rect, colors[r.category % 15]);
+      }
+    }
+    imwrite(desfolder + "picked_viewlet_" + s, out);
   }
 }
 

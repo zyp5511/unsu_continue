@@ -32,7 +32,7 @@ void ImageWrapper::collectResult(const PCA &pca, bool with_fea_vec) {
     Result tempres = fea.getResult();
     tempres.rect = ic->all_rects[i];
     if (with_fea_vec) {
-      tempres.feature = ic->all_mats[i];
+      tempres.feature = Mat(fea.vec);
     }
     results[i] = (tempres);
   });

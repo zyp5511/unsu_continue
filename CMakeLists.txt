@@ -6,7 +6,7 @@ set (Unsu_VERSION_MINOR 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake")
 
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wno-ignored-attributes ${CMAKE_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 if (NOT CMAKE_BUILD_TYPE)
 	message(STATUS "No build type selected, default to Release")
