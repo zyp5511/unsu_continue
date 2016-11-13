@@ -1,7 +1,7 @@
 //
 //  main.cpp
-//  HumanPoseDetector 
-//  
+//  HumanPoseDetector
+//
 //  Created by Lichao Chen on 11/26/12.
 //  Copyright (c) 2012 Lichao Chen. All rights reserved.
 //
@@ -709,7 +709,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   iw.collectResult(pca, feat_vec_collected);
 
   // Calculating viewlet histogram.
-  // iw.calcClusHist();
+  iw.calcClusHist();
   // vector<int> vec = iw.histogram;
 
   // fout << s << endl;
@@ -773,17 +773,19 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
     imwrite(desfolder + "inferred_" + s, inferred_out);
   } else if (feat_vec_collected) {
     // Export feature vectors from core_gc viewlets.
-    cout << fname << " matched!" << endl;
     Mat out = mat.clone();
     vector<vector<Result>> res_decks = iw.getMatchedResults(core_gc);
+    bool viewlet_detected = false;
     for (auto &rs : res_decks) {
       for (auto &r : rs) {
         fout << r.category << "\t" << r.score << "\t";
         fout << format(r.feature.t(), Formatter::FMT_CSV) << endl;
         rectangle(out, r.rect, colors[r.category % 15]);
+        viewlet_detected = true;
       }
     }
-    imwrite(desfolder + "picked_viewlet_" + s, out);
+    if (viewlet_detected)
+      imwrite(desfolder + "picked_viewlet_" + s, out);
   }
 }
 
