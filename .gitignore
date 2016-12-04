@@ -19,6 +19,7 @@ __pycache__
 [Rr]elease/
 x64/
 build/
+gprof/
 [Bb]in/
 [Oo]bj/
 
