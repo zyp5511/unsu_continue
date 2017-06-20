@@ -6,6 +6,12 @@ set (Unsu_VERSION_MINOR 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake")
 
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+	message(STATUS "Native Arch Supported")
+endif()
+
 set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
 
 SET(CMAKE_CXX_FLAGS_GPROF "-pg")
