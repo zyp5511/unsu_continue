@@ -2,10 +2,12 @@
 
 #include "FeatureLoader.h"
 #include "PatchClassDetector.h"
+#include "opencv2/ml.hpp"
 #include <fstream>
 #include <memory>
 
 using namespace cv;
+using namespace cv::ml;
 
 class KNNDetector : public PatchClassDetector {
 public:
@@ -21,4 +23,6 @@ public:
 protected:
   vector<int> clus; // cluster tag
   Mat feavec;       // feature index, hold memory
+	Ptr<TrainData> trainingData; // A wrapper of above
+	Ptr<KNearest> kclassifier = KNearest::create(); // knn classifier
 };
