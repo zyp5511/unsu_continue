@@ -31,5 +31,5 @@ void FeaturePartitioner::kmean(Mat &feavec, vector<int> &category, int k,
   cout << "Compactness is " << compactness << endl;
 }
 void FeaturePartitioner::kmean(Mat &feavec, vector<int> &category, int k) {
-  kmean(feavec, category, k, TermCriteria(CV_TERMCRIT_ITER, 30, 0));
+  kmean(feavec, category, k, TermCriteria(TermCriteria::MAX_ITER, 30, 0));
 }

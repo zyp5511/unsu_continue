@@ -60,12 +60,12 @@ void RandomCropper::kmean() { kmean(100); }
 
 void RandomCropper::kmean(int k) {
   auto category = vector<int>(all_mats.size());
-  kmeans(feavec, k, category, TermCriteria(CV_TERMCRIT_ITER, 30, 0), 5,
+  kmeans(feavec, k, category, TermCriteria(TermCriteria::MAX_ITER, 30, 0), 5,
          KMEANS_PP_CENTERS);
   for_each(category.begin(), category.end(), [](int i) { cout << i << endl; });
 }
 void RandomCropper::pca() {
-  PCA a(feavec, noArray(), CV_PCA_DATA_AS_ROW, 0.95);
+  PCA a(feavec, noArray(), PCA::DATA_AS_ROW, 0.95);
   auto shortfea = a.project(feavec);
 
   cout << "PCA done" << endl;
