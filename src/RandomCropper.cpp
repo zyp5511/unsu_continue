@@ -39,7 +39,6 @@ void RandomCropper::collectSrcDir(string fname) {
     Mat img = imread(fname + s);
     cout << fname + s << endl;
     this->setUp(img);
-
   });
   auto it = all_mats.begin();
   Feature f(*it);

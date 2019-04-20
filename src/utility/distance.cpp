@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 Lichao Chen. All rights reserved.
 //
 
+#include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include <eigen3/Eigen/Dense>
 
-#include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "Feature.h"
 #include "FeatureLoader.h"

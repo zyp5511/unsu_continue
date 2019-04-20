@@ -293,7 +293,7 @@ int main(int argc, const char *argv[]) {
     }
     fout.close(); // use vecoutfn as the destination.
   } else if (oper == "kmeans" || oper == "kmean" // historical typo
-             ) {
+  ) {
     int mi = 1;
     int ep = 0;
     int mode = 0;
