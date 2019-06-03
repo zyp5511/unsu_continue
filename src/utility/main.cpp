@@ -707,7 +707,10 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   iw.collectPatches();
   bool feat_vec_collected = vm.count("export-feature") && !core_gc.empty();
   iw.collectResult(pca, feat_vec_collected);
+  if(true){
+    iw.export_Patches("/home/yipeng/Desktop/project/validation_build/EC_patches/");
 
+  }
   // Calculating viewlet histogram.
   iw.calcClusHist();
   // vector<int> vec = iw.histogram;
@@ -727,7 +730,8 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
       fout << r.category << "\t" << r.score << "\t";
       fout << (int)(r.rect.x / ratio) << ":" << (int)(r.rect.y / ratio) << ":"
            << (int)(r.rect.width / ratio) << ":" << (int)(r.rect.height / ratio)
-           << endl;
+           <<"\t"<<r.neighborResponses << "\t"<< r.dists<<
+           endl;
     }
   }
 
@@ -779,7 +783,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
     for (auto &rs : res_decks) {
       for (auto &r : rs) {
         fout << r.category << "\t" << r.score << "\t";
-        fout << format(r.feature.t(), Formatter::FMT_CSV) << endl;
+        fout << format(r.feature.t(), Formatter::FMT_CSV) <<"\t"<<r.neighborResponses << "\t"<< r.dists<<endl;
         rectangle(out, r.rect, colors[r.category % 15]);
         viewlet_detected = true;
       }

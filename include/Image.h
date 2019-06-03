@@ -47,7 +47,7 @@ public:
   void setImage(string imgFilename);
   void collectPatches();
   void setBins(int n);
-
+  void export_Patches(string fname);
   /*
   * batch KNN matching, observation vector generating, pattern matching
   */

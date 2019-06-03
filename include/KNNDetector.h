@@ -16,8 +16,8 @@ public:
   KNNDetector(const Mat &featurevec, vector<int> &clusvec)
       : clus(clusvec), feavec(featurevec) {}
   ~KNNDetector(void) {}
-  virtual void classify(const vector<float> &vec, int &c,
-                        float &score) override;
+  virtual void classify(const vector<float> &vec, int &c, float &score)override;
+  virtual void classify(const vector<float> &vec, int &c, float &score, Mat &neighborResponses,Mat &dists)override;
   void load(string fsfn, string clusfn) override; // load feature and indice
                                                   // list
 protected:

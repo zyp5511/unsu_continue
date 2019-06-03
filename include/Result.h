@@ -6,14 +6,16 @@ using namespace std;
 using namespace cv;
 class Result {
 public:
-  Result(int cat, float scr, bool acc, Mat feat) {
+  Result(int cat, float scr, bool acc, Mat feat, Mat neighbor, Mat dis) {
     category = cat;
     score = scr;
     accepted = acc;
     feature = feat;
+    neighborResponses = neighbor;
+    dists = dis;
   }
 
-  Result(int cat, float scr, bool acc) : Result(cat, scr, acc, Mat()) {}
+  Result(int cat, float scr, bool acc) : Result(cat, scr, acc, Mat(), Mat(), Mat()) {}
 
   Result() {
     category = -1;
@@ -39,6 +41,8 @@ public:
   float score;
   bool accepted;
 
+  Mat neighborResponses;
+  Mat dists;
   Mat feature;
   Rect rect;
   Rect real_rect;
