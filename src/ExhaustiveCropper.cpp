@@ -54,3 +54,13 @@ void ExhaustiveCropper::setUp(Mat img) {
   }
   pyr.resize(i);
 }
+void ExhaustiveCropper::exportPatches(string fname) {
+
+  if (*fname.rbegin() != '/') {
+    cout << (int)*fname.rbegin() << endl;
+    fname = fname + "/";
+  }
+  for (size_t i = 0; i < all_mats.size(); i++) {
+    imwrite(fname + to_string(i + 1) + ".jpg", all_mats[i]);
+  }
+}

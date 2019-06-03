@@ -18,7 +18,7 @@ void KNNDetector::load(string vecfn, string clusfn) {
 
   trainingData = TrainData::create(feavec, ml::ROW_SAMPLE, clus);
 
-  kclassifier->setIsClassifier(0);
+  kclassifier->setIsClassifier(1);
   kclassifier->setAlgorithmType(KNearest::BRUTE_FORCE);
   kclassifier->setDefaultK(11);
 
@@ -38,9 +38,20 @@ void KNNDetector::load(string vecfn, string clusfn) {
        << endl
        << endl;
 }
-
 void KNNDetector::classify(const vector<float> &vec, int &c, float &score) {
   c = kclassifier->findNearest(vec, kclassifier->getDefaultK(), noArray());
   // TODO: score can be obtained from avg distances of neighbors of selected
   // category.
+}
+void KNNDetector::classify(const vector<float> &vec, int &c, float &score, Mat &neighborResponses,Mat &dists) {
+  // c = kclassifier->findNearest(vec, kclassifier->getDefaultK(), noArray());
+  Mat neighbors;
+  c = kclassifier->findNearest(vec, kclassifier->getDefaultK(), neighbors,neighborResponses,dists);
+  // TODO: score can be obtained from avg distances of neighbors of selected
+  // category.
+  cout << "c = "<< endl << " "  << c << endl << endl;
+  //cout << "score = "<< endl << " "  << score << endl << endl;
+  //cout << "neighbors = "<< endl << " "  << neighbors << endl << endl;
+  //cout << "neighborResponses = "<< endl << " "  << neighborResponses << endl << endl;
+  //cout << "dists = "<< endl << " "  << dists << endl << endl;
 }

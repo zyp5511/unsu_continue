@@ -21,6 +21,11 @@ void ImageWrapper::collectPatches() {
   cout << "We collected " << ic->size() << " patches." << endl;
 }
 
+void ImageWrapper::export_Patches(string fname) {
+  ic->exportPatches(fname);
+  cout << "We exported" << ic->size() << " patches." << endl;
+}
+
 void ImageWrapper::collectResult(const PCA &pca, bool with_fea_vec) {
 #ifndef SEQ_IMG
   auto mat_count = ic->all_mats.size();
