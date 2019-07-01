@@ -26,6 +26,35 @@ void ImageWrapper::export_Patches(string fname) {
   cout << "We exported" << ic->size() << " patches." << endl;
 }
 
+
+void ImageWrapper::collectFeature(const PCA &pca, bool with_fea_vec) {
+  auto mat_count = ic->all_mats.size();
+  all_feature = concurrent_vector<Feature>(mat_count);
+  parallel_for(size_t(0), mat_count, [&](size_t i) {
+      Mat temp = ic->all_mats[i].clone(); // TODO: Is clone necessary?
+      Feature fea(temp, pca);
+      all_feature[i] = (fea);
+      //pd->detect(fea);
+      //Result tempres = fea.getResult();
+      //tempres.rect = ic->all_rects[i];
+      //if (with_fea_vec) {
+      //  tempres.feature = Mat(fea.vec);
+      //}
+      //results[i] = (tempres);
+  });
+}
+
+vector<Feature> ImageWrapper::exportFeature() {
+  auto mat_count = ic->all_mats.size();
+  auto res = vector<Feature>();
+  for (size_t i = 0; i < mat_count; i++) {
+      res.push_back(all_feature[i]);
+  }
+  return res;
+}
+
+
+
 void ImageWrapper::collectResult(const PCA &pca, bool with_fea_vec) {
 #ifndef SEQ_IMG
   auto mat_count = ic->all_mats.size();

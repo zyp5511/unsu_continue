@@ -26,6 +26,7 @@ class ImageWrapper {
   shared_ptr<PatchDetector> pd;
   shared_ptr<ImageCropper> ic;
   concurrent_vector<Result> results;
+  concurrent_vector<Feature> all_feature;
   vector<vector<Result>> rtb; // reversal lookup table
   vector<LCTransform> transforms;
   CascadeClassifier face_cascade;
@@ -48,7 +49,9 @@ public:
   void collectPatches();
   void setBins(int n);
   void export_Patches(string fname);
-  /*
+  void collectFeature(const PCA &pca, bool with_fea_vec);
+  vector<Feature> exportFeature();
+    /*
   * batch KNN matching, observation vector generating, pattern matching
   */
   void collectResult();

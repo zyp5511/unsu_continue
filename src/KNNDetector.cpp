@@ -49,7 +49,7 @@ void KNNDetector::classify(const vector<float> &vec, int &c, float &score, Mat &
   c = kclassifier->findNearest(vec, kclassifier->getDefaultK(), neighbors,neighborResponses,dists);
   // TODO: score can be obtained from avg distances of neighbors of selected
   // category.
-  cout << "c = "<< endl << " "  << c << endl << endl;
+  //cout << "c = "<< endl << " "  << c << endl << endl;
   //cout << "score = "<< endl << " "  << score << endl << endl;
   //cout << "neighbors = "<< endl << " "  << neighbors << endl << endl;
   //cout << "neighborResponses = "<< endl << " "  << neighborResponses << endl << endl;
