@@ -632,6 +632,7 @@ int main(int argc, const char *argv[]) {
           // parse all files in the folder.
           files = loadFolder(srcfolder, prefix);
         }
+
         for (auto &s : files) {
           classify(kd, ec, srcfolder, desfolder, k, pca, s, gc, coregc, fout,
                    ts, vm);
@@ -705,35 +706,12 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   iw.setBins(k);
   iw.collectPatches();
   bool feat_vec_collected = vm.count("export-feature") && !core_gc.empty();
-
-  // ADDED
-  /**
-  iw.collectFeature(pca, feat_vec_collected);
-  if (!feat_vec_collected) {
-    fout << s << endl;
-    auto features = iw.exportFeature();
-    cout << features.size() << endl;
-    for (const Feature &f : features) {
-      auto feature_i = f.vec;
-      for(int num_i = 0; num_i < feature_i.size(); num_i++) {
-          fout << feature_i[num_i]<< "\t";
-      }
-      auto rect = f.res.rect;
-      fout << "####";
-      fout << (int)(rect.x / ratio) << ":" << (int)(rect.y / ratio) << ":"
-           << (int)(rect.width / ratio) << ":" << (int)(rect.height / ratio);
-      fout << "\n";
-    }
-  }
- **/
-
-
   iw.collectResult(pca, feat_vec_collected);
   if(false){
-    iw.export_Patches("/media/yipeng/toshiba/feature_extracted/patches/");
+    iw.export_Patches("/home/yipeng/Desktop/project/validation_build/EC_patches/");
   }
-  // Calculating viewlet histogram
-  iw.calcClusHist();
+  // Calculating viewlet histogram.
+  iw.calcClusHist();ss
   // vector<int> vec = iw.histogram;
 
   // fout << s << endl;
@@ -743,9 +721,6 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
   //}
   // fout << vec[k - 1] << endl;
 
-
-
-  
   if (!feat_vec_collected) {
     // Export rect from core_gc viewlets.
     auto goodRes = iw.getGoodResults();
@@ -758,7 +733,7 @@ void classify(shared_ptr<PatchDetector> kd, shared_ptr<ExhaustiveCropper> ec,
            endl;
     }
   }
- 
+
   Scalar colors[] = {
       Scalar(128, 0, 0),   Scalar(0, 128, 0),     Scalar(0, 0, 128),
       Scalar(255, 0, 0),   Scalar(0, 255, 0),     Scalar(0, 0, 255),
